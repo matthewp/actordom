@@ -1,20 +1,7 @@
+import { JSXInternal } from './jsx';
+import { isTree, createTree } from './tree.js';
+
 const Fragment = () => {};
-
-const _tree = Symbol('ftree');
-
-export function createTree(): Tree {
-  let out: any = [];
-  out[_tree] = true;
-  return out;
-}
-
-function isTree(obj: any): obj is Tree {
-  return !!(obj && obj[_tree]);
-}
-
-export type Tree = Array<any> & {
-  [_tree]: boolean;
-}
 
 function isPrimitive(type: string) {
   return type === 'string' || type === 'number' || type === 'boolean';
@@ -79,8 +66,8 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
   if(childrenType !== 'undefined') {
     children.forEach(function(child: any){
       if(typeof child !== 'undefined' && !Array.isArray(child)) {
-        if(child === Symbol.for('ref')) {
-          tree.push([5]);
+        if(typeof child === 'object' && child[Symbol.for('ref')]) {
+          tree.push([5, child]);
           return;
         }
         tree.push([4, child + '']);
@@ -98,7 +85,7 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
   return tree;
 }
 
-
+export import JSX = JSXInternal;
 
 export {
   jsx,

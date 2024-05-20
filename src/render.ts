@@ -1,13 +1,18 @@
 import {
   attributes,
+  currentPointer,
+  currentElement,
   elementOpen,
   elementClose,
+  importNode,
   symbols,
+  skip, skipNode,
   text,
   patch
 } 
 // @ts-expect-error
 from 'incremental-dom';
+import { update } from './update.js';
 
 var eventAttrExp = /^on[a-z]/;
 var orphanedHandles: any[] | null = null;
@@ -36,14 +41,14 @@ function isSVG(element: Element) {
 
 // TODO clean this all up
 // TODO PIDs should be what is passed around.
-function addEventCallback(actor: any, message: any, eventName: string) {
-  if(eventName in actor) {
-    return actor[eventName];
+function addEventCallback(actor: any, element: Element, message: any, eventName: string) {
+  if((element as any)[eventName]) {
+    return (element as any)[eventName];
   }
-  let handler = (ev: any) => {
+  let handler = function(ev: Event) {
     actor.receive([message, ev]);
   };
-  actor[eventName] = handler;
+  (element as any)[eventName] = handler;
   return handler;
 }
 
@@ -59,17 +64,18 @@ function inner(bc: any, actor: any){
     switch(n[0]) {
       // Open
       case 1:
-      if(n[EVENTS]) {
-        var k;
-        for(var j = 0, jlen = n[EVENTS].length; j < jlen; j++) {
-          k = n[EVENTS][j];
-          let handler = addEventCallback(actor, k[2], k[1]);
-          n[ATTRS].push(k[1], [k[2], handler]);
-        }
-      }
-
         var openArgs = [n[TAG], n[ID], null].concat(n[ATTRS]);
         elementOpen.apply(null, openArgs as any);
+
+        if(n[EVENTS]) {
+          var k: [number, string, string];
+          for(var j = 0, jlen = n[EVENTS].length; j < jlen; j++) {
+            k = n[EVENTS][j];
+            addEventCallback(actor, currentElement(), k[2], k[1])
+          }
+        }
+
+
         break;
       case 2:
         elementClose(n[1]);
@@ -78,7 +84,20 @@ function inner(bc: any, actor: any){
         text(n[1]);
         break;
       case 5:
-        
+        let pointer = currentPointer();
+        if(pointer) {
+          throw new Error('oops');
+        }
+        // TODO use a comment
+        elementOpen('div');
+        let el = currentElement();
+        n[1].value = el;
+        elementClose('div');
+        if(n[1].owner) {
+          let actor = n[1].owner;
+          n[1].owner = null;
+          update(actor);
+        }
         break;
     }
   }

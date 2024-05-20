@@ -1,11 +1,11 @@
-import { Tree, createTree } from './jsx-runtime.js';
-import { render } from './render.js';
+import type { Tree } from './tree.js';
+import type { JSXInternal } from './jsx';
+import { update } from './update.js';
+import { ref } from './ref.js';
 
 type Message<T extends string = string> = [T, any];
 
 interface Actor {
-  root: Element | null;
-  view(): Tree;
   receive(_message: [string, any]): void;
 }
 
@@ -13,12 +13,11 @@ interface ActorType {
   new(): Actor;
 }
 
-function update(actor: Actor) {
-  if(actor.root !== null) {
-    let tree = actor.view();
-    render(tree, actor.root, actor);
-  }
+interface DOMActor extends Actor {
+  root: Element | null;
+  view(): Tree | JSXInternal.Element;
 }
+
 
 function deliver(actor: Actor, message: Message) {
   // TODO check inbox
@@ -57,13 +56,11 @@ class System {
   }
 }
 
-const _ref = Symbol.for('ref');
-function ref() {
-  return _ref;
-}
+
 
 export {
   type Actor,
+  type DOMActor,
   System,
 
   ref,
