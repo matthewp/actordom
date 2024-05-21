@@ -82,7 +82,12 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
       }
 
       while(child && child.length) {
-        tree.push(child.shift());
+        let item = child.shift();
+        if(isPID(item)) {
+          tree.push([6, item]);
+          continue;
+        }
+        tree.push(item);
       }
     });
   }

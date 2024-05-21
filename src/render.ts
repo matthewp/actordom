@@ -4,9 +4,11 @@ import {
   currentElement,
   elementOpen,
   elementClose,
+  skipNode,
   symbols,
   text,
-  patch
+  patch,
+  patchOuter
 } 
 // @ts-expect-error
 from 'incremental-dom';
@@ -15,7 +17,6 @@ import { getActorFromPID } from './system.js';
 
 var eventAttrExp = /^on[a-z]/;
 var orphanedHandles: any[] | null = null;
-var FN_HANDLE = Symbol('fritz.handle');
 
 var attributesSet = attributes[symbols.default];
 attributes[symbols.default] = preferProps;
@@ -102,18 +103,30 @@ function inner(bc: any, actor: any){
         break;
       case 6: {
         let pointer = currentPointer();
-        if(pointer) {
-          throw new Error('oops');
-        }
-        // TODO use a comment
-        elementOpen('div');
-        let el = currentElement();
-        link(n[1], el);
-        elementClose('div');
-        if(!n[1][_mounted]) {
-          let actor = getActorFromPID(n[1]);
-          n[1][_mounted] = true;
-          update(actor as any);
+        if(pointer?.nodeType === 8 && pointer?.data === 'ad-start') {
+          do {
+            skipNode();
+            pointer = currentPointer();
+          } while(pointer?.data !== 'ad-end');
+          skipNode();
+        } else {
+          let el = currentElement();
+          let start = document.createComment('ad-start');
+          let render = document.createComment('ad-render');
+          let end = document.createComment('ad-end');
+          el.insertBefore(end, pointer);
+          el.insertBefore(render, end);
+          el.insertBefore(start, render);
+          skipNode();
+          skipNode();
+          skipNode();
+  
+          link(n[1], render);
+          if(!n[1][_mounted]) {
+            let actor = getActorFromPID(n[1]);
+            n[1][_mounted] = true;
+            update(actor as any);
+          }
         }
         break;
       }
@@ -121,12 +134,18 @@ function inner(bc: any, actor: any){
   }
 }
 
-function render(vdom: any, root: any, pid: any): number[] {
-  orphanedHandles = [];
-  patch(root, () => inner(vdom, pid));
-  let out = orphanedHandles;
-  orphanedHandles = null;
-  return out;
+const _outer = Symbol.for('outer');
+function render(vdom: any, root: any, pid: any) {
+  let patcher = patch;
+  let isPlaceholder = root.nodeType === 8;
+  if(isPlaceholder || root[_outer]) {
+    patcher = patchOuter;
+  }
+  let ret = patcher(root, () => inner(vdom, pid));
+  if(isPlaceholder) {
+    ret[_outer] = true;
+  }
+  return ret;
 }
 
 export { render };

@@ -1,4 +1,5 @@
-import { mount, spawn, update } from '../../src/main';
+import { Process, mount, process, send, spawn, update } from '../../src/main';
+import { TodoList } from './todolist';
 
 type counterMailbox = ['increment', Event]
 
@@ -14,7 +15,7 @@ class Counter {
     update(this);
   }
   view() {
-    return (
+    return ( 
       <div>
         <h2>Counter</h2>
         <div>Count: {this.count}</div>
@@ -58,9 +59,11 @@ class Namer {
   }
 }
 
+
 class Main {
   counter = spawn(Counter);
   namer = spawn(Namer);
+  todoList = spawn(TodoList);
   receive() {}
   view() {
     return (
@@ -68,6 +71,7 @@ class Main {
         <h1>App</h1>
         {this.counter}
         {this.namer}
+        {this.todoList}
       </main>
     );
   }

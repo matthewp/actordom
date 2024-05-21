@@ -1,14 +1,15 @@
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx';
+import type { Process } from './pid.js';
 import { mount, update } from './update.js';
-import { send, spawn } from './system.js';
+import { process, send, spawn } from './system.js';
 
 interface Actor {
   receive(_message: [string, any]): void;
 }
 
 interface ActorType {
-  new(): Actor;
+  new(...args: any[]): Actor;
 }
 
 type Message<A extends Actor> = Parameters<A['receive']>[0];
@@ -24,9 +25,11 @@ export {
   type DOMActor,
   type Message,
   type MessageName,
+  type Process,
 
+  process,
   send,
   spawn,
   mount,
   update
-}
+};

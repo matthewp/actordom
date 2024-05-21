@@ -367,6 +367,10 @@ export namespace JSXInternal {
 		Target,
 		FocusEvent
 	>;
+	export type TargetedInputEvent<Target extends EventTarget> = TargetedEvent<
+		Target,
+		InputEvent
+	>;
 	export type TargetedKeyboardEvent<Target extends EventTarget> = TargetedEvent<
 		Target,
 		KeyboardEvent
@@ -378,6 +382,10 @@ export namespace JSXInternal {
 	export type TargetedPointerEvent<Target extends EventTarget> = TargetedEvent<
 		Target,
 		PointerEvent
+	>;
+	export type TargetedSubmitEvent<Target extends EventTarget> = TargetedEvent<
+		Target,
+		SubmitEvent
 	>;
 	export type TargetedTouchEvent<Target extends EventTarget> = TargetedEvent<
 		Target,
@@ -480,7 +488,7 @@ export namespace JSXInternal {
 		onBlurCapture?: FocusEventHandler<Target>;
 
 		// Form Events
-		onChange?: GenericEventHandler<Target>;
+		onChange?: MessageName<A>;// GenericEventHandler<Target>;
 		onChangeCapture?: GenericEventHandler<Target>;
 		onInput?: MessageName<A>; // TODO update? GenericEventHandler<Target>;
 		onInputCapture?: GenericEventHandler<Target>;
@@ -488,7 +496,7 @@ export namespace JSXInternal {
 		onBeforeInputCapture?: GenericEventHandler<Target>;
 		onSearch?: GenericEventHandler<Target>;
 		onSearchCapture?: GenericEventHandler<Target>;
-		onSubmit?: GenericEventHandler<Target>;
+		onSubmit?: MessageName<A>;// GenericEventHandler<Target>;
 		onSubmitCapture?: GenericEventHandler<Target>;
 		onInvalid?: GenericEventHandler<Target>;
 		onInvalidCapture?: GenericEventHandler<Target>;
