@@ -1,9 +1,7 @@
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx';
-import { update } from './update.js';
-import { ref } from './ref.js';
-
-type Message<T extends string = string> = [T, any];
+import { mount, update } from './update.js';
+import { send, spawn } from './system.js';
 
 interface Actor {
   receive(_message: [string, any]): void;
@@ -13,56 +11,22 @@ interface ActorType {
   new(): Actor;
 }
 
+type Message<A extends Actor> = Parameters<A['receive']>[0];
+type MessageName<A extends Actor> = Message<A>[0];
+
 interface DOMActor extends Actor {
-  root: Element | null;
   view(): Tree | JSXInternal.Element;
 }
 
-
-function deliver(actor: Actor, message: Message) {
-  // TODO check inbox
-  actor.receive(message);
-}
-
-const pidSym = Symbol.for('pid');
-type PID<A extends Actor> = {
-  actor: A;
-  i: number;
-  [pidSym]: true
-}
-
-function createPID(i: number, actor: Actor): PID<typeof actor> {
-  return { i } as any;
-}
-
-class System {
-  pids = new Map<number, Actor>();
-  pidi = 0;
-
-  send<P extends PID<Actor>>(pid: P, message: Parameters<P['actor']['receive']>[0]) {
-    let actor = this.pids.get(pid.i);
-    if(actor) {
-      deliver(actor, message);
-    }
-  }
-
-  spawn<A extends ActorType>(ActorType: A): PID<InstanceType<A>> {
-    let actor = new ActorType();
-    let pid = createPID(this.pidi++, actor);
-    
-    (actor as any)[pidSym] = pid;
-    this.pids.set(pid.i, actor);
-    return pid as any;
-  }
-}
-
-
-
 export {
   type Actor,
+  type ActorType,
   type DOMActor,
-  System,
+  type Message,
+  type MessageName,
 
-  ref,
+  send,
+  spawn,
+  mount,
   update
 }

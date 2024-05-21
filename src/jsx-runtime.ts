@@ -1,5 +1,5 @@
-import { JSXInternal } from './jsx';
 import { isTree, createTree } from './tree.js';
+import { isPID } from './pid.js';
 
 const Fragment = () => {};
 
@@ -66,10 +66,17 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
   if(childrenType !== 'undefined') {
     children.forEach(function(child: any){
       if(typeof child !== 'undefined' && !Array.isArray(child)) {
-        if(typeof child === 'object' && child[Symbol.for('ref')]) {
-          tree.push([5, child]);
+        if(isPID(child)) {
+          tree.push([6, child]);
           return;
+        } else {
+          if(typeof child === 'object' && child[Symbol.for('ref')]) {
+            tree.push([5, child]);
+            return;
+          }
         }
+
+  
         tree.push([4, child + '']);
         return;
       }
@@ -84,8 +91,6 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
 
   return tree;
 }
-
-export import JSX = JSXInternal;
 
 export {
   jsx,

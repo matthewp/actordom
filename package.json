@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "exports": {
-    "./jsx-runtime": "./src/jsx-runtime.ts"
+    "./jsx-runtime": {
+      "types": "./src/index.d.ts",
+      "import": "./src/jsx-runtime.ts"
+    }
   },
   "scripts": {
     "dev": "esbuild demos/src/app.tsx --bundle --outdir=demos/dist --servedir=demos",

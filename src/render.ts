@@ -4,15 +4,14 @@ import {
   currentElement,
   elementOpen,
   elementClose,
-  importNode,
   symbols,
-  skip, skipNode,
   text,
   patch
 } 
 // @ts-expect-error
 from 'incremental-dom';
-import { update } from './update.js';
+import { update, link } from './update.js';
+import { getActorFromPID } from './system.js';
 
 var eventAttrExp = /^on[a-z]/;
 var orphanedHandles: any[] | null = null;
@@ -51,6 +50,8 @@ function addEventCallback(actor: any, element: Element, message: any, eventName:
   (element as any)[eventName] = handler;
   return handler;
 }
+
+const _mounted = Symbol.for('mounted');
 
 const TAG = 1;
 const ID = 2;
@@ -99,6 +100,23 @@ function inner(bc: any, actor: any){
           update(actor);
         }
         break;
+      case 6: {
+        let pointer = currentPointer();
+        if(pointer) {
+          throw new Error('oops');
+        }
+        // TODO use a comment
+        elementOpen('div');
+        let el = currentElement();
+        link(n[1], el);
+        elementClose('div');
+        if(!n[1][_mounted]) {
+          let actor = getActorFromPID(n[1]);
+          n[1][_mounted] = true;
+          update(actor as any);
+        }
+        break;
+      }
     }
   }
 }

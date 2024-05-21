@@ -1,21 +1,29 @@
 import type { DOMActor } from './main.js';
 import { render } from './render.js';
-import { isRef } from './ref.js';
+import { type PID } from './pid.js';
+import { getActorFromPID, _pid } from './system.js';
+
+const _root = Symbol.for('root');
+function link(pid: PID<any>, el: Element) {
+  (getActorFromPID(pid) as any)[_root] = el;
+}
 
 function update(actor: DOMActor) {
-  if(actor.root instanceof Element) {
+  let root = (actor as any)[_root];
+  if(root != null) {
     let tree = actor.view();
-    render(tree, actor.root, actor);
-  } else if(isRef(actor.root)) {
-    if(actor.root.value) {
-      let tree = actor.view();
-      render(tree, actor.root.value, actor);
-    } else {
-      actor.root.owner = actor;
-    }
+    render(tree, root, actor);
   }
 }
 
+function mount(pid: PID<DOMActor>, el: Element) {
+  let actor = getActorFromPID(pid);
+  link(pid, el);
+  update(actor as any);
+}
+
 export {
+  link,
+  mount,
   update
 }

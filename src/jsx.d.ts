@@ -5,6 +5,10 @@
 import {
 	Tree
 } from './tree';
+import {
+	Actor,
+	MessageName
+} from './main';
 
 // Extras
 type Key = string | number | any;
@@ -439,7 +443,7 @@ export namespace JSXInternal {
 		TargetedWheelEvent<Target>
 	>;
 
-	export interface DOMAttributes<Target extends EventTarget> extends ActorDOMAttributes  {
+	export interface DOMAttributes<Target extends EventTarget, A extends Actor = Actor> extends ActorDOMAttributes  {
 		// Image Events
 		onLoad?: GenericEventHandler<Target>;
 		onLoadCapture?: GenericEventHandler<Target>;
@@ -478,7 +482,7 @@ export namespace JSXInternal {
 		// Form Events
 		onChange?: GenericEventHandler<Target>;
 		onChangeCapture?: GenericEventHandler<Target>;
-		onInput?: string; // TODO update? GenericEventHandler<Target>;
+		onInput?: MessageName<A>; // TODO update? GenericEventHandler<Target>;
 		onInputCapture?: GenericEventHandler<Target>;
 		onBeforeInput?: GenericEventHandler<Target>;
 		onBeforeInputCapture?: GenericEventHandler<Target>;

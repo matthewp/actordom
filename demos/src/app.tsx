@@ -1,18 +1,11 @@
-import { System, ref, update } from '../../src/main';
+import { mount, spawn, update } from '../../src/main';
 
-type counterMailbox = 
-  ['increment', Event] |
-  ['ref', any];
+type counterMailbox = ['increment', Event]
 
 class Counter {
-  root: Element | null = null;
   count = 0;
   receive([name, data]: counterMailbox) {
     switch(name) {
-      case 'ref': {
-        this.root = data;
-        break;
-      }
       case 'increment': {
         this.count++;
         break;
@@ -32,20 +25,14 @@ class Counter {
 }
 
 type namerMailbox = 
-  ['ref', any] |
   ['first', { target: HTMLInputElement }] |
   ['last', { target: HTMLInputElement }];
 
 class Namer {
-  root: Element | null = null;
   first = '';
   last = '';
   receive([name, data]: namerMailbox) {
     switch(name) {
-      case 'ref': {
-        this.root = data;
-        break;
-      }
       case 'first': {
         this.first = data.target.value;
         break;
@@ -72,35 +59,23 @@ class Namer {
 }
 
 class Main {
-  root: Element | null = null;
-  counter = system.spawn(Counter);
-  counterRef = ref();
-  namer = system.spawn(Namer);
-  namerRef = ref();
-  receive([name, data]: ['render', Element]) {
-    switch(name) {
-      case 'render': {
-        this.root = data;
-        system.send(this.counter, ['ref', this.counterRef]);
-        system.send(this.namer, ['ref', this.namerRef]);
-        break;
-      }
-    }
+  counter = spawn(Counter);
+  namer = spawn(Namer);
+  receive() {
     update(this);
   }
   view() {
     return (
       <main>
         <h1>App</h1>
-        {this.counterRef}
-        {this.namerRef}
+        {this.counter}
+        {this.namer}
       </main>
     );
   }
 }
 
-let system = new System();
-let pid = system.spawn(Main);
+let pid = spawn(Main);
 
 let appEl = document.querySelector('#app')!;
-system.send(pid, ['render', appEl]);
+mount(pid, appEl);
