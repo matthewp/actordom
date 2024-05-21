@@ -61,9 +61,7 @@ class Namer {
 class Main {
   counter = spawn(Counter);
   namer = spawn(Namer);
-  receive() {
-    update(this);
-  }
+  receive() {}
   view() {
     return (
       <main>
@@ -76,6 +74,5 @@ class Main {
 }
 
 let pid = spawn(Main);
-
 let appEl = document.querySelector('#app')!;
 mount(pid, appEl);
