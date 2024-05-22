@@ -5,25 +5,10 @@ import type {
   MessageName,
 } from './actor.js';
 import type { Process } from './pid.js';
-import type { Registry } from './register.js';
-import { update, _root } from './update.js';
+import { update } from './update.js';
 import { process, send, spawn } from './system.js';
-
-type Postable = {
-  postMessage: typeof Worker.prototype['postMessage'];
-}
-
-function expose<R extends Registry, N extends keyof R = keyof R>(worker: Postable, name: N): R[N] {
-  return class {
-    constructor() {
-      let pid = process(this);
-      worker.postMessage({
-        pid
-      });
-    }
-    receive(){}
-  } as any
-}
+import { connect } from './connection.js';
+import { fromRoot } from './render.js';
 
 export {
   type Actor,
@@ -32,10 +17,10 @@ export {
   type MessageName,
   type Process,
 
-  expose,
+  connect,
+  fromRoot,
   process,
   send,
   spawn,
-  _root as root,
   update
 };

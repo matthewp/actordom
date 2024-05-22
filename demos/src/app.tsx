@@ -1,20 +1,23 @@
 import type actors from './worker';
-import { send, spawn, update, root, expose } from '../../src/main';
+import type serverActors from './server';
+import { spawn, update, connect, fromRoot } from '../../src/main';
 import { TodoList } from './todolist';
 
 let worker = new Worker(new URL('./worker.js', import.meta.url), {
   type: 'module'
 });
 
+let connection = connect<typeof actors>(worker);
+const Offthread = connection.expose('Offthread');
 
-const Offthread = expose<typeof actors>(worker, 'Offthread');
-spawn(Offthread);
+let server = connect<typeof serverActors>('/_domactor');
+const ServerComponent = server.expose('ServerComponent');
 
 type counterMailbox = ['increment', Event]
 
 class Counter {
   count = 0;
-  receive([name, data]: counterMailbox) {
+  receive([name]: counterMailbox) {
     switch(name) {
       case 'increment': {
         this.count++;
@@ -69,24 +72,28 @@ class Namer {
 }
 
 class Main {
-  [root] = document.querySelector('#app')!;
+  root = fromRoot(document.querySelector('#app')!);
   counter = spawn(Counter);
   namer = spawn(Namer);
   todoList = spawn(TodoList);
+  offthreadCounter = spawn(Offthread);
+  server = spawn(ServerComponent);
   constructor() {
-    update(this);
+    // Still hate this :(
+
+
+    update(this, this.root);
   }
   receive() {}
   view() {
     return (
       <main>
         <h1>App</h1>
-        {this.counter}
-        {this.namer}
-        {this.todoList}
+
+        {this.server}
       </main>
     );
   }
 }
 
-spawn(Main)
+spawn(Main);

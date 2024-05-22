@@ -12,15 +12,14 @@ import {
 } 
 // @ts-expect-error
 from 'incremental-dom';
-import type { DOMActor } from './main.js';
+import type { DOMActor, Process } from './main.js';
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx.js';
 
-import { update, link } from './update.js';
-import { getActorFromPID } from './system.js';
+import { updateProcess, _root } from './update.js';
+import { spawn, send, inThisSystem } from './system.js';
 
 var eventAttrExp = /^on[a-z]/;
-var orphanedHandles: any[] | null = null;
 
 var attributesSet = attributes[symbols.default];
 attributes[symbols.default] = preferProps;
@@ -45,18 +44,26 @@ function isSVG(element: Element) {
 
 // TODO clean this all up
 // TODO PIDs should be what is passed around.
-function addEventCallback(actor: any, element: Element, message: any, eventName: string) {
+function addEventCallback(pid: any, element: Element, message: any, eventName: string) {
   if((element as any)[eventName]) {
     return (element as any)[eventName];
   }
   let handler = function(ev: Event) {
-    actor.receive([message, ev]);
+    if(inThisSystem(pid)) {
+      send(pid, [message, ev]);
+    } else {
+      ev.preventDefault();
+      send(pid, [message, {
+        type: ev.type,
+        currentTarget: {
+          value: (ev as any).currentTarget?.value
+        }
+      }]);
+    }
   };
   (element as any)[eventName] = handler;
   return handler;
 }
-
-const _mounted = Symbol.for('mounted');
 
 const TAG = 1;
 const ID = 2;
@@ -110,10 +117,10 @@ function inner(bc: any, actor: any){
           skipNode();
   
           link(n[1], render);
-          if(!n[1][_mounted]) {
-            let actor = getActorFromPID(n[1]);
-            n[1][_mounted] = true;
-            update(actor as any);
+
+          if(!n[1][6]) {
+            n[1][6] = 1;
+            updateProcess(n[1]);
           }
         }
         break;
@@ -123,17 +130,36 @@ function inner(bc: any, actor: any){
 }
 
 const _outer = Symbol.for('outer');
-function render(vdom: Tree | JSXInternal.Element, root: Element, actor: DOMActor) {
+function render(vdom: Tree | JSXInternal.Element, root: Element, pid: Process<DOMActor>) {
   let patcher = patch;
   let isPlaceholder = root.nodeType === 8;
   if(isPlaceholder || (root as any)[_outer]) {
     patcher = patchOuter;
   }
-  let ret = patcher(root, () => inner(vdom, actor));
+  let ret = patcher(root, () => inner(vdom, pid));
   if(isPlaceholder) {
     ret[_outer] = true;
   }
   return ret;
 }
 
-export { render };
+function link(pid: Process<any>, el: Element | Comment) {
+  pid[5] = fromRoot(el as any)[4];
+  //(getActorFromPID(pid) as any)[_root] = ;
+}
+
+class RenderActor {
+  constructor(public root: Element) {}
+  receive([, [pid, tree]]: [string, [Process<DOMActor>, Tree]]) {
+    let newRoot = render(tree, this.root, pid);
+    if(this.root !== newRoot) {
+      this.root = newRoot;
+    }
+  }
+}
+
+function fromRoot(root: Element) {
+  return spawn(RenderActor, root);
+}
+
+export { render, fromRoot };

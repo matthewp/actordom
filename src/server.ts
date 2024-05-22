@@ -6,12 +6,12 @@ import type {
 } from './actor.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
-import { process, send, spawn, spawnWithPid, setSystemId } from './system.js';
+import { process, send, spawn, spawnWithPid, setSystemId, systems } from './system.js';
 import { update, updateProcess } from './update.js';
 
 const items: any = {};
 
-function established(port: MessagePort) {
+function serverSide(port: MessagePort) {
   port.onmessage = ev => {
     switch(ev.data.type) {
       case 'spawn': {
@@ -32,17 +32,37 @@ function established(port: MessagePort) {
       }
     }
   };
+  port.start();
 }
 
-self.addEventListener('message', ev => {
+function clientSide(port: MessagePort) {
+  port.onmessage = ev => {
+    console.log("CLIENT", ev.data);
+  };
+  port.start();
+}
+
+// TODO wrong! this is shared by everyone.
+let port2: MessagePort;
+
+const handler = (ev: MessageEvent<any>) => {
   switch(ev.data.type) {
     case 'system': {
       setSystemId(ev.data.system);
-      established(ev.ports[0]);
+      let channel = new MessageChannel();
+      // TODO all wrong
+      systems.set(0, channel.port1);
+      port2 = channel.port2;
+      serverSide(channel.port1);
+      clientSide(port2);
+      break;
+    }
+    default: {
+      port2!.postMessage(ev.data);
       break;
     }
   }
-});
+};
 
 function register<A extends ActorType, N extends string>(actor: A, name: N): Registry<N, A> {
   items[name] = actor;
@@ -55,6 +75,8 @@ export {
   type DOMActor,
   type MessageName,
   type Process,
+
+  handler,
 
   register,
   process,
