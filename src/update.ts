@@ -28,5 +28,6 @@ function mount(pid: Process<DOMActor>, el: Element) {
 export {
   link,
   mount,
-  update
+  update,
+  _root
 }

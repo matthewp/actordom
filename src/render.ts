@@ -12,6 +12,10 @@ import {
 } 
 // @ts-expect-error
 from 'incremental-dom';
+import type { DOMActor } from './main.js';
+import type { Tree } from './tree.js';
+import type { JSXInternal } from './jsx.js';
+
 import { update, link } from './update.js';
 import { getActorFromPID } from './system.js';
 
@@ -85,23 +89,7 @@ function inner(bc: any, actor: any){
       case 4:
         text(n[1]);
         break;
-      case 5:
-        let pointer = currentPointer();
-        if(pointer) {
-          throw new Error('oops');
-        }
-        // TODO use a comment
-        elementOpen('div');
-        let el = currentElement();
-        n[1].value = el;
-        elementClose('div');
-        if(n[1].owner) {
-          let actor = n[1].owner;
-          n[1].owner = null;
-          update(actor);
-        }
-        break;
-      case 6: {
+      case 5: {
         let pointer = currentPointer();
         if(pointer?.nodeType === 8 && pointer?.data === 'ad-start') {
           do {
@@ -135,13 +123,13 @@ function inner(bc: any, actor: any){
 }
 
 const _outer = Symbol.for('outer');
-function render(vdom: any, root: any, pid: any) {
+function render(vdom: Tree | JSXInternal.Element, root: Element, actor: DOMActor) {
   let patcher = patch;
   let isPlaceholder = root.nodeType === 8;
-  if(isPlaceholder || root[_outer]) {
+  if(isPlaceholder || (root as any)[_outer]) {
     patcher = patchOuter;
   }
-  let ret = patcher(root, () => inner(vdom, pid));
+  let ret = patcher(root, () => inner(vdom, actor));
   if(isPlaceholder) {
     ret[_outer] = true;
   }

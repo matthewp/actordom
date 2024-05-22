@@ -1,7 +1,7 @@
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx';
 import type { Process } from './pid.js';
-import { mount, update } from './update.js';
+import { mount, update, _root } from './update.js';
 import { process, send, spawn } from './system.js';
 
 interface Actor {
@@ -31,5 +31,6 @@ export {
   send,
   spawn,
   mount,
+  _root as root,
   update
 };

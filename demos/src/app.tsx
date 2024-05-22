@@ -1,4 +1,4 @@
-import { Process, mount, process, send, spawn, update } from '../../src/main';
+import { Process, mount, process, send, spawn, update, root } from '../../src/main';
 import { TodoList } from './todolist';
 
 type counterMailbox = ['increment', Event]
@@ -59,11 +59,14 @@ class Namer {
   }
 }
 
-
 class Main {
+  [root] = document.querySelector('#app')!;
   counter = spawn(Counter);
   namer = spawn(Namer);
   todoList = spawn(TodoList);
+  constructor() {
+    update(this);
+  }
   receive() {}
   view() {
     return (
@@ -77,6 +80,4 @@ class Main {
   }
 }
 
-let pid = spawn(Main);
-let appEl = document.querySelector('#app')!;
-mount(pid, appEl);
+spawn(Main);

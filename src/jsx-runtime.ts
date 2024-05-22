@@ -67,15 +67,9 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
     children.forEach(function(child: any){
       if(typeof child !== 'undefined' && !Array.isArray(child)) {
         if(isPID(child)) {
-          tree.push([6, child]);
+          tree.push([5, child]);
           return;
-        } else {
-          if(typeof child === 'object' && child[Symbol.for('ref')]) {
-            tree.push([5, child]);
-            return;
-          }
         }
-
   
         tree.push([4, child + '']);
         return;
@@ -84,7 +78,7 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
       while(child && child.length) {
         let item = child.shift();
         if(isPID(item)) {
-          tree.push([6, item]);
+          tree.push([5, item]);
           continue;
         }
         tree.push(item);
