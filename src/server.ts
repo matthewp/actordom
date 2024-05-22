@@ -37,7 +37,15 @@ function serverSide(port: MessagePort) {
 
 function clientSide(port: MessagePort) {
   port.onmessage = ev => {
-    console.log("CLIENT", ev.data);
+    let raw = ev.data;
+    if(raw.type === 'send') {
+      raw.pid = Array.from(new Uint8Array(raw.pid));
+      if(Array.isArray(raw.message[1])) {
+        raw.message[1][0] = Array.from(raw.message[1][0]);
+      }
+    }
+    console.log("CLIENT", raw, sender);
+    sender(raw);
   };
   port.start();
 }
@@ -69,6 +77,11 @@ function register<A extends ActorType, N extends string>(actor: A, name: N): Reg
   return {} as any;
 }
 
+let sender: any;
+function  setSender(_sender: any) {
+  sender = _sender;
+}
+
 export {
   type Actor,
   type ActorType,
@@ -77,6 +90,7 @@ export {
   type Process,
 
   handler,
+  setSender,
 
   register,
   process,

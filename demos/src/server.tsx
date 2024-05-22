@@ -1,4 +1,4 @@
-import { register, update, handler } from '../../src/server';
+import { register, update, handler, setSender } from '../../src/server';
 
 class ServerComponent {
   receive([name]: ['increment', Event]) {
@@ -18,5 +18,6 @@ class ServerComponent {
 export default register(ServerComponent, 'ServerComponent');
 
 export {
-  handler
+  handler,
+  setSender
 };

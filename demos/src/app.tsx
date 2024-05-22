@@ -89,7 +89,6 @@ class Main {
     return (
       <main>
         <h1>App</h1>
-
         {this.server}
       </main>
     );

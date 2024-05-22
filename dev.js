@@ -2,7 +2,7 @@
 import sirv from 'sirv';
 import * as esbuild from 'esbuild'
 import http from 'node:http';
-import { handler } from './demos/dist2/server.js';
+import { handler, setSender } from './demos/dist2/server.js';
 
 let demos = sirv('demos', {
   setHeaders(res) {
@@ -23,7 +23,14 @@ let ctx = await esbuild.context({
 // The return value tells us where esbuild's local server is
 let { host, port } = await ctx.serve({
   servedir: 'demos'
-})
+});
+
+let clients = [];
+
+function sendEventsToAll(newData) {
+  clients.forEach(client => client.res.write(`data: ${JSON.stringify(newData)}\n\n`))
+}
+setSender(sendEventsToAll);
 
 http.createServer(function(req, res) {
   if(req.url?.startsWith('/dist')) {
@@ -64,6 +71,33 @@ http.createServer(function(req, res) {
       handler({
         data: message
       });
+    });
+    return;
+  }
+  if(req.url?.startsWith('/_events')) {
+    const headers = {
+      'Content-Type': 'text/event-stream',
+      'Connection': 'keep-alive',
+      'Cache-Control': 'no-cache'
+    };
+    res.writeHead(200, headers);
+  
+    const data = `data: ${JSON.stringify({})}\n\n`;
+  
+    res.write(data);
+  
+    const clientId = Date.now();
+  
+    const newClient = {
+      id: clientId,
+      res
+    };
+  
+    clients.push(newClient);
+  
+    req.on('close', () => {
+      console.log(`${clientId} Connection closed`);
+      clients = clients.filter(client => client.id !== clientId);
     });
     return;
   }
