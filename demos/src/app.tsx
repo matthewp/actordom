@@ -1,5 +1,14 @@
-import { Process, mount, process, send, spawn, update, root } from '../../src/main';
+import type actors from './worker';
+import { send, spawn, update, root, expose } from '../../src/main';
 import { TodoList } from './todolist';
+
+let worker = new Worker(new URL('./worker.js', import.meta.url), {
+  type: 'module'
+});
+
+
+const Offthread = expose<typeof actors>(worker, 'Offthread');
+spawn(Offthread);
 
 type counterMailbox = ['increment', Event]
 
@@ -80,4 +89,4 @@ class Main {
   }
 }
 
-spawn(Main);
+spawn(Main)

@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "dev": "esbuild demos/src/app.tsx --bundle --outdir=demos/dist --servedir=demos",
+    "dev": "esbuild demos/src/app.tsx demos/src/worker.tsx --bundle --format=esm --outdir=demos/dist --servedir=demos",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

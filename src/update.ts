@@ -19,15 +19,8 @@ function update(actor: DOMActor) {
   }
 }
 
-function mount(pid: Process<DOMActor>, el: Element) {
-  let actor = getActorFromPID(pid);
-  link(pid, el);
-  update(actor as any);
-}
-
 export {
   link,
-  mount,
   update,
   _root
 }

@@ -1,4 +1,4 @@
-import type { Actor, ActorType, Message } from './main';
+import type { Actor, ActorType, Message } from './actor';
 import {
   type Process,
   createPID,

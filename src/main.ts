@@ -1,36 +1,41 @@
-import type { Tree } from './tree.js';
-import type { JSXInternal } from './jsx';
+import type {
+  Actor,
+  ActorType,
+  DOMActor,
+  MessageName,
+} from './actor.js';
 import type { Process } from './pid.js';
-import { mount, update, _root } from './update.js';
+import type { Registry } from './register.js';
+import { update, _root } from './update.js';
 import { process, send, spawn } from './system.js';
 
-interface Actor {
-  receive(_message: [string, any]): void;
+type Postable = {
+  postMessage: typeof Worker.prototype['postMessage'];
 }
 
-interface ActorType {
-  new(...args: any[]): Actor;
-}
-
-type Message<A extends Actor> = Parameters<A['receive']>[0];
-type MessageName<A extends Actor> = Message<A>[0];
-
-interface DOMActor extends Actor {
-  view(): Tree | JSXInternal.Element;
+function expose<R extends Registry, N extends keyof R = keyof R>(worker: Postable, name: N): R[N] {
+  return class {
+    constructor() {
+      let pid = process(this);
+      worker.postMessage({
+        pid
+      });
+    }
+    receive(){}
+  } as any
 }
 
 export {
   type Actor,
   type ActorType,
   type DOMActor,
-  type Message,
   type MessageName,
   type Process,
 
+  expose,
   process,
   send,
   spawn,
-  mount,
   _root as root,
   update
 };
