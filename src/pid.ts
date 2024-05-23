@@ -24,7 +24,10 @@ function isPID(item: unknown): item is Process<Actor> {
 if(isNode) {
   (ArrayBuffer as any).prototype.toJSON = function() {
     return Array.from(new Uint8Array(this));
-  }
+  };
+  (Uint8Array as any).prototype.toJSON = function() {
+    return Array.from(this);
+  };
 }
 
 if(!isNode && !self.crossOriginIsolated) {

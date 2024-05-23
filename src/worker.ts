@@ -6,7 +6,7 @@ import type {
 } from './actor.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
-import { process, send, spawn, spawnWithPid, setSystemId } from './system.js';
+import { process, send, spawn, spawnWithPid, setSystemId, updateSystem } from './system.js';
 import { update, updateProcess } from './update.js';
 
 const items: any = {};
@@ -32,12 +32,14 @@ function established(port: MessagePort) {
       }
     }
   };
+  port.start();
 }
 
 self.addEventListener('message', ev => {
   switch(ev.data.type) {
     case 'system': {
       setSystemId(ev.data.system);
+      updateSystem(0, ev.ports[0]);
       established(ev.ports[0]);
       break;
     }

@@ -81,7 +81,6 @@ class Main {
   constructor() {
     // Still hate this :(
 
-
     update(this, this.root);
   }
   receive() {}
@@ -89,6 +88,7 @@ class Main {
     return (
       <main>
         <h1>App</h1>
+        {this.offthreadCounter}
         {this.server}
       </main>
     );

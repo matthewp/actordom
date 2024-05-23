@@ -6,7 +6,7 @@ import type {
 } from './actor.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
-import { process, send, spawn, spawnWithPid, setSystemId, systems } from './system.js';
+import { process, send, spawn, spawnWithPid, setSystemId, updateSystem } from './system.js';
 import { update, updateProcess } from './update.js';
 
 const items: any = {};
@@ -55,7 +55,7 @@ const handler = (ev: MessageEvent<any>) => {
       setSystemId(ev.data.system);
       let channel = new MessageChannel();
       // TODO all wrong
-      systems.set(0, channel.port1);
+      updateSystem(0, channel.port1);
       port2 = channel.port2;
       serverSide(channel.port1);
       clientSide(port2);

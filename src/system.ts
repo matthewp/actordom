@@ -10,8 +10,7 @@ import { RemoteActor } from './connection';
 let _pid = Symbol.for('pid');
 
 let systemId = 0;
-// TODO refactor
-export let systems = new Map<number, Postable>();
+let systems = new Map<number, Postable>();
 let pids = new Map<number, Actor>();
 let pidi = 0;
 
@@ -29,12 +28,17 @@ function addSystem(target: Postable): number {
       send(new Uint8Array(ev.data.pid) as any, ev.data.message);
     }
   });
+  channel.port1.start();
 
   systems.set(next, channel.port1);
 
   // TODO Tell existing systems about this new one.
 
   return next;
+}
+
+function updateSystem(system: number, port: MessagePort) {
+  systems.set(system, port);
 }
 
 function inThisSystem(pid: Process<Actor>) {
@@ -124,6 +128,7 @@ export {
   send,
   setSystemId,
   systemId,
+  updateSystem,
   spawn,
   spawnWithPid
 }
