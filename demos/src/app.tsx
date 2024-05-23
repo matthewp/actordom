@@ -88,9 +88,11 @@ class Main {
   view() {
     return (
       <main>
-        <h1>App</h1>
-        {this.server}
+        <h1>My App</h1>
+        <hr />
         {this.offthreadCounter}
+        <hr />
+        {this.server}
       </main>
     );
   }

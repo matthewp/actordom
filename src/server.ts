@@ -27,12 +27,19 @@ function serverSide(port: MessagePort) {
         updateProcess(ev.data.pid, ev.data.renderPid);
         break;
       }
+      case 'new-system': {
+        let channel = new MessageChannel();
+        updateSystem(ev.data.system, channel.port1);
+        serverSide(channel.port1);
+        clientSide(channel.port2, ev.data.port);
+        break;
+      }
     }
   };
   port.start();
 }
 
-function clientSide(port: MessagePort) {
+function clientSide(port: MessagePort, uuid: string) {
   port.onmessage = ev => {
     sender(ev.data);
   };
@@ -51,7 +58,7 @@ const handler = (ev: MessageEvent<any>) => {
       updateSystem(ev.data.sender, channel.port1);
       port2 = channel.port2;
       serverSide(channel.port1);
-      clientSide(port2);
+      clientSide(port2, ev.data.port);
 
       // Tell the sender your real systemId.
       channel.port1.postMessage({ type: 'alias', system: ev.data.system, alias: systemId });

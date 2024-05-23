@@ -15,6 +15,7 @@ class Offthread {
     return (
       <div>
         <h2>Worker actor</h2>
+        <p>this is running in a web worker</p>
         <div>Count: {this.count}</div>
         <button type="button" onClick="increment">Increment</button>
       </div>

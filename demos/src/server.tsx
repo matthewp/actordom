@@ -26,9 +26,12 @@ class ServerActor {
     return (
       <div class="server-actor">
         <h2>Server actor</h2>
-        <button onClick="increment-worker">Increment worker</button>
 
+        <p>this is running on the server</p>
         {this.counter}
+
+        <p>clicking this sends a message from the server to a worker</p>
+        <button onClick="increment-worker">Increment worker</button>
       </div>
     )
   }
