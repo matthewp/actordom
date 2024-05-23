@@ -43,8 +43,9 @@ function clientSide(port: MessagePort) {
       if(Array.isArray(raw.message[1])) {
         raw.message[1][0] = Array.from(raw.message[1][0]);
       }
+    } else {
+      throw new Error(`Unknown message`)
     }
-    console.log("CLIENT", raw, sender);
     sender(raw);
   };
   port.start();
