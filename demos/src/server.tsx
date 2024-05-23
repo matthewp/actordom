@@ -1,21 +1,21 @@
-import { register, update, handler, setSender } from '../../src/server';
+import { register, handler, setSender, process, spawn } from '../../src/server';
+import Counter from './counter.js';
 
-class ServerComponent {
-  receive([name]: ['increment', Event]) {
-    update(this);
-  }
+class ServerActor {
+  counter = spawn(Counter, 'Server counter');
+  receive(){}
   view() {
-    console.log("DOING THE VIEW!");
-    debugger;
+    console.log('server view', process(this), this.counter);
     return (
-      <div>
-        <h2>Server component</h2>
+      <div class="server-actor">
+        <h2>Server actor</h2>
+        {this.counter}
       </div>
     )
   }
 }
 
-export default register(ServerComponent, 'ServerComponent');
+export default register(ServerActor, 'ServerActor');
 
 export {
   handler,

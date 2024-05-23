@@ -3,16 +3,27 @@ import type { Postable } from './connection';
 import {
   type Process,
   createPID,
-  systemIndex
+  systemIndex,
+  isNode
 } from './pid.js';
-import { RemoteActor } from './connection';
+import { RemoteActor } from './connection.js';
 
 let _pid = Symbol.for('pid');
 
-let systemId = 0;
+let systemId = isNode ? 1 : 0;
 let systems = new Map<number, Postable>();
 let pids = new Map<number, Actor>();
 let pidi = 0;
+
+function incrementPidi() {
+  return pidi++;
+}
+
+function channelHandler(ev: MessageEvent<any>) {
+  if(ev.data.type === 'send') {
+    send(new Uint8Array(ev.data.pid) as any, ev.data.message);
+  }
+}
 
 function addSystem(target: Postable): number {
   let current = Array.from(systems.values());
@@ -22,12 +33,7 @@ function addSystem(target: Postable): number {
   // Tell this new system its id
   let channel = new MessageChannel();
   target.postMessage({ type: 'system', system: next }, [channel.port2]);
-  // TODO use message channels
-  channel.port1.addEventListener('message', ev => {
-    if(ev.data.type === 'send') {
-      send(new Uint8Array(ev.data.pid) as any, ev.data.message);
-    }
-  });
+  channel.port1.addEventListener('message', channelHandler);
   channel.port1.start();
 
   systems.set(next, channel.port1);
@@ -47,6 +53,10 @@ function inThisSystem(pid: Process<Actor>) {
 
 function getActorFromPID(pid: Process<Actor>) {
   return pids.get(systemIndex(pid));
+}
+
+function getPIDFromActor(actor: Actor): Process<Actor> {
+  return (actor as any)[_pid];
 }
 
 function setSystemId(i: number) {
@@ -85,7 +95,7 @@ function spawn<
     });
   } else {
     let actor = new (ActorType as any)(...args);
-    pid = (actor as any)[_pid] ?? createPID(pidi++) as Process<InstanceType<A>>;
+    pid = (actor as any)[_pid] ?? createPID(incrementPidi()) as Process<InstanceType<A>>;
 
     pids.set(systemIndex(pid), actor);
     (actor as any)[_pid] = pid;
@@ -101,7 +111,7 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
       deliver(actor, message);
     }
   } else {
-    let system = getSystem(pid[3]) ?? self; // TODO use MessageChannel instead.
+    let system = getSystem(pid[3]);
     system?.postMessage({
       type: 'send',
       pid: pid.buffer,
@@ -116,13 +126,15 @@ function deliver(actor: Actor, message: [string, any]) {
 }
 
 function process<A extends Actor>(actor: A): Process<A> {
-  return (actor as any)[_pid] ?? ((actor as any)[_pid] = createPID(pidi++));
+  return (actor as any)[_pid] ?? ((actor as any)[_pid] = createPID(incrementPidi()));
 }
 
 export {
   addSystem,
   getActorFromPID,
+  getPIDFromActor,
   getSystem,
+  incrementPidi,
   inThisSystem,
   process,
   send,

@@ -27,7 +27,7 @@ function updateProcess(pid: Process<Actor>) {
       update(actor as DOMActor);
     }
   } else {
-    getSystem(pid[3])!.postMessage({
+    getSystem(pid[3])?.postMessage({
       type: 'update',
       pid: pid.buffer,
     });

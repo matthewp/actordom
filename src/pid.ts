@@ -1,7 +1,7 @@
 import type { Actor } from './main.js';
 import { systemId } from './system.js';
 
-let isNode = typeof self === 'undefined';
+export let isNode = typeof self === 'undefined';
 
 declare const actorSym: unique symbol;
 
@@ -18,6 +18,12 @@ const LENGTH = 7;
 function isPID(item: unknown): item is Process<Actor> {
   if(!ArrayBuffer.isView(item) || !(item instanceof Uint8Array)) return false;
   if(item.byteLength !== LENGTH) return false;
+  return item[0] === P && item[1] === I && item[2] === D;
+}
+
+function isPIDLike(item: unknown): item is Array<number> {
+  if(!Array.isArray(item)) return false;
+  if(item.length !== LENGTH) return false;
   return item[0] === P && item[1] === I && item[2] === D;
 }
 
@@ -44,7 +50,6 @@ function createPID(i: number) {
   arr[2] = D;
   arr[3] = systemId;
   arr[4] = i;
-  //console.log("S", JSON.stringify(arr))
   return arr;
 }
 
@@ -55,6 +60,7 @@ function systemIndex(pid: Process<any>) {
 export {
   type Process,
   isPID,
+  isPIDLike,
   createPID,
   systemIndex
 };

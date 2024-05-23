@@ -14,7 +14,7 @@ class Offthread {
   view() {
     return (
       <div>
-        <h2>Worker Counter</h2>
+        <h2>Worker actor</h2>
         <div>Count: {this.count}</div>
         <button type="button" onClick="increment">Increment</button>
       </div>

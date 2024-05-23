@@ -11,7 +11,7 @@ let connection = connect<typeof actors>(worker);
 const Offthread = connection.expose('Offthread');
 
 let server = connect<typeof serverActors>('/_domactor');
-const ServerComponent = server.expose('ServerComponent');
+const ServerActor = server.expose('ServerActor');
 
 type counterMailbox = ['increment', Event]
 
@@ -77,7 +77,7 @@ class Main {
   namer = spawn(Namer);
   todoList = spawn(TodoList);
   offthreadCounter = spawn(Offthread);
-  server = spawn(ServerComponent);
+  server = spawn(ServerActor);
   constructor() {
     // Still hate this :(
 
@@ -88,7 +88,6 @@ class Main {
     return (
       <main>
         <h1>App</h1>
-        {this.offthreadCounter}
         {this.server}
       </main>
     );
