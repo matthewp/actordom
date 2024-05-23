@@ -21,22 +21,27 @@ function isPID(item: unknown): item is Process<Actor> {
   return item[0] === P && item[1] === I && item[2] === D;
 }
 
-function createPID(i: number) {
-  let buffer: ArrayBuffer;
-  // TODO refactor into external function
-  if(isNode) {
-    buffer = new ArrayBuffer(LENGTH);
-  } else if(!self.crossOriginIsolated) {
-    throw new Error('actor-dom requires SharedArrayBuffer');
-  } else {
-    buffer = new SharedArrayBuffer(LENGTH);
+if(isNode) {
+  (ArrayBuffer as any).prototype.toJSON = function() {
+    return Array.from(new Uint8Array(this));
   }
+}
+
+if(!isNode && !self.crossOriginIsolated) {
+  throw new Error('actor-dom requires SharedArrayBuffer')
+}
+
+const ArrayBufferToUse = (isNode ? ArrayBuffer : SharedArrayBuffer) as typeof ArrayBuffer;
+
+function createPID(i: number) {
+  let buffer = new ArrayBufferToUse(LENGTH);
   let arr = new Uint8Array(buffer);
   arr[0] = P;
   arr[1] = I;
   arr[2] = D;
   arr[3] = systemId;
   arr[4] = i;
+  //console.log("S", JSON.stringify(arr))
   return arr;
 }
 

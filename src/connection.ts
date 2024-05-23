@@ -27,16 +27,12 @@ function connect<R extends Registry>(target: Postable): Connection<R> {
   if(typeof target === 'string') {
     let path = target as unknown as string;
 
-    const events = new EventSource('/_events');
-
+    const events = new EventSource(path + '/events');
     events.onmessage = (event) => {
-      console.log("ES", event.data);
       const message = JSON.parse(event.data);
       if(message.type === 'send') {
         send(message.pid, message.message);
       }
-
-      //setFacts((facts) => facts.concat(parsedData));
     };
 
     target = {

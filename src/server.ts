@@ -38,12 +38,7 @@ function serverSide(port: MessagePort) {
 function clientSide(port: MessagePort) {
   port.onmessage = ev => {
     let raw = ev.data;
-    if(raw.type === 'send') {
-      raw.pid = Array.from(new Uint8Array(raw.pid));
-      if(Array.isArray(raw.message[1])) {
-        raw.message[1][0] = Array.from(raw.message[1][0]);
-      }
-    } else {
+    if(raw.type !== 'send') {
       throw new Error(`Unknown message`)
     }
     sender(raw);

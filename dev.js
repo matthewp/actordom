@@ -32,6 +32,46 @@ function sendEventsToAll(newData) {
 }
 setSender(sendEventsToAll);
 
+function handleEventStream(req, res) {
+  const headers = {
+    'Content-Type': 'text/event-stream',
+    'Connection': 'keep-alive',
+    'Cache-Control': 'no-cache'
+  };
+  res.writeHead(200, headers);
+
+  const data = `data: ${JSON.stringify({})}\n\n`;
+
+  res.write(data);
+
+  const clientId = Date.now();
+
+  const newClient = {
+    id: clientId,
+    res
+  };
+
+  clients.push(newClient);
+
+  req.on('close', () => {
+    console.log(`${clientId} Connection closed`);
+    clients = clients.filter(client => client.id !== clientId);
+  });
+}
+
+function handleDomActorPost(req, res) {
+  let body = '';
+  req.setEncoding('utf-8');
+  req.on('data', chunk => { body+= chunk });
+  req.on('end', () => {
+    let message = JSON.parse(body);
+    handler({
+      data: message
+    });
+    res.end();
+  });
+}
+
 http.createServer(function(req, res) {
   if(req.url?.startsWith('/dist')) {
     const options = {
@@ -63,42 +103,11 @@ http.createServer(function(req, res) {
     return;
   }
   if(req.url?.startsWith('/_domactor')) {
-    let body = '';
-    req.setEncoding('utf-8');
-    req.on('data', chunk => { body+= chunk });
-    req.on('end', () => {
-      let message = JSON.parse(body);
-      handler({
-        data: message
-      });
-    });
-    return;
-  }
-  if(req.url?.startsWith('/_events')) {
-    const headers = {
-      'Content-Type': 'text/event-stream',
-      'Connection': 'keep-alive',
-      'Cache-Control': 'no-cache'
-    };
-    res.writeHead(200, headers);
-  
-    const data = `data: ${JSON.stringify({})}\n\n`;
-  
-    res.write(data);
-  
-    const clientId = Date.now();
-  
-    const newClient = {
-      id: clientId,
-      res
-    };
-  
-    clients.push(newClient);
-  
-    req.on('close', () => {
-      console.log(`${clientId} Connection closed`);
-      clients = clients.filter(client => client.id !== clientId);
-    });
+    if(req.url.startsWith('/_domactor/events')) {
+      handleEventStream(req, res);
+    } else {
+      handleDomActorPost(req, res);
+    }
     return;
   }
   demos(req, res);

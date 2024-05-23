@@ -145,7 +145,6 @@ function render(vdom: Tree | JSXInternal.Element, root: Element, pid: Process<DO
 
 function link(pid: Process<any>, el: Element | Comment) {
   pid[5] = fromRoot(el as any)[4];
-  //(getActorFromPID(pid) as any)[_root] = ;
 }
 
 class RenderActor {

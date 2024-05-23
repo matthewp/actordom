@@ -17,7 +17,7 @@ function update(actor: DOMActor, root?: Process<Actor>) {
   }
 
   let tree = actor.view();
-  send(root!, ['', [pid, tree]]);
+  send(root!, ['', [pid.buffer, tree]]);
 }
 
 function updateProcess(pid: Process<Actor>) {
