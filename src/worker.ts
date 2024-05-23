@@ -6,7 +6,7 @@ import type {
 } from './actor.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
-import { process, send, spawn, spawnWithPid, setSystemId, updateSystem } from './system.js';
+import { addSelfAlias, process, send, spawn, spawnWithPid, updateSystem } from './system.js';
 import { update, updateProcess } from './update.js';
 
 const items: any = {};
@@ -15,19 +15,20 @@ function established(port: MessagePort) {
   port.onmessage = ev => {
     switch(ev.data.type) {
       case 'spawn': {
-        let pid = new Uint8Array(ev.data.pid);
         let Item = items[ev.data.name];
-        spawnWithPid(Item, pid as any);
+        spawnWithPid(Item, ev.data.pid);
         break;
       }
       case 'send': {
-        let pid = new Uint8Array(ev.data.pid);
-        send(pid as any, ev.data.message);
+        send(ev.data.pid, ev.data.message);
         break;
       }
       case 'update': {
-        let pid = new Uint8Array(ev.data.pid);
-        updateProcess(pid as any);
+        updateProcess(ev.data.pid, ev.data.renderPid);
+        break;
+      }
+      case 'new-system': {
+        updateSystem(ev.data.system, ev.ports[0]);
         break;
       }
     }
@@ -38,9 +39,13 @@ function established(port: MessagePort) {
 self.addEventListener('message', ev => {
   switch(ev.data.type) {
     case 'system': {
-      setSystemId(ev.data.system);
-      updateSystem(0, ev.ports[0]);
+      addSelfAlias(ev.data.system);
+      updateSystem(ev.data.sender, ev.ports[0]);
       established(ev.ports[0]);
+      break;
+    }
+    case 'new-system': {
+      
       break;
     }
   }

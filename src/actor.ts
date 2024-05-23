@@ -1,8 +1,16 @@
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx';
+import type { _renderPid } from './update.js';
+import type { Process } from './pid.js';
+import type { _pid } from './system.js';
+
 
 interface Actor {
   receive(_message: [string, any]): void;
+  /* @internal */
+  [_renderPid]?: Process<Actor>;
+  /* @internal */
+  [_pid]?: Process<Actor>;
 }
 
 interface ActorType {
@@ -17,6 +25,7 @@ interface DOMActor extends Actor {
 }
 
 export {
+  _renderPid,
   type Actor,
   type ActorType,
   type DOMActor,

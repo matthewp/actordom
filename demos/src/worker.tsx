@@ -22,4 +22,6 @@ class Offthread {
   }
 }
 
+export { Offthread };
+
 export default register(Offthread, 'Offthread');

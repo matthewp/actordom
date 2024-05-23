@@ -1,6 +1,6 @@
 import type actors from './worker';
 import type serverActors from './server';
-import { spawn, update, connect, fromRoot } from '../../src/main';
+import { spawn, update, connect, fromRoot, send } from '../../src/main';
 import { TodoList } from './todolist';
 
 let worker = new Worker(new URL('./worker.js', import.meta.url), {
@@ -73,14 +73,15 @@ class Namer {
 
 class Main {
   root = fromRoot(document.querySelector('#app')!);
-  counter = spawn(Counter);
-  namer = spawn(Namer);
-  todoList = spawn(TodoList);
+  //counter = spawn(Counter);
+  //namer = spawn(Namer);
+  //todoList = spawn(TodoList);
   offthreadCounter = spawn(Offthread);
   server = spawn(ServerActor);
   constructor() {
-    // Still hate this :(
+    send(this.server, ['worker', this.offthreadCounter]);
 
+    // Still hate this :(
     update(this, this.root);
   }
   receive() {}
@@ -89,6 +90,7 @@ class Main {
       <main>
         <h1>App</h1>
         {this.server}
+        {this.offthreadCounter}
       </main>
     );
   }

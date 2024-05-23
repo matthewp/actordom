@@ -5,10 +5,10 @@ import type {
   MessageName,
 } from './actor.js';
 import type { Process } from './pid.js';
-import { isPIDLike, systemIndex } from './pid.js';
+import { } from './pid.js';
 import type { Registry } from './register.js';
 import { update, _root } from './update.js';
-import { process, addSystem, send } from './system.js';
+import { process, addSystem, addSystemAlias, send } from './system.js';
 
 type Postable = {
   postMessage(message: any, transfer?: Transferable[]): void;
@@ -16,34 +16,40 @@ type Postable = {
 
 class RemoteActor<R extends Registry = Registry, N extends keyof R = keyof R> {
   _actor: R[N] = 0 as any;
-  constructor(public system: number, public name: N) {}
+  constructor(public system: string, public name: N) {}
 }
 
 type Connection<R extends Registry> = {
-  system: number;
+  system: string;
   expose<N extends keyof R = keyof R>(name: N): RemoteActor<R, N>;
 };
 
-function reviver(_key: string, value: unknown) {
-  if(isPIDLike(value)) {
-    return new Uint8Array(value);
-  }
-  return value;
-}
-
 class ServerTarget implements Postable {
   spawning = new Map<number, [Process<Actor>, any[]]>;
+  opened = false;
+  queued: any[] = [];
   constructor(public path: string){
     const events = new EventSource(path + '/events');
+    events.onopen = () => {
+      this.opened = true;
+      if(this.queued) {
+        this.post(this.queued);
+      }
+    };
     events.onmessage = (event) => {
-      const message = JSON.parse(event.data, reviver);
+      const message = JSON.parse(event.data);
       switch(message.type) {
         case 'send': {
           send(message.pid, message.message);
           break;
         }
+        case 'alias': {
+          addSystemAlias(message.system, message.alias);
+          break;
+        }
         case 'new-pid': {
-          let idx = systemIndex(message.old);
+          // TODO remove?
+          /*let idx = systemIndex(message.old);
           let [ab, queue] = this.spawning.get(idx)!;
           let pid = new Uint8Array(ab);
           pid[4] = message.new[4];
@@ -54,24 +60,15 @@ class ServerTarget implements Postable {
           queue.forEach(message => {
             this.post(message);
           });
+          */
           // TODO do i even need?
           // I think so, people might have a copy of the old one.
           break;
         }
       }
-      
-      if(message.type === 'send') {
-        
-      }
     };
   }
   post(message: any) {
-    // TODO replacer
-    if(message.pid) {
-      // TODO use a replacer
-      message.pid = Array.from(new Uint8Array(message.pid));
-    }
-    
     fetch(this.path, {
       method: 'POST',
       body: JSON.stringify(message)
@@ -79,11 +76,17 @@ class ServerTarget implements Postable {
   }
   listenToPort(port: MessagePort) {
     port.onmessage = ev => {
-      if(ev.data.type === 'spawn') {
+      // TODO remove?
+      /*if(ev.data.type === 'spawn') {
         this.spawning.set(systemIndex(new Uint8Array(ev.data.pid) as any), [ev.data.pid, []]);
       } else if(ev.data.type === 'update' && this.spawning.has(systemIndex(new Uint8Array(ev.data.pid) as any))) {
         // queue up until we know the id
         this.spawning.get(systemIndex(new Uint8Array(ev.data.pid) as any))![1].push(ev.data);
+        return;
+      }
+      */
+      if(!this.opened) {
+        this.queued.push(ev.data);
         return;
       }
       this.post(ev.data);
@@ -91,6 +94,10 @@ class ServerTarget implements Postable {
   }
   postMessage(message: any, transfer: Transferable[]) {
     this.listenToPort(transfer[0] as MessagePort);
+    if(!this.opened) {
+      this.queued.push(message);
+      return;
+    }
     this.post(message);
   }
 }

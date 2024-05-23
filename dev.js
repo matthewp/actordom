@@ -41,7 +41,6 @@ function handleEventStream(req, res) {
   res.writeHead(200, headers);
 
   const data = `data: ${JSON.stringify({})}\n\n`;
-
   res.write(data);
 
   const clientId = Date.now();
@@ -64,10 +63,18 @@ function handleDomActorPost(req, res) {
   req.setEncoding('utf-8');
   req.on('data', chunk => { body+= chunk });
   req.on('end', () => {
-    let message = JSON.parse(body);
-    handler({
-      data: message
-    });
+    let data = JSON.parse(body);
+    if(Array.isArray(data)) {
+      data.forEach(message => {
+        handler({
+          data: message
+        });
+      })
+    } else {
+      handler({
+        data
+      });
+    }
     res.end();
   });
 }

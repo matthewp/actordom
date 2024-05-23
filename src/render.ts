@@ -70,7 +70,7 @@ const ID = 2;
 const ATTRS = 3;
 const EVENTS = 4;
 
-function inner(bc: any, actor: any){
+function inner(bc: any, actor: RenderActor, pid: any){
   var n;
   for(var i = 0, len = bc.length; i < len; i++) {
     n = bc[i];
@@ -84,7 +84,7 @@ function inner(bc: any, actor: any){
           var k: [number, string, string];
           for(var j = 0, jlen = n[EVENTS].length; j < jlen; j++) {
             k = n[EVENTS][j];
-            addEventCallback(actor, currentElement(), k[2], k[1])
+            addEventCallback(pid, currentElement(), k[2], k[1])
           }
         }
 
@@ -116,11 +116,12 @@ function inner(bc: any, actor: any){
           skipNode();
           skipNode();
   
-          link(n[1], render);
-
-          if(!n[1][6]) {
-            n[1][6] = 1;
-            updateProcess(n[1]);
+          let renderPid = fromRoot(render as any);
+          actor.pidMap.set(n[1], renderPid);
+          // TODO probably not needed. I think we only every get here once.
+          if(!actor.mounted.has(n[1])) {
+            actor.mounted.add(n[1]);
+            updateProcess(n[1], renderPid)
           }
         }
         break;
@@ -130,27 +131,25 @@ function inner(bc: any, actor: any){
 }
 
 const _outer = Symbol.for('outer');
-function render(vdom: Tree | JSXInternal.Element, root: Element, pid: Process<DOMActor>) {
+function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderActor, pid: Process<DOMActor>) {
   let patcher = patch;
   let isPlaceholder = root.nodeType === 8;
   if(isPlaceholder || (root as any)[_outer]) {
     patcher = patchOuter;
   }
-  let ret = patcher(root, () => inner(vdom, pid));
+  let ret = patcher(root, () => inner(vdom, actor, pid));
   if(isPlaceholder) {
     ret[_outer] = true;
   }
   return ret;
 }
 
-function link(pid: Process<any>, el: Element | Comment) {
-  pid[5] = fromRoot(el as any)[4];
-}
-
 class RenderActor {
+  pidMap = new Map<string, string>;
+  mounted = new Set<string>;
   constructor(public root: Element) {}
   receive([, [pid, tree]]: [string, [Process<DOMActor>, Tree]]) {
-    let newRoot = render(tree, this.root, pid);
+    let newRoot = render(tree, this.root, this, pid);
     if(this.root !== newRoot) {
       this.root = newRoot;
     }

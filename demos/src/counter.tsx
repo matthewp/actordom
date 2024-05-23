@@ -16,7 +16,6 @@ class Counter {
     update(this);
   }
   view() {
-    //console.log('counter view', process(this))
     return ( 
       <div>
         <h2>{this.title}</h2>

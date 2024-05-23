@@ -5,62 +5,45 @@ export let isNode = typeof self === 'undefined';
 
 declare const actorSym: unique symbol;
 
-type Process<A extends Actor> = Uint8Array & {
+let prefix = '~ad~' as const;
+
+type Process<A extends Actor> = `${typeof prefix}${string}/${string}` & {
   actor: A;
-  [actorSym]: true;
 }
 
-const P = 112; // p
-const I = 105; // i
-const D = 100; // d
-const LENGTH = 7;
+const LENGTH = 78;
 
 function isPID(item: unknown): item is Process<Actor> {
-  if(!ArrayBuffer.isView(item) || !(item instanceof Uint8Array)) return false;
-  if(item.byteLength !== LENGTH) return false;
-  return item[0] === P && item[1] === I && item[2] === D;
+  if(typeof item !== 'string') return false;
+  return item.length === LENGTH && item.startsWith('~ad~');
 }
 
-function isPIDLike(item: unknown): item is Array<number> {
-  if(!Array.isArray(item)) return false;
-  if(item.length !== LENGTH) return false;
-  return item[0] === P && item[1] === I && item[2] === D;
+function getSystem(pid: Process<Actor>): string {
+  return pid.slice(5, 41);
 }
 
-if(isNode) {
-  (ArrayBuffer as any).prototype.toJSON = function() {
-    return Array.from(new Uint8Array(this));
-  };
-  (Uint8Array as any).prototype.toJSON = function() {
-    return Array.from(this);
-  };
+function getId(pid: Process<Actor>): string {
+  return  pid.slice(42);
 }
 
-if(!isNode && !self.crossOriginIsolated) {
-  throw new Error('actor-dom requires SharedArrayBuffer')
+function createFromParts(systemId: string, id: string): Process<Actor> {
+  return `${prefix}/${systemId}/${id}` as Process<Actor>;
 }
 
-const ArrayBufferToUse = (isNode ? ArrayBuffer : SharedArrayBuffer) as typeof ArrayBuffer;
-
-function createPID(i: number) {
-  let buffer = new ArrayBufferToUse(LENGTH);
-  let arr = new Uint8Array(buffer);
-  arr[0] = P;
-  arr[1] = I;
-  arr[2] = D;
-  arr[3] = systemId;
-  arr[4] = i;
-  return arr;
+function createPID(): Process<Actor> {
+  return createFromParts(systemId, crypto.randomUUID());
 }
 
-function systemIndex(pid: Process<any>) {
-  return pid[4];
+function createPIDForSystem(system: string) {
+  return createFromParts(system, crypto.randomUUID());
 }
 
 export {
   type Process,
-  isPID,
-  isPIDLike,
+
   createPID,
-  systemIndex
+  isPID,
+  getSystem,
+  getId,
+  createPIDForSystem
 };
