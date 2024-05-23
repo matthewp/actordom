@@ -25,7 +25,6 @@ type Connection<R extends Registry> = {
 };
 
 class ServerTarget implements Postable {
-  spawning = new Map<number, [Process<Actor>, any[]]>;
   opened = false;
   queued: any[] = [];
   constructor(public path: string){
@@ -47,24 +46,6 @@ class ServerTarget implements Postable {
           addSystemAlias(message.system, message.alias);
           break;
         }
-        case 'new-pid': {
-          // TODO remove?
-          /*let idx = systemIndex(message.old);
-          let [ab, queue] = this.spawning.get(idx)!;
-          let pid = new Uint8Array(ab);
-          pid[4] = message.new[4];
-          pid[5] = message.new[5];
-          pid[6] = message.new[6];
-          this.spawning.delete(idx);
-
-          queue.forEach(message => {
-            this.post(message);
-          });
-          */
-          // TODO do i even need?
-          // I think so, people might have a copy of the old one.
-          break;
-        }
       }
     };
   }
@@ -76,21 +57,17 @@ class ServerTarget implements Postable {
   }
   listenToPort(port: MessagePort) {
     port.onmessage = ev => {
-      // TODO remove?
-      /*if(ev.data.type === 'spawn') {
-        this.spawning.set(systemIndex(new Uint8Array(ev.data.pid) as any), [ev.data.pid, []]);
-      } else if(ev.data.type === 'update' && this.spawning.has(systemIndex(new Uint8Array(ev.data.pid) as any))) {
-        // queue up until we know the id
-        this.spawning.get(systemIndex(new Uint8Array(ev.data.pid) as any))![1].push(ev.data);
-        return;
+      console.log("WHA", ev.data);
+      if(ev.data.type === 'new-system') {
+        debugger;
       }
-      */
       if(!this.opened) {
         this.queued.push(ev.data);
         return;
       }
       this.post(ev.data);
     };
+    port.start();
   }
   postMessage(message: any, transfer: Transferable[]) {
     this.listenToPort(transfer[0] as MessagePort);
