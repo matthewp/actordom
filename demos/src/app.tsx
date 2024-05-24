@@ -11,7 +11,7 @@ let worker = new Worker(new URL('./worker.js', import.meta.url), {
 let connection = connect<typeof actors>(worker);
 const Offthread = connection.expose('Offthread');
 
-let server = connect<typeof serverActors>('/_domactor');
+let server = connect<typeof serverActors>('/_actordom');
 const ServerActor = server.expose('ServerActor');
 
 type namerMailbox = 

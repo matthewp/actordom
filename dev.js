@@ -2,9 +2,10 @@
 import sirv from 'sirv';
 import * as esbuild from 'esbuild'
 import http from 'node:http';
-import { handler, setSender } from './demos/dist2/server.js';
+import { sse } from './demos/dist2/server.js';
 
 let demos = sirv('demos');
+let events = sse('/_actordom');
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
@@ -18,60 +19,6 @@ let ctx = await esbuild.context({
 let { host, port } = await ctx.serve({
   servedir: 'demos'
 });
-
-let clients = [];
-
-function sendEventsToAll(newData) {
-  clients.forEach(client => client.res.write(`data: ${JSON.stringify(newData)}\n\n`))
-}
-setSender(sendEventsToAll);
-
-function handleEventStream(req, res) {
-  const headers = {
-    'Content-Type': 'text/event-stream',
-    'Connection': 'keep-alive',
-    'Cache-Control': 'no-cache'
-  };
-  res.writeHead(200, headers);
-
-  const data = `data: ${JSON.stringify({})}\n\n`;
-  res.write(data);
-
-  const clientId = Date.now();
-
-  const newClient = {
-    id: clientId,
-    res
-  };
-
-  clients.push(newClient);
-
-  req.on('close', () => {
-    console.log(`${clientId} Connection closed`);
-    clients = clients.filter(client => client.id !== clientId);
-  });
-}
-
-function handleDomActorPost(req, res) {
-  let body = '';
-  req.setEncoding('utf-8');
-  req.on('data', chunk => { body+= chunk });
-  req.on('end', () => {
-    let data = JSON.parse(body);
-    if(Array.isArray(data)) {
-      data.forEach(message => {
-        handler({
-          data: message
-        });
-      })
-    } else {
-      handler({
-        data
-      });
-    }
-    res.end();
-  });
-}
 
 http.createServer(function(req, res) {
   if(req.url?.startsWith('/dist')) {
@@ -100,12 +47,9 @@ http.createServer(function(req, res) {
     req.pipe(proxyReq, { end: true });
     return;
   }
-  if(req.url?.startsWith('/_domactor')) {
-    if(req.url.startsWith('/_domactor/events')) {
-      handleEventStream(req, res);
-    } else {
-      handleDomActorPost(req, res);
-    }
+  console.log('req.url', req.url);
+  if(req.url?.startsWith('/_actordom')) {
+    events(req, res);
     return;
   }
   demos(req, res);

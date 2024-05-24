@@ -1,5 +1,5 @@
 import type { Offthread } from './worker';
-import { register, handler, setSender, process, spawn, Process, Actor, send } from '../../src/server';
+import { register, spawn, Process, send, sse } from '../../src/node';
 import Counter from './counter.js';
 
 type mailbox = ['increment-worker', Event] |
@@ -40,6 +40,5 @@ class ServerActor {
 export default register(ServerActor, 'ServerActor');
 
 export {
-  handler,
-  setSender
-};
+  sse
+}
