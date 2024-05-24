@@ -2,6 +2,7 @@
   "name": "actordom-monorepo",
   "workspaces": [
     "core",
-    "demos"
+    "demos",
+    "site"
   ]
 }
