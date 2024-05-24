@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [21.x]
 
     steps:
     - uses: actions/checkout@v1
@@ -22,5 +22,5 @@ jobs:
     - name: Deploy
       run: |
         mkdir -p ~/.ssh/
-        cat ${{ secrets.SSH_PRIVATE_KEY }} > ~/.ssh/id_rsa
+        echo ${{ secrets.SSH_PRIVATE_KEY }} > ~/.ssh/id_rsa
         rsync -avz site/dist ${{ secrets.DEPLOY_TARGET }}
