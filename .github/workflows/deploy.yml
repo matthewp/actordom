@@ -22,5 +22,5 @@ jobs:
     - name: Deploy
       run: |
         mkdir -p ~/.ssh/
-        echo ${{ secrets.SSH_PRIVATE_KEY }} > ~/.ssh/id_rsa
+        echo '${{ secrets.SSH_PRIVATE_KEY }}' > ~/.ssh/id_rsa
         rsync -avz site/dist ${{ secrets.DEPLOY_TARGET }}
