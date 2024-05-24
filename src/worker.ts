@@ -4,6 +4,7 @@ import type {
   DOMActor,
   MessageName,
 } from './actor.js';
+import type { ConnectionMessage, SystemMessage } from './messages.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
 import { addSelfAlias, process, send, spawn, spawnWithPid, updateSystem } from './system.js';
@@ -12,7 +13,7 @@ import { update, updateProcess } from './update.js';
 const items: any = {};
 
 function established(port: MessagePort) {
-  port.onmessage = ev => {
+  port.onmessage = (ev: MessageEvent<ConnectionMessage>) => {
     switch(ev.data.type) {
       case 'spawn': {
         let Item = items[ev.data.name];
@@ -36,16 +37,12 @@ function established(port: MessagePort) {
   port.start();
 }
 
-self.addEventListener('message', ev => {
+self.addEventListener('message', (ev: MessageEvent<SystemMessage> ) => {
   switch(ev.data.type) {
     case 'system': {
       addSelfAlias(ev.data.system);
       updateSystem(ev.data.sender, ev.ports[0]);
       established(ev.ports[0]);
-      break;
-    }
-    case 'new-system': {
-      
       break;
     }
   }

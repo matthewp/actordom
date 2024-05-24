@@ -1,13 +1,11 @@
 import type { Actor } from './main.js';
 import { systemId } from './system.js';
 
-export let isNode = typeof self === 'undefined';
-
-declare const actorSym: unique symbol;
+type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
 let prefix = '~ad~' as const;
 
-type Process<A extends Actor> = `${typeof prefix}${string}/${string}` & {
+type Process<A extends Actor> = `${typeof prefix}${UUID}/${UUID}` & {
   actor: A;
 }
 
@@ -18,15 +16,15 @@ function isPID(item: unknown): item is Process<Actor> {
   return item.length === LENGTH && item.startsWith('~ad~');
 }
 
-function getSystem(pid: Process<Actor>): string {
-  return pid.slice(5, 41);
+function getSystem(pid: Process<Actor>): UUID {
+  return pid.slice(5, 41) as UUID;
 }
 
-function getId(pid: Process<Actor>): string {
-  return  pid.slice(42);
+function getId(pid: Process<Actor>): UUID {
+  return  pid.slice(42) as UUID;
 }
 
-function createFromParts(systemId: string, id: string): Process<Actor> {
+function createFromParts(systemId: UUID, id: string): Process<Actor> {
   return `${prefix}/${systemId}/${id}` as Process<Actor>;
 }
 
@@ -34,7 +32,7 @@ function createPID(): Process<Actor> {
   return createFromParts(systemId, crypto.randomUUID());
 }
 
-function createPIDForSystem(system: string) {
+function createPIDForSystem(system: UUID) {
   return createFromParts(system, crypto.randomUUID());
 }
 
@@ -45,5 +43,6 @@ export {
   isPID,
   getSystem,
   getId,
-  createPIDForSystem
+  createPIDForSystem,
+  UUID
 };

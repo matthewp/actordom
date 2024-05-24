@@ -2,6 +2,7 @@ import type actors from './worker';
 import type serverActors from './server';
 import { spawn, update, connect, fromRoot, send } from '../../src/main';
 import { TodoList } from './todolist';
+import Counter from './counter';
 
 let worker = new Worker(new URL('./worker.js', import.meta.url), {
   type: 'module'
@@ -12,30 +13,6 @@ const Offthread = connection.expose('Offthread');
 
 let server = connect<typeof serverActors>('/_domactor');
 const ServerActor = server.expose('ServerActor');
-
-type counterMailbox = ['increment', Event]
-
-class Counter {
-  count = 0;
-  receive([name]: counterMailbox) {
-    switch(name) {
-      case 'increment': {
-        this.count++;
-        break;
-      }
-    }
-    update(this);
-  }
-  view() {
-    return ( 
-      <div>
-        <h2>Counter</h2>
-        <div>Count: {this.count}</div>
-        <button type="button" onClick="increment">Increment</button>
-      </div>
-    );
-  }
-}
 
 type namerMailbox = 
   ['first', { target: HTMLInputElement }] |
@@ -73,9 +50,9 @@ class Namer {
 
 class Main {
   root = fromRoot(document.querySelector('#app')!);
-  //counter = spawn(Counter);
-  //namer = spawn(Namer);
-  //todoList = spawn(TodoList);
+  counter = spawn(Counter, 'Main thread counter');
+  namer = spawn(Namer);
+  todoList = spawn(TodoList);
   offthreadCounter = spawn(Offthread);
   server = spawn(ServerActor);
   constructor() {
@@ -89,6 +66,11 @@ class Main {
     return (
       <main>
         <h1>My App</h1>
+        {this.counter}
+        <hr />
+        {this.namer}
+        <hr />
+        {this.todoList}
         <hr />
         {this.offthreadCounter}
         <hr />

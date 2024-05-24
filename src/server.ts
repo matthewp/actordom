@@ -4,15 +4,19 @@ import type {
   DOMActor,
   MessageName,
 } from './actor.js';
-import type { Process } from './pid.js';
+import { type ConnectionMessage, type SystemMessage, sendMessage } from './messages.js';
+import type { Process, UUID } from './pid.js';
 import type { Registry } from './register.js';
-import { process, send, spawn, getActorFromPID, spawnWithPid, addSelfAlias, updateSystem, systemId } from './system.js';
+import { process, send, spawn, spawnWithPid, addSelfAlias, updateSystem, systemId } from './system.js';
 import { update, updateProcess } from './update.js';
+
+type OverTheWireSystemMessage = SystemMessage & { port: UUID; };
+type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
 
 const items: any = {};
 
 function serverSide(port: MessagePort) {
-  port.onmessage = ev => {
+  port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     switch(ev.data.type) {
       case 'spawn': {
         let Item = items[ev.data.name];
@@ -49,7 +53,7 @@ function clientSide(port: MessagePort, uuid: string) {
 // TODO wrong! this is shared by everyone.
 let port2: MessagePort;
 
-const handler = (ev: MessageEvent<any>) => {
+const handler = (ev: MessageEvent<OverTheWireSystemMessage>) => {
   switch(ev.data.type) {
     case 'system': {
       addSelfAlias(ev.data.system);
@@ -61,11 +65,11 @@ const handler = (ev: MessageEvent<any>) => {
       clientSide(port2, ev.data.port);
 
       // Tell the sender your real systemId.
-      channel.port1.postMessage({ type: 'alias', system: ev.data.system, alias: systemId });
+      sendMessage(channel.port1, { type: 'alias', system: ev.data.system, alias: systemId });
       break;
     }
     default: {
-      port2!.postMessage(ev.data);
+      sendMessage(port2, ev.data);
       break;
     }
   }

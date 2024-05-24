@@ -1,12 +1,12 @@
 import type { Actor, DOMActor } from './actor.js';
-import { type Process, createPID, getSystem } from './pid.js';
+import { type Process, getSystem } from './pid.js';
+import { sendMessage } from './messages.js';
 import { getActorFromPID, getMessenger, inThisSystem, process, send } from './system.js';
 
 const _root = Symbol.for('root');
 const _renderPid = Symbol.for('renderPid');
 
 function update(actor: DOMActor, root?: Process<Actor>) {
-  // TODO maybe a little slow, optimize later
   let pid = process(actor);
   if(!root) {
     if(actor[_renderPid]) {
@@ -20,7 +20,7 @@ function update(actor: DOMActor, root?: Process<Actor>) {
   send(root!, ['', [pid, tree]]);
 }
 
-function updateProcess(pid: Process<Actor>, renderPid: Process<Actor>) {
+function updateProcess(pid: Process<DOMActor>, renderPid: Process<Actor>) {
   if(inThisSystem(pid)) {
     let actor = getActorFromPID(pid);
     if(actor) {
@@ -28,7 +28,7 @@ function updateProcess(pid: Process<Actor>, renderPid: Process<Actor>) {
         actor[_renderPid] = renderPid;
       }
 
-      update(actor as DOMActor);
+      update(actor);
     }
   } else {
     let system = getSystem(pid);
@@ -36,7 +36,7 @@ function updateProcess(pid: Process<Actor>, renderPid: Process<Actor>) {
     if(port == null) {
       throw new Error(`Could not find message port for system: ${system}`)
     }
-    port.postMessage({
+    sendMessage(port, {
       type: 'update',
       pid,
       renderPid,

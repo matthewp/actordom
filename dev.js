@@ -4,16 +4,10 @@ import * as esbuild from 'esbuild'
 import http from 'node:http';
 import { handler, setSender } from './demos/dist2/server.js';
 
-let demos = sirv('demos', {
-  setHeaders(res) {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-  }
-});
+let demos = sirv('demos');
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
-  //demos/src/app.tsx demos/src/worker.tsx --bundle --format=esm --outdir=demos/dist --servedir=demos
   entryPoints: ['demos/src/app.tsx', 'demos/src/worker.tsx'],
   bundle: true,
   format: 'esm',
@@ -97,9 +91,6 @@ http.createServer(function(req, res) {
         res.end('<h1>A custom 404 page</h1>')
         return
       }
-
-      res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-      res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
   
       // Otherwise, forward the response from esbuild to the client
       res.writeHead(proxyRes.statusCode, proxyRes.headers)

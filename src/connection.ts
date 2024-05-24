@@ -1,14 +1,6 @@
-import type {
-  Actor,
-  ActorType,
-  DOMActor,
-  MessageName,
-} from './actor.js';
-import type { Process } from './pid.js';
-import { } from './pid.js';
+import type { UUID } from './pid.js';
 import type { Registry } from './register.js';
-import { update, _root } from './update.js';
-import { process, addSystem, addSystemAlias, send } from './system.js';
+import { addSystem, addSystemAlias, send } from './system.js';
 
 type Postable = {
   postMessage(message: any, transfer?: Transferable[]): void;
@@ -16,7 +8,7 @@ type Postable = {
 
 class RemoteActor<R extends Registry = Registry, N extends keyof R = keyof R> {
   _actor: R[N] = 0 as any;
-  constructor(public system: string, public name: N) {}
+  constructor(public system: UUID, public name: N) {}
 }
 
 type Connection<R extends Registry> = {
