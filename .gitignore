@@ -2,3 +2,4 @@ node_modules/
 demos/dist/
 demos/dist2/
 dist/
+.wireit/

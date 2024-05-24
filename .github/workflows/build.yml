@@ -2,10 +2,8 @@ name: Deploy
 
 on:
   push:
-    branches:
-      - main
     paths:
-      site/src/**
+      core/src/**
 
 jobs:
   deploy:
@@ -22,12 +20,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: Install
       run: npm install
-    - name: Build site
-      run: npm -w=site run build
-    - name: Deploy
-      run: |
-        echo '${{ secrets.SSH_PRIVATE_KEY }}' > github
-        chmod 600 ./github
-        rsync -e "ssh -i ./github -p 22 -o StrictHostKeyChecking=no" \
-          -avz \
-          site/dist/ ${{ secrets.DEPLOY_TARGET }}
+    - name: Build core
+      run: npm -w=core run build
+    - name: Run tests
+      run: 

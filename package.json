@@ -4,5 +4,10 @@
     "core",
     "demos",
     "site"
-  ]
+  ],
+  "devDependencies": {
+    "@fastify/static": "^7.0.4",
+    "fastify": "^4.27.0",
+    "wireit": "^0.14.1"
+  }
 }

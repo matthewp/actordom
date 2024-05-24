@@ -20,16 +20,48 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "wireit",
+    "serve": "wireit",
+    "test": "wireit"
   },
   "keywords": [],
   "author": "Matthew Phillips",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "incremental-dom": "^0.6.0"
+    "incremental-dom": "^0.6.0",
+    "node-qunit-puppeteer": "^2.1.2"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
+    "@types/qunit": "^2.19.10",
     "typescript": "^5.4.5"
+  },
+  "wireit": {
+    "build": {
+      "command": "tsc -p tsconfig.json",
+      "files": [
+        "src/**/*"
+      ],
+      "output": [
+        "dist"
+      ]
+    },
+    "serve": {
+      "command": "node server.cjs",
+      "service": {
+        "readyWhen": {
+          "lineMatches": "Server listening"
+        }
+      }
+    },
+    "test": {
+      "command": "node-qunit-puppeteer http://localhost:8023/test/test.html 10000",
+      "dependencies": [
+        "build",
+        "serve"
+      ],
+      "files": ["src/**/*"],
+      "output": []
+    }
   }
 }
