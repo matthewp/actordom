@@ -21,6 +21,8 @@ jobs:
       run: npm -w=site run build
     - name: Deploy
       run: |
-        mkdir -p ~/.ssh/
         echo '${{ secrets.SSH_PRIVATE_KEY }}' > github
-        rsync -e "ssh -i github" -avz site/dist/ ${{ secrets.DEPLOY_TARGET }}
+        chmod 600 ./github
+        rsync -e "ssh -i ./github -p 22 -o StrictHostKeyChecking=no" \
+          -avz \
+          site/dist/ ${{ secrets.DEPLOY_TARGET }}
