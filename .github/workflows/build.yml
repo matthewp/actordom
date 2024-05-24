@@ -1,9 +1,6 @@
 name: Deploy
 
-on:
-  push:
-    paths:
-      core/src/**
+on: [push]
 
 jobs:
   deploy:
