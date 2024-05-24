@@ -16,7 +16,7 @@ function createRemoteHandler(items: Record<string, ActorType>) {
         break;
       }
       case 'update': {
-        updateProcess(message.pid, message.renderPid);
+        updateProcess(message.pid, message.renderPid, message.slotPid);
         break;
       }
     }

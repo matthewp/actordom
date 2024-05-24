@@ -2,24 +2,24 @@
 import sirv from 'sirv';
 import * as esbuild from 'esbuild'
 import http from 'node:http';
-import { sse } from './demos/dist2/server.js';
+import { sse } from './dist2/server.js';
 
 const SERVER_ACTOR_PATH = '/_actordom';
 
-let demos = sirv('demos');
+let demos = sirv('.');
 let events = sse(SERVER_ACTOR_PATH);
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
-  entryPoints: ['demos/src/app.tsx', 'demos/src/worker.tsx'],
+  entryPoints: ['src/app.tsx', 'src/worker.tsx'],
   bundle: true,
   format: 'esm',
-  outdir: 'demos/dist',
+  outdir: 'dist',
 })
 
 // The return value tells us where esbuild's local server is
 let { host, port } = await ctx.serve({
-  servedir: 'demos'
+  servedir: '.'
 });
 
 http.createServer(function(req, res) {

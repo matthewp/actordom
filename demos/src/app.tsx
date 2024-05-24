@@ -1,6 +1,7 @@
 import type actors from './worker';
 import type serverActors from './server';
-import { spawn, update, connect, fromRoot, send } from '../../src/main';
+import { spawn, update, connect, send } from 'actordom';
+import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';
 
@@ -49,32 +50,24 @@ class Namer {
 }
 
 class Main {
-  root = fromRoot(document.querySelector('#app')!);
+  root = document.querySelector('#app')!;
   counter = spawn(Counter, 'Main thread counter');
-  namer = spawn(Namer);
+  //namer = spawn(Namer);
   todoList = spawn(TodoList);
   offthreadCounter = spawn(Offthread);
   server = spawn(ServerActor);
   constructor() {
     send(this.server, ['worker', this.offthreadCounter]);
-
-    // Still hate this :(
-    update(this, this.root);
+    mount(this, this.root);
   }
-  receive() {}
+  receive([]: any) {
+    update(this);
+  }
   view() {
     return (
       <main>
         <h1>My App</h1>
         {this.counter}
-        <hr />
-        {this.namer}
-        <hr />
-        {this.todoList}
-        <hr />
-        {this.offthreadCounter}
-        <hr />
-        {this.server}
       </main>
     );
   }

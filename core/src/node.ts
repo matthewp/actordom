@@ -70,7 +70,6 @@ function handleDomActorPost(handler: Handler, req: IncomingMessage, res: ServerR
 function serverSetEvents(prefix: string) {
   let handler = createHandler(sender);
   return function(req: IncomingMessage, res: ServerResponse) {
-    console.log("REQURL", req.url, pathJoin(prefix, 'events'));
     if(req.url?.startsWith(prefix)) {
       if(req.url.startsWith(pathJoin(prefix, 'events'))) {
         handleEventStream(req, res);

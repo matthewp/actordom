@@ -1,4 +1,4 @@
-import { send, spawn, update, process, type Process } from '../../src/main';
+import { send, spawn, update, process, type Process } from 'actordom';
 
 type Todo = { title: string; done: boolean };
 
@@ -54,15 +54,15 @@ class TodoItem {
         this.todo.done = data.target.checked;
         this.persist();
         if(this.todo.done !== oldValue) {
-          send(this.list, ['update-done', this.todo.done])
+          send(this.list, ['done', {
+            index: this.index,
+            done: this.todo.done,
+          }])
         }
         break;
       }
       case 'remove': {
         send(this.list, ['remove', this.index]);
-        if(this.todo.done) {
-          send(this.list, ['update-done', false]);
-        }
         send(this.storage, ['remove', this.index]);
         break;
       }
@@ -90,13 +90,14 @@ class TodoItem {
 
 type todoListMailbox = ['add', actordom.JSX.TargetedSubmitEvent<HTMLFormElement>]
   | [ 'set-title', actordom.JSX.TargetedInputEvent<HTMLInputElement>]
-  | ['update-done', boolean]
-  | ['remove', number];
+  | ['done', { done: boolean; index: number; }]
+  | ['remove', number]
+  | ['clear-completed', Event];
 
 class TodoList {
   newTitle = '';
-  doneCount = 0;
   todos: Array<Process<TodoItem>> = [];
+  done = new Set<number>();
   storage = spawn(Storage);
   receive([name, data]: todoListMailbox){
     switch(name) {
@@ -119,18 +120,32 @@ class TodoList {
         this.newTitle = data.currentTarget.value;
         return;
       }
-      case 'update-done': {
-        this.doneCount += (data ? 1 : -1);
+      case 'done': {
+        //this.doneCount += (data ? 1 : -1);
+        if(data.done) {
+          this.done.add(data.index);
+        } else {
+          this.done.delete(data.index);
+        }
         break;
       }
       case 'remove': {
         this.todos.splice(data, 1);
+        this.done.delete(data);
+        break;
+      }
+      case 'clear-completed': {
+        for(let index of this.done) {
+          this.todos.splice(index, 1);
+          this.done.delete(index);
+        }
         break;
       }
     }
     update(this);
   }
   view() {
+    let doneCount = this.done.size;
     return (
       <div>
         <h2>Simple Todos Example</h2>
@@ -147,7 +162,12 @@ class TodoList {
           this.todos.map(todoItem => todoItem)
         }
         <footer>
-          Completed: {this.doneCount}
+          Completed: {doneCount}
+          {doneCount > 0 ? (
+            <div>
+              <button onClick="clear-completed">Clear completed</button>
+            </div>
+          ): <></>}
         </footer>
       </div>
     )

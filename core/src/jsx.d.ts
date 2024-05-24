@@ -7,8 +7,9 @@ import {
 } from './tree';
 import {
 	Actor,
+	DOMActor,
 	MessageName
-} from './main';
+} from './actor';
 
 // Extras
 type Key = string | number | any;
@@ -48,15 +49,14 @@ export namespace JSXInternal {
 		key?: any;
 	}
 
-	export type ElementType<P = any> =
+	export type ElementType<A extends DOMActor, P = any> =
 		| {
-				[K in keyof IntrinsicElements]: P extends IntrinsicElements[K]
+				[K in keyof IntrinsicElements<A>]: P extends IntrinsicElements<A>[K]
 					? K
 					: never;
-		  }[keyof IntrinsicElements];
+		  }[keyof IntrinsicElements<A>];
 	interface VNodeElement extends VNode<any> {}
 	export type Element = VNodeElement | Tree;
-	//export interface Element extends VNode<any> {}
 
 	export interface ElementAttributesProperty {
 		props: any;
@@ -451,12 +451,12 @@ export namespace JSXInternal {
 		TargetedWheelEvent<Target>
 	>;
 
-	export interface DOMAttributes<Target extends EventTarget, A extends Actor = Actor> extends ActorDOMAttributes  {
+	export interface DOMAttributes<A extends DOMActor = DOMActor, Target extends EventTarget> extends ActorDOMAttributes  {
 		// Image Events
-		onLoad?: GenericEventHandler<Target>;
-		onLoadCapture?: GenericEventHandler<Target>;
-		onError?: GenericEventHandler<Target>;
-		onErrorCapture?: GenericEventHandler<Target>;
+		onLoad?: MessageName<A>;
+		onLoadCapture?: MessageName<A>;
+		onError?: MessageName<A>;
+		onErrorCapture?: MessageName<A>;
 
 		// Clipboard Events
 		onCopy?: ClipboardEventHandler<Target>;
@@ -475,38 +475,38 @@ export namespace JSXInternal {
 		onCompositionUpdateCapture?: CompositionEventHandler<Target>;
 
 		// Details Events
-		onToggle?: GenericEventHandler<Target>;
+		onToggle?: MessageName<A>;
 
 		// Focus Events
-		onFocus?: FocusEventHandler<Target>;
-		onFocusCapture?: FocusEventHandler<Target>;
-		onfocusin?: FocusEventHandler<Target>;
-		onfocusinCapture?: FocusEventHandler<Target>;
-		onfocusout?: FocusEventHandler<Target>;
-		onfocusoutCapture?: FocusEventHandler<Target>;
-		onBlur?: FocusEventHandler<Target>;
-		onBlurCapture?: FocusEventHandler<Target>;
+		onFocus?: MessageName<A>;
+		onFocusCapture?: MessageName<A>;
+		onfocusin?: MessageName<A>;
+		onfocusinCapture?: MessageName<A>;
+		onfocusout?: MessageName<A>;
+		onfocusoutCapture?: MessageName<A>;
+		onBlur?: MessageName<A>;
+		onBlurCapture?: MessageName<A>;
 
 		// Form Events
-		onChange?: MessageName<A>;// GenericEventHandler<Target>;
-		onChangeCapture?: GenericEventHandler<Target>;
-		onInput?: MessageName<A>; // TODO update? GenericEventHandler<Target>;
-		onInputCapture?: GenericEventHandler<Target>;
-		onBeforeInput?: GenericEventHandler<Target>;
-		onBeforeInputCapture?: GenericEventHandler<Target>;
-		onSearch?: GenericEventHandler<Target>;
-		onSearchCapture?: GenericEventHandler<Target>;
-		onSubmit?: MessageName<A>;// GenericEventHandler<Target>;
-		onSubmitCapture?: GenericEventHandler<Target>;
-		onInvalid?: GenericEventHandler<Target>;
-		onInvalidCapture?: GenericEventHandler<Target>;
-		onReset?: GenericEventHandler<Target>;
-		onResetCapture?: GenericEventHandler<Target>;
-		onFormData?: GenericEventHandler<Target>;
-		onFormDataCapture?: GenericEventHandler<Target>;
+		onChange?: MessageName<A>;
+		onChangeCapture?: MessageName<A>;
+		onInput?: MessageName<A>;
+		onInputCapture?: MessageName<A>;
+		onBeforeInput?: MessageName<A>;
+		onBeforeInputCapture?: MessageName<A>;
+		onSearch?: MessageName<A>;
+		onSearchCapture?: MessageName<A>;
+		onSubmit?: MessageName<A>;
+		onSubmitCapture?: MessageName<A>;
+		onInvalid?: MessageName<A>;
+		onInvalidCapture?: MessageName<A>;
+		onReset?: MessageName<A>;
+		onResetCapture?: MessageName<A>;
+		onFormData?: MessageName<A>;
+		onFormDataCapture?: MessageName<A>;
 
 		// Keyboard Events
-		onKeyDown?: KeyboardEventHandler<Target>;
+		onKeyDown?: MessageName<A>;
 		onKeyDownCapture?: KeyboardEventHandler<Target>;
 		onKeyPress?: KeyboardEventHandler<Target>;
 		onKeyPressCapture?: KeyboardEventHandler<Target>;
@@ -514,58 +514,58 @@ export namespace JSXInternal {
 		onKeyUpCapture?: KeyboardEventHandler<Target>;
 
 		// Media Events
-		onAbort?: GenericEventHandler<Target>;
-		onAbortCapture?: GenericEventHandler<Target>;
-		onCanPlay?: GenericEventHandler<Target>;
-		onCanPlayCapture?: GenericEventHandler<Target>;
-		onCanPlayThrough?: GenericEventHandler<Target>;
-		onCanPlayThroughCapture?: GenericEventHandler<Target>;
-		onDurationChange?: GenericEventHandler<Target>;
-		onDurationChangeCapture?: GenericEventHandler<Target>;
-		onEmptied?: GenericEventHandler<Target>;
-		onEmptiedCapture?: GenericEventHandler<Target>;
-		onEncrypted?: GenericEventHandler<Target>;
-		onEncryptedCapture?: GenericEventHandler<Target>;
-		onEnded?: GenericEventHandler<Target>;
-		onEndedCapture?: GenericEventHandler<Target>;
-		onLoadedData?: GenericEventHandler<Target>;
-		onLoadedDataCapture?: GenericEventHandler<Target>;
-		onLoadedMetadata?: GenericEventHandler<Target>;
-		onLoadedMetadataCapture?: GenericEventHandler<Target>;
-		onLoadStart?: GenericEventHandler<Target>;
-		onLoadStartCapture?: GenericEventHandler<Target>;
-		onPause?: GenericEventHandler<Target>;
-		onPauseCapture?: GenericEventHandler<Target>;
-		onPlay?: GenericEventHandler<Target>;
-		onPlayCapture?: GenericEventHandler<Target>;
-		onPlaying?: GenericEventHandler<Target>;
-		onPlayingCapture?: GenericEventHandler<Target>;
-		onProgress?: GenericEventHandler<Target>;
-		onProgressCapture?: GenericEventHandler<Target>;
-		onRateChange?: GenericEventHandler<Target>;
-		onRateChangeCapture?: GenericEventHandler<Target>;
-		onSeeked?: GenericEventHandler<Target>;
-		onSeekedCapture?: GenericEventHandler<Target>;
-		onSeeking?: GenericEventHandler<Target>;
-		onSeekingCapture?: GenericEventHandler<Target>;
-		onStalled?: GenericEventHandler<Target>;
-		onStalledCapture?: GenericEventHandler<Target>;
-		onSuspend?: GenericEventHandler<Target>;
-		onSuspendCapture?: GenericEventHandler<Target>;
-		onTimeUpdate?: GenericEventHandler<Target>;
-		onTimeUpdateCapture?: GenericEventHandler<Target>;
-		onVolumeChange?: GenericEventHandler<Target>;
-		onVolumeChangeCapture?: GenericEventHandler<Target>;
-		onWaiting?: GenericEventHandler<Target>;
-		onWaitingCapture?: GenericEventHandler<Target>;
+		onAbort?: MessageName<A>;
+		onAbortCapture?: MessageName<A>;
+		onCanPlay?: MessageName<A>;
+		onCanPlayCapture?: MessageName<A>;
+		onCanPlayThrough?: MessageName<A>;
+		onCanPlayThroughCapture?: MessageName<A>;
+		onDurationChange?: MessageName<A>;
+		onDurationChangeCapture?: MessageName<A>;
+		onEmptied?: MessageName<A>;
+		onEmptiedCapture?: MessageName<A>;
+		onEncrypted?: MessageName<A>;
+		onEncryptedCapture?: MessageName<A>;
+		onEnded?: MessageName<A>;
+		onEndedCapture?: MessageName<A>;
+		onLoadedData?: MessageName<A>;
+		onLoadedDataCapture?: MessageName<A>;
+		onLoadedMetadata?: MessageName<A>;
+		onLoadedMetadataCapture?: MessageName<A>;
+		onLoadStart?: MessageName<A>;
+		onLoadStartCapture?: MessageName<A>;
+		onPause?: MessageName<A>;
+		onPauseCapture?: MessageName<A>;
+		onPlay?: MessageName<A>;
+		onPlayCapture?: MessageName<A>;
+		onPlaying?: MessageName<A>;
+		onPlayingCapture?: MessageName<A>;
+		onProgress?: MessageName<A>;
+		onProgressCapture?: MessageName<A>;
+		onRateChange?: MessageName<A>;
+		onRateChangeCapture?: MessageName<A>;
+		onSeeked?: MessageName<A>;
+		onSeekedCapture?: MessageName<A>;
+		onSeeking?: MessageName<A>;
+		onSeekingCapture?: MessageName<A>;
+		onStalled?: MessageName<A>;
+		onStalledCapture?: MessageName<A>;
+		onSuspend?: MessageName<A>;
+		onSuspendCapture?: MessageName<A>;
+		onTimeUpdate?: MessageName<A>;
+		onTimeUpdateCapture?: MessageName<A>;
+		onVolumeChange?: MessageName<A>;
+		onVolumeChangeCapture?: MessageName<A>;
+		onWaiting?: MessageName<A>;
+		onWaitingCapture?: MessageName<A>;
 
 		// MouseEvents
-		onClick?: string;//MouseEventHandler<Target>;
-		onClickCapture?: MouseEventHandler<Target>;
-		onContextMenu?: MouseEventHandler<Target>;
-		onContextMenuCapture?: MouseEventHandler<Target>;
-		onDblClick?: MouseEventHandler<Target>;
-		onDblClickCapture?: MouseEventHandler<Target>;
+		onClick?: MessageName<A>;
+		onClickCapture?: MessageName<A>;
+		onContextMenu?: MessageName<A>;
+		onContextMenuCapture?: MessageName<A>;
+		onDblClick?: MessageName<A>;
+		onDblClickCapture?: MessageName<A>;
 		onDrag?: DragEventHandler<Target>;
 		onDragCapture?: DragEventHandler<Target>;
 		onDragEnd?: DragEventHandler<Target>;
@@ -582,24 +582,24 @@ export namespace JSXInternal {
 		onDragStartCapture?: DragEventHandler<Target>;
 		onDrop?: DragEventHandler<Target>;
 		onDropCapture?: DragEventHandler<Target>;
-		onMouseDown?: MouseEventHandler<Target>;
-		onMouseDownCapture?: MouseEventHandler<Target>;
-		onMouseEnter?: MouseEventHandler<Target>;
-		onMouseEnterCapture?: MouseEventHandler<Target>;
-		onMouseLeave?: MouseEventHandler<Target>;
-		onMouseLeaveCapture?: MouseEventHandler<Target>;
-		onMouseMove?: MouseEventHandler<Target>;
-		onMouseMoveCapture?: MouseEventHandler<Target>;
-		onMouseOut?: MouseEventHandler<Target>;
-		onMouseOutCapture?: MouseEventHandler<Target>;
-		onMouseOver?: MouseEventHandler<Target>;
-		onMouseOverCapture?: MouseEventHandler<Target>;
-		onMouseUp?: MouseEventHandler<Target>;
-		onMouseUpCapture?: MouseEventHandler<Target>;
+		onMouseDown?: MessageName<A>;
+		onMouseDownCapture?: MessageName<A>;
+		onMouseEnter?: MessageName<A>;
+		onMouseEnterCapture?: MessageName<A>;
+		onMouseLeave?: MessageName<A>;
+		onMouseLeaveCapture?: MessageName<A>;
+		onMouseMove?: MessageName<A>;
+		onMouseMoveCapture?: MessageName<A>;
+		onMouseOut?: MessageName<A>;
+		onMouseOutCapture?: MessageName<A>;
+		onMouseOver?: MessageName<A>;
+		onMouseOverCapture?: MessageName<A>;
+		onMouseUp?: MessageName<A>;
+		onMouseUpCapture?: MessageName<A>;
 
 		// Selection Events
-		onSelect?: GenericEventHandler<Target>;
-		onSelectCapture?: GenericEventHandler<Target>;
+		onSelect?: MessageName<A>;
+		onSelectCapture?: MessageName<A>;
 
 		// Touch Events
 		onTouchCancel?: TouchEventHandler<Target>;
@@ -654,7 +654,7 @@ export namespace JSXInternal {
 		onTransitionEndCapture?: TransitionEventHandler<Target>;
 	}
 
-	export interface HTMLAttributes<RefType extends EventTarget = EventTarget> extends Attributes, DOMAttributes<RefType> {
+	export interface HTMLAttributes<RefType extends EventTarget = EventTarget, A extends DOMActor = DOMActor> extends Attributes, DOMAttributes<A, RefType> {
 		// Standard HTML Attributes
 		accept?: string;
 		acceptCharset?: string;
@@ -882,7 +882,7 @@ export namespace JSXInternal {
     [k: string]: CustomElementAttributes | HTMLAttributes<HTMLElement> | SVGAttributes<SVGElement>;
   }
 
-	export interface IntrinsicElements extends BaseIntrinsicElements {
+	export interface IntrinsicElements<A extends DOMActor = DOMActor> extends BaseIntrinsicElements {
 		// HTML
 		a: HTMLAttributes<HTMLAnchorElement>;
 		abbr: HTMLAttributes<HTMLElement>;
@@ -899,7 +899,7 @@ export namespace JSXInternal {
 		blockquote: HTMLAttributes<HTMLQuoteElement>;
 		body: HTMLAttributes<HTMLBodyElement>;
 		br: HTMLAttributes<HTMLBRElement>;
-		button: HTMLAttributes<HTMLButtonElement>;
+		button: HTMLAttributes<HTMLButtonElement, A>;
 		canvas: HTMLAttributes<HTMLCanvasElement>;
 		caption: HTMLAttributes<HTMLTableCaptionElement>;
 		cite: HTMLAttributes<HTMLElement>;

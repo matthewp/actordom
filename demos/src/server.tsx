@@ -1,5 +1,5 @@
 import type { Offthread } from './worker';
-import { register, spawn, Process, send, sse } from '../../src/node';
+import { register, spawn, Process, send, sse } from 'actordom/node';
 import Counter from './counter.js';
 
 type mailbox = ['increment-worker', Event] |

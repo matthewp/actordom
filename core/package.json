@@ -1,0 +1,35 @@
+{
+  "name": "actordom",
+  "version": "0.0.1",
+  "description": "Actors",
+  "type": "module",
+  "exports": {
+    ".": {
+      "node": "./dist/node.js",
+      "default": "./dist/main.js"
+    },
+    "./dom": "./dist/dom.js",
+    "./worker": "./dist/worker.js",
+    "./node": "./dist/node.js",
+    "./jsx-runtime": {
+      "types": "./src/index.d.ts",
+      "import": "./src/jsx-runtime.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "keywords": [],
+  "author": "Matthew Phillips",
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "incremental-dom": "^0.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
+  }
+}

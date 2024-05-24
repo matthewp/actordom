@@ -12,11 +12,12 @@ import {
 } 
 // @ts-expect-error
 from 'incremental-dom';
+import type { Actor } from './actor.js';
 import type { DOMActor, Process } from './main.js';
 import type { Tree } from './tree.js';
 import type { JSXInternal } from './jsx.js';
 
-import { updateProcess, _root } from './update.js';
+import { updateProcess, _renderPid, _root, update } from './update.js';
 import { spawn, send, inThisSystem } from './system.js';
 
 var eventAttrExp = /^on[a-z]/;
@@ -65,6 +66,8 @@ function addEventCallback(pid: any, element: Element, message: any, eventName: s
   return handler;
 }
 
+let _update = '~ad.update~';
+
 const TAG = 1;
 const ID = 2;
 const ATTRS = 3;
@@ -104,6 +107,11 @@ function inner(bc: any, actor: RenderActor, pid: any){
             pointer = currentPointer();
           } while(pointer?.data !== 'ad-end');
           skipNode();
+
+          if(n[2]) {
+            let slotPid = actor.cMap.get(n[1])!;
+            send(slotPid, [_update, n[2]]);
+          }
         } else {
           let el = currentElement();
           let start = document.createComment('ad-start');
@@ -118,10 +126,17 @@ function inner(bc: any, actor: RenderActor, pid: any){
   
           let renderPid = fromRoot(render as any);
           actor.pidMap.set(n[1], renderPid);
+
+          let slotPid: Process<DOMActor> | undefined = undefined;
+          if(n[2]) {
+            slotPid = spawn(Children, pid, n[2]);
+            actor.cMap.set(n[1], slotPid);
+          }
+
           // TODO probably not needed. I think we only every get here once.
           if(!actor.mounted.has(n[1])) {
             actor.mounted.add(n[1]);
-            updateProcess(n[1], renderPid)
+            updateProcess(n[1], renderPid, slotPid);
           }
         }
         break;
@@ -144,8 +159,22 @@ function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderAc
   return ret;
 }
 
+class Children {
+  constructor(public pid: Process<DOMActor>, public tree: Tree){}
+  receive(message: [typeof _update, Tree] | [string, any]) {
+    if(message[0] === _update) {
+      this.tree = message[1];
+      update(this);
+    } else {
+      send(this.pid, message);
+    }
+  }
+  view() { return this.tree; }
+}
+
 class RenderActor {
-  pidMap = new Map<string, string>;
+  pidMap = new Map<string, Process<Actor>>;
+  cMap = new Map<Process<DOMActor>, Process<DOMActor>>;
   mounted = new Set<string>;
   constructor(public root: Element) {}
   receive([, [pid, tree]]: [string, [Process<DOMActor>, Tree]]) {
@@ -160,4 +189,9 @@ function fromRoot(root: Element) {
   return spawn(RenderActor, root);
 }
 
-export { render, fromRoot };
+function mount(actor: DOMActor, root: Element) {
+  actor[_renderPid] = fromRoot(root);
+  update(actor);
+}
+
+export { mount, render, fromRoot };

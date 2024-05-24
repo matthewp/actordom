@@ -1,4 +1,4 @@
-import { register, update } from '../../src/worker';
+import { register, update } from 'actordom/worker';
 
 class Offthread {
   count = 0;
@@ -17,7 +17,7 @@ class Offthread {
         <h2>Worker actor</h2>
         <p>this is running in a web worker</p>
         <div>Count: {this.count}</div>
-        <button type="button" onClick="increment">Increment</button>
+        <button type="button" onMouseDown="increment">Increment</button>
       </div>
     )
   }
@@ -25,4 +25,6 @@ class Offthread {
 
 export { Offthread };
 
-export default register(Offthread, 'Offthread');
+const modules = register(Offthread, 'Offthread');
+
+export default modules;

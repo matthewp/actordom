@@ -19,6 +19,7 @@ type UpdateMessage = {
   type: 'update';
   pid: Process<DOMActor>;
   renderPid: Process<Actor>;
+  slotPid: Process<DOMActor> | undefined;
 };
 
 type NewSystemMessage = {

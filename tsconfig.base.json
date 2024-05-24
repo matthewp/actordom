@@ -1,16 +1,13 @@
 {
-  "include": ["src"],
   "compilerOptions": {
     "declaration": true,
     "strict": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",
-    "outDir": "dist",
-    "rootDir": "src",
     "target": "ES2022",
     "skipLibCheck": true,
 
     "jsx": "react-jsx",
-    "jsxImportSource": "@matthewp/actor-dom"
+    "jsxImportSource": "actordom"
   }
 }

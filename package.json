@@ -1,36 +1,7 @@
 {
-  "name": "actordom",
-  "version": "0.0.1",
-  "description": "Actors",
-  "type": "module",
-  "exports": {
-    ".": "./dist/main.js",
-    "./worker": "./dist/worker.js",
-    "./node": "./dist/node.js",
-    "./jsx-runtime": {
-      "types": "./src/index.d.ts",
-      "import": "./src/jsx-runtime.ts"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "build-node": "esbuild demos/src/server.tsx --bundle --format=esm --outdir=demos/dist2 --platform=node",
-    "dev": "esbuild demos/src/app.tsx demos/src/worker.tsx --bundle --format=esm --outdir=demos/dist --servedir=demos",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "Matthew Phillips",
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "incremental-dom": "^0.6.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.12.12",
-    "esbuild": "^0.21.3",
-    "sirv": "^2.0.4",
-    "typescript": "^5.4.5"
-  }
+  "name": "actordom-monorepo",
+  "workspaces": [
+    "core",
+    "demos"
+  ]
 }

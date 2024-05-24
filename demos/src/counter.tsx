@@ -1,5 +1,4 @@
-import { update } from '../../src/update';
-import { process } from '../../src/system';
+import { update, process } from 'actordom';
 
 type counterMailbox = ['increment', Event]
 
@@ -20,7 +19,7 @@ class Counter {
       <div>
         <h2>{this.title}</h2>
         <div>Count: {this.count}</div>
-        <button type="button" onClick="increment">Increment</button>
+        <button type="button" onMouseDown="increment">Increment</button>
       </div>
     );
   }
