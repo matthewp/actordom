@@ -5,7 +5,8 @@ import type { UUID, Process } from './pid.js';
 type SpawnMessage = {
   type: 'spawn';
   name: string;
-  pid: Process<Actor>
+  pid: Process<Actor>;
+  args: any[];
 };
 
 type SendMessage = {

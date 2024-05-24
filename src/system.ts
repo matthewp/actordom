@@ -110,6 +110,7 @@ function spawn<
       type: 'spawn',
       name: ActorType.name,
       pid: pid,
+      args
     });
   } else {
     let actor = new (ActorType as any)(...args);

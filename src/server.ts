@@ -7,30 +7,19 @@ import type {
 import { type ConnectionMessage, type SystemMessage, sendMessage } from './messages.js';
 import type { Process, UUID } from './pid.js';
 import type { Registry } from './register.js';
+import { createRemoteHandler } from './remote.js';
 import { process, send, spawn, spawnWithPid, addSelfAlias, updateSystem, systemId } from './system.js';
 import { update, updateProcess } from './update.js';
 
 type OverTheWireSystemMessage = SystemMessage & { port: UUID; };
 type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
 
-const items: any = {};
+const items: Record<string, ActorType> = {};
 
 function serverSide(port: MessagePort) {
+  const defaultHandler = createRemoteHandler(items);
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     switch(ev.data.type) {
-      case 'spawn': {
-        let Item = items[ev.data.name];
-        spawnWithPid(Item, ev.data.pid); //todo args
-        break;
-      }
-      case 'send': {
-        send(ev.data.pid, ev.data.message);
-        break;
-      }
-      case 'update': {
-        updateProcess(ev.data.pid, ev.data.renderPid);
-        break;
-      }
       case 'new-system': {
         let channel = new MessageChannel();
         updateSystem(ev.data.system, channel.port1);
@@ -38,13 +27,18 @@ function serverSide(port: MessagePort) {
         clientSide(channel.port2, ev.data.port);
         break;
       }
+      default: {
+        defaultHandler(ev.data);
+        break;
+      }
     }
   };
   port.start();
 }
 
-function clientSide(port: MessagePort, uuid: string) {
+function clientSide(port: MessagePort, uuid: UUID) {
   port.onmessage = ev => {
+    ev.data.port = uuid;
     sender(ev.data);
   };
   port.start();
@@ -58,7 +52,6 @@ const handler = (ev: MessageEvent<OverTheWireSystemMessage>) => {
     case 'system': {
       addSelfAlias(ev.data.system);
       let channel = new MessageChannel();
-      // TODO all wrong?
       updateSystem(ev.data.sender, channel.port1);
       port2 = channel.port2;
       serverSide(channel.port1);
@@ -77,9 +70,10 @@ const handler = (ev: MessageEvent<OverTheWireSystemMessage>) => {
 
 function register<A extends ActorType, N extends string>(actor: A, name: N): Registry<N, A> {
   items[name] = actor;
-  return {} as any;
+  return {} as Registry<N, A>;
 }
 
+// TODO do this differently
 let sender: any;
 function  setSender(_sender: any) {
   sender = _sender;

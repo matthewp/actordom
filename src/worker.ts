@@ -7,29 +7,22 @@ import type {
 import type { ConnectionMessage, SystemMessage } from './messages.js';
 import type { Process } from './pid.js';
 import type { Registry } from './register.js';
-import { addSelfAlias, process, send, spawn, spawnWithPid, updateSystem } from './system.js';
-import { update, updateProcess } from './update.js';
+import { createRemoteHandler } from './remote.js';
+import { addSelfAlias, process, send, spawn, updateSystem } from './system.js';
+import { update } from './update.js';
 
-const items: any = {};
+const items: Record<string, ActorType> = Object.create(null);
 
 function established(port: MessagePort) {
+  const defaultHandler = createRemoteHandler(items);
   port.onmessage = (ev: MessageEvent<ConnectionMessage>) => {
     switch(ev.data.type) {
-      case 'spawn': {
-        let Item = items[ev.data.name];
-        spawnWithPid(Item, ev.data.pid);
-        break;
-      }
-      case 'send': {
-        send(ev.data.pid, ev.data.message);
-        break;
-      }
-      case 'update': {
-        updateProcess(ev.data.pid, ev.data.renderPid);
-        break;
-      }
       case 'new-system': {
         updateSystem(ev.data.system, ev.ports[0]);
+        break;
+      }
+      default: {
+        defaultHandler(ev.data);
         break;
       }
     }
