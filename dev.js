@@ -4,8 +4,10 @@ import * as esbuild from 'esbuild'
 import http from 'node:http';
 import { sse } from './demos/dist2/server.js';
 
+const SERVER_ACTOR_PATH = '/_actordom';
+
 let demos = sirv('demos');
-let events = sse('/_actordom');
+let events = sse(SERVER_ACTOR_PATH);
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
@@ -47,8 +49,7 @@ http.createServer(function(req, res) {
     req.pipe(proxyReq, { end: true });
     return;
   }
-  console.log('req.url', req.url);
-  if(req.url?.startsWith('/_actordom')) {
+  if(req.url?.startsWith(SERVER_ACTOR_PATH)) {
     events(req, res);
     return;
   }
