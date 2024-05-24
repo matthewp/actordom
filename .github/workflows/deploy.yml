@@ -1,0 +1,24 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Build site
+      run: npm -w=site run build
+    - name: Deploy
+      run: |
+        mkdir -p ~/.ssh/
+        cat ${{ secrets.SSH_PRIVATE_KEY }} > ~/.ssh/id_rsa
+        rsync -avz site/dist ${{ secrets.DEPLOY_TARGET }}
