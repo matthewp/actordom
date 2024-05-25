@@ -194,4 +194,4 @@ function mount(actor: DOMActor, root: Element) {
   update(actor);
 }
 
-export { mount, render, fromRoot };
+export { mount, fromRoot };
