@@ -73,7 +73,7 @@ function getActorFromPID<A extends Actor>(pid: Process<A>) {
 }
 
 function getPIDFromActor(actor: Actor): Process<Actor> {
-  return (actor as any)[_pid];
+  return actor[_pid]!;
 }
 
 function getMessenger(systemId: UUID) {
@@ -89,8 +89,8 @@ function spawnWithPid<A extends ActorType>(ActorType: A, pid: Process<InstanceTy
   // TODO alias PID if created
 
   pids.set(getId(pid), actor);
-  (actor as any)[_pid] = pid;
-  return pid as any;
+  actor[_pid] = pid;
+  return pid;
 }
 
 type GetActorType<AOR extends ActorType | RemoteActor> = AOR extends RemoteActor ? AOR['_actor'] : AOR;
@@ -114,13 +114,13 @@ function spawn<
     });
   } else {
     let actor = new (ActorType as any)(...args);
-    pid = (actor as any)[_pid] ?? createPID() as Process<InstanceType<A>>;
+    pid = actor[_pid] ?? createPID() as Process<InstanceType<A>>;
 
     pids.set(getId(pid), actor);
-    (actor as any)[_pid] = pid;
+    actor[_pid] = pid;
   }
 
-  return pid as any;
+  return pid;
 }
 
 function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
