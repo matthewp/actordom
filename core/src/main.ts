@@ -7,7 +7,7 @@ import type {
 import type { Process } from './pid.js';
 import { update, pass } from './update.js';
 import { process, send, spawn } from './system.js';
-import { connect } from './connection.js';
+import { createServerConnection, createWorkerConnection } from './connection.js';
 
 export {
   type Actor,
@@ -16,7 +16,8 @@ export {
   type MessageName,
   type Process,
 
-  connect,
+  createServerConnection,
+  createWorkerConnection,
   pass,
   process,
   send,

@@ -1,6 +1,6 @@
-import type actors from './worker';
-import type serverActors from './server';
-import { spawn, update, connect, send } from 'actordom';
+import type { WorkerRouter } from './worker';
+import type { AppRouter } from './server';
+import { spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
 import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';
@@ -9,11 +9,8 @@ let worker = new Worker(new URL('./worker.js', import.meta.url), {
   type: 'module'
 });
 
-let connection = connect<typeof actors>(worker);
-const Offthread = connection.expose('Offthread');
-
-let server = connect<typeof serverActors>('/_actordom');
-const ServerActor = server.expose('ServerActor');
+const { Offthread } = createWorkerConnection<WorkerRouter>(worker);
+const { ServerActor } = createServerConnection<AppRouter>('/_actordom');
 
 type namerMailbox = 
   ['first', { target: HTMLInputElement }] |
@@ -67,7 +64,8 @@ class Main {
     return (
       <main>
         <h1>My App</h1>
-        {this.counter}
+        {this.offthreadCounter}
+        {this.server}
       </main>
     );
   }

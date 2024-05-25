@@ -7,7 +7,8 @@ import type {
 import type { Process } from './pid.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { join as pathJoin } from 'node:path';
-import { createHandler, register } from './server.js';
+import { type AnyRouter } from './remote.js';
+import { createHandler, router } from './server.js';
 import { process, send, spawn } from './system.js';
 import { update } from './update.js';
 
@@ -67,8 +68,8 @@ function handleDomActorPost(handler: Handler, req: IncomingMessage, res: ServerR
   });
 }
 
-function serverSetEvents(prefix: string) {
-  let handler = createHandler(sender);
+function serverSentEvents(prefix: string, router: AnyRouter) {
+  let handler = createHandler(sender, router);
   return function(req: IncomingMessage, res: ServerResponse) {
     if(req.url?.startsWith(prefix)) {
       if(req.url.startsWith(pathJoin(prefix, 'events'))) {
@@ -82,7 +83,7 @@ function serverSetEvents(prefix: string) {
 }
 
 export {
-  serverSetEvents as sse,
+  serverSentEvents as sse,
 
   type Actor,
   type ActorType,
@@ -90,7 +91,7 @@ export {
   type MessageName,
   type Process,
 
-  register,
+  router,
   process,
   send,
   spawn,

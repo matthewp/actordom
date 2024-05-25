@@ -3,6 +3,24 @@ import type { ConnectionMessage } from './messages.js';
 import { send, spawnWithPid } from './system.js';
 import { updateProcess } from './update.js';
 
+type Routes<I extends Record<string, ActorType>> = {
+  [k in keyof I]: I[k]
+}
+
+type MessageHandler = (message: ConnectionMessage) => void;
+
+type Router<I extends Routes<Record<string, ActorType>>> = MessageHandler & {
+  /** @internal */
+  _routes: I;
+}
+
+type AnyRouter = Router<Routes<Record<string, ActorType>>>;
+
+function router<I extends Record<string, ActorType>>(items: I): Router<I> {
+  let router = createRemoteHandler(items);
+  return router as Router<I>;
+}
+
 function createRemoteHandler(items: Record<string, ActorType>) {
   return function(message: ConnectionMessage) {
     switch(message.type) {
@@ -24,5 +42,8 @@ function createRemoteHandler(items: Record<string, ActorType>) {
 }
 
 export {
-  createRemoteHandler
+  type AnyRouter,
+  type Router,
+
+  router
 }

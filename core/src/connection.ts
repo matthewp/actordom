@@ -1,20 +1,22 @@
+import type { ActorType } from './actor.js';
 import type { UUID } from './pid.js';
-import type { Registry } from './register.js';
+import type { AnyRouter } from './remote.js';
 import { addSystem, addSystemAlias, send } from './system.js';
 
 type Postable = {
   postMessage(message: any, transfer?: Transferable[]): void;
 };
 
-class RemoteActor<R extends Registry = Registry, N extends keyof R = keyof R> {
-  _actor: R[N] = 0 as any;
-  constructor(public system: UUID, public name: N) {}
-}
-
-type Connection<R extends Registry> = {
-  system: string;
-  expose<N extends keyof R = keyof R>(name: N): RemoteActor<R, N>;
+type Connection<R extends AnyRouter> = {
+  //[k in keyof I]: I[k]
+  [k in keyof R['_routes']]: R['_routes'][k]
+  //expose<N extends keyof R = keyof R>(name: N): RemoteActor<R, N>;
 };
+
+class RemoteActor<A extends ActorType = ActorType> {
+  _actor: A = 0 as any;
+  constructor(public system: UUID, public name: string) {}
+}
 
 class ServerTarget implements Postable {
   opened = false;
@@ -77,22 +79,24 @@ class ServerTarget implements Postable {
   }
 }
 
-function connect<R extends Registry>(target: Postable | string): Connection<R> {
-  if(typeof target === 'string') {
-    target = new ServerTarget(target);
-  }
-  let id = addSystem(target);
-  return {
-    system: id,
-    expose(name) {
-      return new RemoteActor(id, name);
+function createWorkerConnection<R extends AnyRouter>(worker: Postable): Connection<R> {
+  let id = addSystem(worker);
+  return new Proxy({}, {
+    get(_t, key: string) {
+      return new RemoteActor<any>(id, key);
     }
-  }
+  }) as any;
+}
+
+function createServerConnection<R extends AnyRouter>(url: string | URL): Connection<R> {
+  let target = new ServerTarget(url.toString());
+  return createWorkerConnection(target);
 }
 
 export {
   type Postable,
 
-  connect,
-  RemoteActor,
+  createServerConnection,
+  createWorkerConnection,
+  RemoteActor
 }

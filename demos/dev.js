@@ -2,12 +2,11 @@
 import sirv from 'sirv';
 import * as esbuild from 'esbuild'
 import http from 'node:http';
-import { sse } from './dist2/server.js';
+import { requestHandler } from './dist2/server.js';
 
 const SERVER_ACTOR_PATH = '/_actordom';
 
 let demos = sirv('.');
-let events = sse(SERVER_ACTOR_PATH);
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
@@ -50,7 +49,7 @@ http.createServer(function(req, res) {
     return;
   }
   if(req.url?.startsWith(SERVER_ACTOR_PATH)) {
-    events(req, res);
+    requestHandler(req, res);
     return;
   }
   demos(req, res);

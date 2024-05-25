@@ -1,4 +1,4 @@
-import { register, update } from 'actordom/worker';
+import { router, listen, update } from 'actordom/worker';
 
 class Offthread {
   count = 0;
@@ -23,8 +23,15 @@ class Offthread {
   }
 }
 
-export { Offthread };
+const workerRouter = router({
+  Offthread
+});
 
-const modules = register(Offthread, 'Offthread');
+listen(workerRouter);
 
-export default modules;
+type WorkerRouter = typeof workerRouter;
+
+export {
+  type WorkerRouter,
+  type Offthread
+};

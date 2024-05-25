@@ -1,5 +1,5 @@
 import type { Offthread } from './worker';
-import { register, spawn, Process, send, sse } from 'actordom/node';
+import { router, spawn, Process, send, sse } from 'actordom/node';
 import Counter from './counter.js';
 
 type mailbox = ['increment-worker', Event] |
@@ -37,8 +37,15 @@ class ServerActor {
   }
 }
 
-export default register(ServerActor, 'ServerActor');
+let appRouter = router({
+  ServerActor
+})
+
+type AppRouter = typeof appRouter;
+
+const requestHandler = sse('/_actordom', appRouter);
 
 export {
-  sse
+  type AppRouter,
+  requestHandler
 }
