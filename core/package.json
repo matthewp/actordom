@@ -26,8 +26,8 @@
     "test": "wireit"
   },
   "keywords": [],
-  "author": "Matthew Phillips",
-  "license": "BSD-3-Clause",
+  "author": "Matthew Phillips <matthew@matthewphillips.info>",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "incremental-dom": "^0.6.0",
     "node-qunit-puppeteer": "^2.1.2"

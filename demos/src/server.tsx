@@ -43,9 +43,7 @@ let appRouter = router({
 
 type AppRouter = typeof appRouter;
 
-const requestHandler = sse('/_actordom', appRouter);
-
 export {
   type AppRouter,
-  requestHandler
+  appRouter
 }

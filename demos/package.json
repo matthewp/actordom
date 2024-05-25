@@ -7,15 +7,13 @@
   "private": true,
   "scripts": {
     "dev": "node dev.js",
-    "build-node": "esbuild src/server.tsx --bundle --format=esm --outdir=dist2 --platform=node",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "esbuild src/server.tsx --bundle --format=esm --outdir=dist --platform=node --packages=external"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Matthew Phillips",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "actordom": "^0.0.3",
-    "esbuild": "^0.21.3",
-    "sirv": "^2.0.4"
+    "esbuild": "^0.21.3"
   }
 }
