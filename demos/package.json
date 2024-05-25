@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "actordom": "^0.0.2",
+    "actordom": "^0.0.3",
     "esbuild": "^0.21.3",
     "sirv": "^2.0.4"
   }
