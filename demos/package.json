@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "node dev.js",
-    "build": "esbuild src/server.tsx --bundle --format=esm --outdir=dist --platform=node --packages=external"
+    "build": "wireit"
   },
   "keywords": [],
   "author": "Matthew Phillips",
@@ -15,5 +15,13 @@
   "dependencies": {
     "actordom": "^0.0.3",
     "esbuild": "^0.21.3"
+  },
+  "wireit": {
+    "build": {
+      "command": "esbuild src/server.tsx --bundle --format=esm --outdir=dist --platform=node --packages=external",
+      "dependencies": ["../core:build"],
+      "files": ["src/**/*"],
+      "output": ["dist"]
+    }
   }
 }

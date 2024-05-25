@@ -10,8 +10,9 @@ import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId } from './system.js';
 import { update } from './update.js';
 
-type OverTheWireSystemMessage = SystemMessage & { port: UUID; };
 type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
+
+type ss = ConnectionMessage['type']
 
 type Sender = (message: OverTheWireConnectionMessage) => void;
 
@@ -46,7 +47,7 @@ function createHandler(sender: Sender, router: AnyRouter) {
   // TODO wrong! this is shared by everyone.
   let port2: MessagePort;
 
-  const handler = (ev: { data: OverTheWireSystemMessage }) => {
+  const handler = (ev: { data: OverTheWireConnectionMessage }) => {
     switch(ev.data.type) {
       case 'system': {
         addSelfAlias(ev.data.system);
@@ -76,6 +77,7 @@ export {
   type DOMActor,
   type MessageName,
   type Process,
+  type OverTheWireConnectionMessage,
 
   createHandler,
   router,
