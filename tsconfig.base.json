@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "preserveSymlinks": true,
+    "resolvePackageJsonExports": true,
     "target": "ES2022",
 
     "jsx": "react-jsx",
