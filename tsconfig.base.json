@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
-    "declaration": true,
     "strict": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",
-    "preserveSymlinks": true,
     "resolvePackageJsonExports": true,
     "target": "ES2022",
-
     "jsx": "react-jsx",
     "jsxImportSource": "actordom"
   }
