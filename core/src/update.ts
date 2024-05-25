@@ -1,5 +1,5 @@
 import type { Actor, DOMActor } from './actor.js';
-import type { JSXInternal } from './jsx';
+import type { JSXInternal } from '../types/jsx.js';
 import { type Process, getSystem } from './pid.js';
 import { sendMessage } from './messages.js';
 import { getActorFromPID, getMessenger, inThisSystem, process, send } from './system.js';

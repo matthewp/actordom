@@ -1,5 +1,4 @@
-import type { Tree } from './tree.js';
-import type { JSXInternal } from './jsx';
+import type { JSXInternal } from '../types/jsx';
 import type { _renderPid, _slotPid } from './update.js';
 import type { Process } from './pid.js';
 import type { _pid } from './system.js';

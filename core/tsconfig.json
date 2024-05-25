@@ -1,9 +1,12 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["src"],
+  "include": ["src", "types/index.d.ts", "types/jsx.d.ts"],
   "compilerOptions": {
     "allowJs": false,
     "outDir": "dist",
-    "rootDir": "src"
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "src",
+    "skipLibCheck": true
   }
 }

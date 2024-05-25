@@ -12,12 +12,13 @@
     "./worker": "./dist/worker.js",
     "./node": "./dist/node.js",
     "./jsx-runtime": {
-      "types": "./src/index.d.ts",
-      "import": "./src/jsx-runtime.ts"
+      "types": "./types/index.d.ts",
+      "import": "./dist/jsx-runtime.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "scripts": {
     "build": "wireit",

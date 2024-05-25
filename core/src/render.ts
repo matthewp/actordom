@@ -15,7 +15,7 @@ from 'incremental-dom';
 import type { Actor } from './actor.js';
 import type { DOMActor, Process } from './main.js';
 import type { Tree } from './tree.js';
-import type { JSXInternal } from './jsx.js';
+import type { JSXInternal } from '../types/jsx.js';
 
 import { updateProcess, _renderPid, _root, update } from './update.js';
 import { spawn, send, inThisSystem } from './system.js';
