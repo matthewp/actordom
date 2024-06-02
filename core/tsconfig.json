@@ -7,6 +7,7 @@
     "declaration": true,
     "declarationMap": true,
     "rootDir": "src",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictNullChecks": true,
   }
 }

@@ -7,23 +7,21 @@ import type {
 import { type ConnectionMessage, type SystemMessage, sendMessage } from './messages.js';
 import type { Process, UUID } from './pid.js';
 import { type AnyRouter, router } from './remote.js';
-import { process, send, spawn, addSelfAlias, updateSystem, systemId } from './system.js';
+import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias } from './system.js';
 import { update } from './update.js';
 
 type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
 
-type ss = ConnectionMessage['type']
+type MessageHandler = (message: OverTheWireConnectionMessage) => void;
 
-type Sender = (message: OverTheWireConnectionMessage) => void;
-
-function serverSide(sender: Sender, router: AnyRouter, port: MessagePort) {
+function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     switch(ev.data.type) {
       case 'new-system': {
         let channel = new MessageChannel();
         updateSystem(ev.data.system, channel.port1);
-        serverSide(sender, router, channel.port1);
-        clientSide(sender, channel.port2, ev.data.port);
+        serverSide(onMessage, router, channel.port1);
+        clientSide(onMessage, channel.port2, ev.data.port);
         break;
       }
       default: {
@@ -35,40 +33,44 @@ function serverSide(sender: Sender, router: AnyRouter, port: MessagePort) {
   port.start();
 }
 
-function clientSide(sender: Sender, port: MessagePort, uuid: UUID) {
+function clientSide(onMessage: MessageHandler, port: MessagePort, uuid: UUID) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     ev.data.port = uuid;
-    sender(ev.data);
+    onMessage(ev.data);
   };
   port.start();
 }
 
-function createHandler(sender: Sender, router: AnyRouter) {
-  // TODO wrong! this is shared by everyone.
-  let port2: MessagePort;
-
-  const handler = (ev: { data: OverTheWireConnectionMessage }) => {
-    switch(ev.data.type) {
-      case 'system': {
-        addSelfAlias(ev.data.system);
-        let channel = new MessageChannel();
-        updateSystem(ev.data.sender, channel.port1);
-        port2 = channel.port2;
-        serverSide(sender, router, channel.port1);
-        clientSide(sender, port2, ev.data.port);
-
-        // Tell the sender your real systemId.
-        sendMessage(channel.port1, { type: 'alias', system: ev.data.system, alias: systemId });
-        break;
+function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
+  let channel: MessageChannel;
+  let alias: UUID;
+  return {
+    handle(ev: { data: OverTheWireConnectionMessage }) {
+      switch(ev.data.type) {
+        case 'system': {
+          alias = ev.data.system;
+          addSelfAlias(alias);
+          channel = new MessageChannel();
+          updateSystem(ev.data.sender, channel.port1);
+          serverSide(onMessage, router, channel.port1);
+          clientSide(onMessage, channel.port2, ev.data.port);
+  
+          // Tell the sender your real systemId.
+          sendMessage(channel.port1, { type: 'alias', system: ev.data.system, alias: systemId });
+          break;
+        }
+        default: {
+          sendMessage(channel.port2, ev.data);
+          break;
+        }
       }
-      default: {
-        sendMessage(port2, ev.data);
-        break;
-      }
+    },
+    close() {
+      channel.port1.close();
+      channel.port2.close();
+      removeSystemAlias(alias);
     }
-  };
-
-  return handler;
+  }
 }
 
 export {
@@ -79,7 +81,7 @@ export {
   type Process,
   type OverTheWireConnectionMessage,
 
-  createHandler,
+  createBrowserConnection,
   router,
   process,
   send,

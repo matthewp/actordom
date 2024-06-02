@@ -67,6 +67,10 @@ function addSelfAlias(alias: UUID) {
   addSystemAlias(systemId, alias);
 }
 
+function removeSystemAlias(alias: UUID) {
+  aliases.delete(alias);
+}
+
 function getActorFromPID<A extends Actor>(pid: Process<A>) {
   // TODO lookup alias as fallback
   return pids.get(getId(pid)) as A;
@@ -156,6 +160,7 @@ export {
   _pid,
   addSystem,
   addSystemAlias,
+  removeSystemAlias,
   addSelfAlias,
   getActorFromPID,
   getPIDFromActor,

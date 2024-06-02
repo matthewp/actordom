@@ -6,7 +6,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "node dev.js",
+    "dev": "wireit",
     "build": "wireit"
   },
   "keywords": [],
@@ -22,6 +22,11 @@
       "dependencies": ["../core:build"],
       "files": ["src/**/*"],
       "output": ["dist"]
+    },
+    "dev": {
+      "command": "node dev.js",
+      "dependencies": ["build"],
+      "files": []
     }
   }
 }

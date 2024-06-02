@@ -29,6 +29,7 @@
   "author": "Matthew Phillips <matthew@matthewphillips.info>",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "cookie": "^0.6.0",
     "incremental-dom": "^0.6.0",
     "node-qunit-puppeteer": "^2.1.2"
   },
