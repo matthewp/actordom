@@ -55,7 +55,7 @@ function updateProcess(pid: Process<DOMActor>, renderPid: Process<Actor>, slotPi
 
 function pass(process: Process<DOMActor>, children: Tree | JSXInternal.Element): Tree {
   let tree = createTree();
-  tree.push([5, process, children]);
+  tree.push([5, process, children as any]);
   return tree;
 }
 

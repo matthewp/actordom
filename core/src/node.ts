@@ -10,7 +10,7 @@ import type { UUID } from './pid.js';
 import { type AnyRouter } from './remote.js';
 import cookie from 'cookie';
 import { join as pathJoin } from 'node:path';
-import { createBrowserConnection, router, type OverTheWireConnectionMessage } from './server.js';
+import { createBrowserConnection, renderToString, router, type OverTheWireConnectionMessage } from './server.js';
 import { process, send, spawn } from './system.js';
 import { update } from './update.js';
 
@@ -149,6 +149,7 @@ export {
   type Process,
   type AnyRouter,
 
+  renderToString,
   router,
   process,
   send,

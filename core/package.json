@@ -56,7 +56,7 @@
       }
     },
     "test": {
-      "command": "node-qunit-puppeteer http://localhost:8023/test/test.html 10000",
+      "command": "node-qunit-puppeteer http://localhost:8023/test/browser/test.html 10000",
       "dependencies": [
         "build",
         "serve"

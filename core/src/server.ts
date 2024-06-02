@@ -4,8 +4,9 @@ import type {
   DOMActor,
   MessageName,
 } from './actor.js';
-import { type ConnectionMessage, type SystemMessage, sendMessage } from './messages.js';
+import { type ConnectionMessage, sendMessage } from './messages.js';
 import type { Process, UUID } from './pid.js';
+import type { Tree } from './tree.js';
 import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias } from './system.js';
 import { update } from './update.js';
@@ -73,6 +74,43 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
   }
 }
 
+const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+  'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+
+function renderToString(tree: Tree): string {
+  let builder = '';
+  for(let instruction of tree) {
+    switch(instruction[0]) {
+      case 1: {
+        let tag = instruction[1];
+        let attrs = instruction[3];
+        builder += `<${tag}`;
+        let i = 0;
+        while (i < attrs.length) {
+          let attrName = attrs[i++];
+          let attrValue = attrs[i++];
+          builder += ` ${attrName}="${attrValue}"`
+        }
+        builder += `>`;
+        break;
+      }
+      case 2: {
+        let tag = instruction[1];
+        if(!voidTags.has(tag)) {
+          builder += `</${tag}>`;
+        }
+        break;
+      }
+      case 4: {
+        let text = instruction[1];
+        builder += text;
+        break;
+      }
+    }
+  }
+  return builder;
+}
+
 export {
   type Actor,
   type ActorType,
@@ -82,6 +120,7 @@ export {
   type OverTheWireConnectionMessage,
 
   createBrowserConnection,
+  renderToString,
   router,
   process,
   send,

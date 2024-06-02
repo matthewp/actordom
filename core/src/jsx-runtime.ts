@@ -61,7 +61,7 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
   if(evs) {
     open.push(evs);
   }
-  tree.push(open);
+  tree.push(open as any);
 
   if(childrenType !== 'undefined') {
     children.forEach(function(child: any){
