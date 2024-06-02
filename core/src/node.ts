@@ -147,6 +147,7 @@ export {
   type DOMActor,
   type MessageName,
   type Process,
+  type AnyRouter,
 
   router,
   process,
