@@ -13,7 +13,7 @@
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "actordom": "^0.0.5",
+    "actordom": "^0.0.6",
     "esbuild": "^0.21.3"
   },
   "wireit": {
