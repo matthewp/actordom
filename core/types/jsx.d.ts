@@ -4,12 +4,12 @@
 
 import {
 	Tree
-} from '../src/tree';
+} from '../dist/tree';
 import {
 	Actor,
 	DOMActor,
 	MessageName
-} from '../src/actor';
+} from '../dist/actor';
 
 // Extras
 type Key = string | number | any;
