@@ -7,6 +7,7 @@ import type {
 import { type ConnectionMessage, sendMessage } from './messages.js';
 import type { Process, UUID } from './pid.js';
 import type { Tree } from './tree.js';
+import type { JSX } from 'actordom/jsx-runtime';
 import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias } from './system.js';
 import { update } from './update.js';
@@ -77,9 +78,9 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
 const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img',
   'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
-function renderToString(tree: Tree): string {
+function renderToString(tree: Tree | JSX.Element): string {
   let builder = '';
-  for(let instruction of tree) {
+  for(let instruction of tree as Tree) {
     switch(instruction[0]) {
       case 1: {
         let tag = instruction[1];
