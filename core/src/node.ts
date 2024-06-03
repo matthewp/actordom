@@ -70,6 +70,8 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
       let system = message.system;
       client.system = system;
       clients.set(system, client);
+      // TODO not sure why we need to do this twice, weird
+      clients.set(message.sender, client);
     }
   }
   
@@ -118,7 +120,6 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
     } else if('pid' in message) {
       let system = getSystem(message.pid);
       client = clients.get(system);
-      return;
     }
     if(!client) {
       console.warn(`Could not find client`);
