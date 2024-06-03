@@ -63,7 +63,7 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
   }
   tree.push(open as any);
 
-  if(childrenType !== 'undefined') {
+  if(Array.isArray(children)) {
     children.forEach(function(child: any){
       if(typeof child !== 'undefined' && !Array.isArray(child)) {
         if(isPID(child)) {
