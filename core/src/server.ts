@@ -9,7 +9,7 @@ import type { Process, UUID } from './pid.js';
 import type { Tree } from './tree.js';
 import type { JSX } from 'actordom/jsx-runtime';
 import { type AnyRouter, router } from './remote.js';
-import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias } from './system.js';
+import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias, inThisSystem, getActorFromPID } from './system.js';
 import { update } from './update.js';
 
 type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
@@ -105,6 +105,18 @@ function renderToString(tree: Tree | JSX.Element): string {
       case 4: {
         let text = instruction[1];
         builder += text;
+        break;
+      }
+      case 5: {
+        let pid = instruction[1];
+        if(inThisSystem(pid)) {
+          let actor = getActorFromPID(pid) as DOMActor;
+          let dom = actor.view();
+          let html = renderToString(dom);
+          builder += html;
+        } else {
+          // TODO what do?
+        }
         break;
       }
     }

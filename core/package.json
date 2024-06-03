@@ -23,6 +23,8 @@
   "scripts": {
     "build": "wireit",
     "serve": "wireit",
+    "test:browser": "wireit",
+    "test:node": "wireit",
     "test": "wireit"
   },
   "keywords": [],
@@ -55,7 +57,7 @@
         }
       }
     },
-    "test": {
+    "test:browser": {
       "command": "node-qunit-puppeteer http://localhost:8023/test/browser/test.html 10000",
       "dependencies": [
         "build",
@@ -65,6 +67,23 @@
         "src/**/*"
       ],
       "output": []
+    },
+    "test:node": {
+      "command": "node --test ./test/node/render.js",
+      "dependencies": [
+        "build"
+      ],
+      "files": [
+        "src/**/*",
+        "test/**/*"
+      ],
+      "output": []
+    },
+    "test": {
+      "dependencies": [
+        "test:node",
+        "test:browser"
+      ]
     }
   }
 }
