@@ -169,7 +169,7 @@ class Children {
       send(this.pid, message);
     }
   }
-  view() { return this.tree; }
+  view() { return this.tree as any; }
 }
 
 class RenderActor {

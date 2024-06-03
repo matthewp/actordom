@@ -6,10 +6,13 @@ import {
 	Tree
 } from '../dist/tree';
 import {
-	Actor,
 	DOMActor,
 	MessageName
 } from '../dist/actor';
+
+
+type DOMEventTarget = InputEvent['currentTarget'] & {};
+
 
 // Extras
 type Key = string | number | any;
@@ -26,7 +29,7 @@ interface VNode<P = {}> {
 }
 
 interface ActorDOMAttributes {
-	children?: ComponentChildren;
+	children?: any;
 }
 
 // Base
@@ -83,8 +86,8 @@ export namespace JSXInternal {
 		cssText?: string | null;
 	}
 
-	export interface SVGAttributes<Target extends EventTarget = SVGElement>
-		extends HTMLAttributes<Target> {
+	export interface SVGAttributes<A extends DOMActor = DOMActor>
+		extends HTMLAttributes<A> {
 		accentHeight?: number | string;
 		accumulate?: 'none' | 'sum';
 		additive?: 'replace' | 'sum';
@@ -344,61 +347,61 @@ export namespace JSXInternal {
 	}
 
 	export type TargetedEvent<
-		Target extends EventTarget = EventTarget,
+		Target extends DOMEventTarget = DOMEventTarget,
 		TypedEvent extends Event = Event
 	> = Omit<TypedEvent, 'currentTarget'> & {
 		readonly currentTarget: Target;
 	};
 
 	export type TargetedAnimationEvent<
-		Target extends EventTarget
+		Target extends DOMEventTarget
 	> = TargetedEvent<Target, AnimationEvent>;
 	export type TargetedClipboardEvent<
-		Target extends EventTarget
+		Target extends DOMEventTarget
 	> = TargetedEvent<Target, ClipboardEvent>;
 	export type TargetedCompositionEvent<
-		Target extends EventTarget
+		Target extends DOMEventTarget
 	> = TargetedEvent<Target, CompositionEvent>;
-	export type TargetedDragEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedDragEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		DragEvent
 	>;
-	export type TargetedFocusEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedFocusEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		FocusEvent
 	>;
-	export type TargetedInputEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedInputEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		InputEvent
 	>;
-	export type TargetedKeyboardEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedKeyboardEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		KeyboardEvent
 	>;
-	export type TargetedMouseEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedMouseEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		MouseEvent
 	>;
-	export type TargetedPointerEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedPointerEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		PointerEvent
 	>;
-	export type TargetedSubmitEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedSubmitEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		SubmitEvent
 	>;
-	export type TargetedTouchEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedTouchEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		TouchEvent
 	>;
 	export type TargetedTransitionEvent<
-		Target extends EventTarget
+		Target extends DOMEventTarget
 	> = TargetedEvent<Target, TransitionEvent>;
-	export type TargetedUIEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedUIEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		UIEvent
 	>;
-	export type TargetedWheelEvent<Target extends EventTarget> = TargetedEvent<
+	export type TargetedWheelEvent<Target extends DOMEventTarget> = TargetedEvent<
 		Target,
 		WheelEvent
 	>;
@@ -411,47 +414,47 @@ export namespace JSXInternal {
 		(this: never, event: E): void;
 	}
 
-	export type AnimationEventHandler<Target extends EventTarget> = EventHandler<
+	export type AnimationEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedAnimationEvent<Target>
 	>;
-	export type ClipboardEventHandler<Target extends EventTarget> = EventHandler<
+	export type ClipboardEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedClipboardEvent<Target>
 	>;
 	export type CompositionEventHandler<
-		Target extends EventTarget
+		Target extends DOMEventTarget
 	> = EventHandler<TargetedCompositionEvent<Target>>;
-	export type DragEventHandler<Target extends EventTarget> = EventHandler<
+	export type DragEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedDragEvent<Target>
 	>;
-	export type FocusEventHandler<Target extends EventTarget> = EventHandler<
+	export type FocusEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedFocusEvent<Target>
 	>;
-	export type GenericEventHandler<Target extends EventTarget> = EventHandler<
+	export type GenericEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedEvent<Target>
 	>;
-	export type KeyboardEventHandler<Target extends EventTarget> = EventHandler<
+	export type KeyboardEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedKeyboardEvent<Target>
 	>;
-	export type MouseEventHandler<Target extends EventTarget> = EventHandler<
+	export type MouseEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedMouseEvent<Target>
 	>;
-	export type PointerEventHandler<Target extends EventTarget> = EventHandler<
+	export type PointerEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedPointerEvent<Target>
 	>;
-	export type TouchEventHandler<Target extends EventTarget> = EventHandler<
+	export type TouchEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedTouchEvent<Target>
 	>;
-	export type TransitionEventHandler<Target extends EventTarget> = EventHandler<
+	export type TransitionEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedTransitionEvent<Target>
 	>;
-	export type UIEventHandler<Target extends EventTarget> = EventHandler<
+	export type UIEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedUIEvent<Target>
 	>;
-	export type WheelEventHandler<Target extends EventTarget> = EventHandler<
+	export type WheelEventHandler<Target extends DOMEventTarget> = EventHandler<
 		TargetedWheelEvent<Target>
 	>;
 
-	export interface DOMAttributes<A extends DOMActor = DOMActor, Target extends EventTarget> extends ActorDOMAttributes  {
+	export interface DOMAttributes<A extends DOMActor = DOMActor> extends ActorDOMAttributes  {
 		// Image Events
 		onLoad?: MessageName<A>;
 		onLoadCapture?: MessageName<A>;
@@ -459,20 +462,20 @@ export namespace JSXInternal {
 		onErrorCapture?: MessageName<A>;
 
 		// Clipboard Events
-		onCopy?: ClipboardEventHandler<Target>;
-		onCopyCapture?: ClipboardEventHandler<Target>;
-		onCut?: ClipboardEventHandler<Target>;
-		onCutCapture?: ClipboardEventHandler<Target>;
-		onPaste?: ClipboardEventHandler<Target>;
-		onPasteCapture?: ClipboardEventHandler<Target>;
+		onCopy?: MessageName<A>;
+		onCopyCapture?: MessageName<A>;
+		onCut?: MessageName<A>;
+		onCutCapture?: MessageName<A>;
+		onPaste?: MessageName<A>;
+		onPasteCapture?: MessageName<A>;
 
 		// Composition Events
-		onCompositionEnd?: CompositionEventHandler<Target>;
-		onCompositionEndCapture?: CompositionEventHandler<Target>;
-		onCompositionStart?: CompositionEventHandler<Target>;
-		onCompositionStartCapture?: CompositionEventHandler<Target>;
-		onCompositionUpdate?: CompositionEventHandler<Target>;
-		onCompositionUpdateCapture?: CompositionEventHandler<Target>;
+		onCompositionEnd?: MessageName<A>;
+		onCompositionEndCapture?: MessageName<A>;
+		onCompositionStart?: MessageName<A>;
+		onCompositionStartCapture?: MessageName<A>;
+		onCompositionUpdate?: MessageName<A>;
+		onCompositionUpdateCapture?: MessageName<A>;
 
 		// Details Events
 		onToggle?: MessageName<A>;
@@ -507,11 +510,11 @@ export namespace JSXInternal {
 
 		// Keyboard Events
 		onKeyDown?: MessageName<A>;
-		onKeyDownCapture?: KeyboardEventHandler<Target>;
-		onKeyPress?: KeyboardEventHandler<Target>;
-		onKeyPressCapture?: KeyboardEventHandler<Target>;
-		onKeyUp?: KeyboardEventHandler<Target>;
-		onKeyUpCapture?: KeyboardEventHandler<Target>;
+		onKeyDownCapture?: MessageName<A>;
+		onKeyPress?: MessageName<A>;
+		onKeyPressCapture?: MessageName<A>;
+		onKeyUp?: MessageName<A>;
+		onKeyUpCapture?: MessageName<A>;
 
 		// Media Events
 		onAbort?: MessageName<A>;
@@ -566,22 +569,22 @@ export namespace JSXInternal {
 		onContextMenuCapture?: MessageName<A>;
 		onDblClick?: MessageName<A>;
 		onDblClickCapture?: MessageName<A>;
-		onDrag?: DragEventHandler<Target>;
-		onDragCapture?: DragEventHandler<Target>;
-		onDragEnd?: DragEventHandler<Target>;
-		onDragEndCapture?: DragEventHandler<Target>;
-		onDragEnter?: DragEventHandler<Target>;
-		onDragEnterCapture?: DragEventHandler<Target>;
-		onDragExit?: DragEventHandler<Target>;
-		onDragExitCapture?: DragEventHandler<Target>;
-		onDragLeave?: DragEventHandler<Target>;
-		onDragLeaveCapture?: DragEventHandler<Target>;
-		onDragOver?: DragEventHandler<Target>;
-		onDragOverCapture?: DragEventHandler<Target>;
-		onDragStart?: DragEventHandler<Target>;
-		onDragStartCapture?: DragEventHandler<Target>;
-		onDrop?: DragEventHandler<Target>;
-		onDropCapture?: DragEventHandler<Target>;
+		onDrag?: MessageName<A>;
+		onDragCapture?: MessageName<A>;
+		onDragEnd?: MessageName<A>;
+		onDragEndCapture?: MessageName<A>;
+		onDragEnter?: MessageName<A>;
+		onDragEnterCapture?: MessageName<A>;
+		onDragExit?: MessageName<A>;
+		onDragExitCapture?: MessageName<A>;
+		onDragLeave?: MessageName<A>;
+		onDragLeaveCapture?: MessageName<A>;
+		onDragOver?: MessageName<A>;
+		onDragOverCapture?: MessageName<A>;
+		onDragStart?: MessageName<A>;
+		onDragStartCapture?: MessageName<A>;
+		onDrop?: MessageName<A>;
+		onDropCapture?: MessageName<A>;
 		onMouseDown?: MessageName<A>;
 		onMouseDownCapture?: MessageName<A>;
 		onMouseEnter?: MessageName<A>;
@@ -602,59 +605,59 @@ export namespace JSXInternal {
 		onSelectCapture?: MessageName<A>;
 
 		// Touch Events
-		onTouchCancel?: TouchEventHandler<Target>;
-		onTouchCancelCapture?: TouchEventHandler<Target>;
-		onTouchEnd?: TouchEventHandler<Target>;
-		onTouchEndCapture?: TouchEventHandler<Target>;
-		onTouchMove?: TouchEventHandler<Target>;
-		onTouchMoveCapture?: TouchEventHandler<Target>;
-		onTouchStart?: TouchEventHandler<Target>;
-		onTouchStartCapture?: TouchEventHandler<Target>;
+		onTouchCancel?: MessageName<A>;
+		onTouchCancelCapture?: MessageName<A>;
+		onTouchEnd?: MessageName<A>;
+		onTouchEndCapture?: MessageName<A>;
+		onTouchMove?: MessageName<A>;
+		onTouchMoveCapture?: MessageName<A>;
+		onTouchStart?: MessageName<A>;
+		onTouchStartCapture?: MessageName<A>;
 
 		// Pointer Events
-		onPointerOver?: PointerEventHandler<Target>;
-		onPointerOverCapture?: PointerEventHandler<Target>;
-		onPointerEnter?: PointerEventHandler<Target>;
-		onPointerEnterCapture?: PointerEventHandler<Target>;
-		onPointerDown?: PointerEventHandler<Target>;
-		onPointerDownCapture?: PointerEventHandler<Target>;
-		onPointerMove?: PointerEventHandler<Target>;
-		onPointerMoveCapture?: PointerEventHandler<Target>;
-		onPointerUp?: PointerEventHandler<Target>;
-		onPointerUpCapture?: PointerEventHandler<Target>;
-		onPointerCancel?: PointerEventHandler<Target>;
-		onPointerCancelCapture?: PointerEventHandler<Target>;
-		onPointerOut?: PointerEventHandler<Target>;
-		onPointerOutCapture?: PointerEventHandler<Target>;
-		onPointerLeave?: PointerEventHandler<Target>;
-		onPointerLeaveCapture?: PointerEventHandler<Target>;
-		onGotPointerCapture?: PointerEventHandler<Target>;
-		onGotPointerCaptureCapture?: PointerEventHandler<Target>;
-		onLostPointerCapture?: PointerEventHandler<Target>;
-		onLostPointerCaptureCapture?: PointerEventHandler<Target>;
+		onPointerOver?: MessageName<A>;
+		onPointerOverCapture?: MessageName<A>;
+		onPointerEnter?: MessageName<A>;
+		onPointerEnterCapture?: MessageName<A>;
+		onPointerDown?: MessageName<A>;
+		onPointerDownCapture?: MessageName<A>;
+		onPointerMove?: MessageName<A>;
+		onPointerMoveCapture?: MessageName<A>;
+		onPointerUp?: MessageName<A>;
+		onPointerUpCapture?: MessageName<A>;
+		onPointerCancel?: MessageName<A>;
+		onPointerCancelCapture?: MessageName<A>;
+		onPointerOut?: MessageName<A>;
+		onPointerOutCapture?: MessageName<A>;
+		onPointerLeave?: MessageName<A>;
+		onPointerLeaveCapture?: MessageName<A>;
+		onGotPointerCapture?: MessageName<A>;
+		onGotPointerCaptureCapture?: MessageName<A>;
+		onLostPointerCapture?: MessageName<A>;
+		onLostPointerCaptureCapture?: MessageName<A>;
 
 		// UI Events
-		onScroll?: UIEventHandler<Target>;
-		onScrollCapture?: UIEventHandler<Target>;
+		onScroll?: MessageName<A>;
+		onScrollCapture?: MessageName<A>;
 
 		// Wheel Events
-		onWheel?: WheelEventHandler<Target>;
-		onWheelCapture?: WheelEventHandler<Target>;
+		onWheel?: MessageName<A>;
+		onWheelCapture?: MessageName<A>;
 
 		// Animation Events
-		onAnimationStart?: AnimationEventHandler<Target>;
-		onAnimationStartCapture?: AnimationEventHandler<Target>;
-		onAnimationEnd?: AnimationEventHandler<Target>;
-		onAnimationEndCapture?: AnimationEventHandler<Target>;
-		onAnimationIteration?: AnimationEventHandler<Target>;
-		onAnimationIterationCapture?: AnimationEventHandler<Target>;
+		onAnimationStart?: MessageName<A>;
+		onAnimationStartCapture?: MessageName<A>;
+		onAnimationEnd?: MessageName<A>;
+		onAnimationEndCapture?: MessageName<A>;
+		onAnimationIteration?: MessageName<A>;
+		onAnimationIterationCapture?: MessageName<A>;
 
 		// Transition Events
-		onTransitionEnd?: TransitionEventHandler<Target>;
-		onTransitionEndCapture?: TransitionEventHandler<Target>;
+		onTransitionEnd?: MessageName<A>;
+		onTransitionEndCapture?: MessageName<A>;
 	}
 
-	export interface HTMLAttributes<RefType extends EventTarget = EventTarget, A extends DOMActor = DOMActor> extends Attributes, DOMAttributes<A, RefType> {
+	export interface HTMLAttributes<A extends DOMActor = DOMActor> extends Attributes, DOMAttributes<A> {
 		// Standard HTML Attributes
 		accept?: string;
 		acceptCharset?: string;
@@ -858,8 +861,7 @@ export namespace JSXInternal {
 	}
 
 	export type DetailedHTMLProps<
-		HA extends HTMLAttributes<RefType>,
-		RefType extends EventTarget = EventTarget
+		HA extends HTMLAttributes<DOMActor>,
 	> = HA;
 
 	export interface HTMLMarqueeElement extends HTMLElement {
@@ -876,180 +878,180 @@ export namespace JSXInternal {
 		width?: number | string;
 	}
 
-	type CustomElementAttributes = HTMLAttributes<HTMLElement> & { [k: string]: unknown; };
+	type CustomElementAttributes = HTMLAttributes<DOMActor> & { [k: string]: unknown; };
 
-  export interface BaseIntrinsicElements {
-    [k: string]: CustomElementAttributes | HTMLAttributes<HTMLElement> | SVGAttributes<SVGElement>;
+  export interface BaseIntrinsicElements<A extends DOMActor> {
+    [k: string]: CustomElementAttributes | HTMLAttributes<A> | SVGAttributes;
   }
 
-	export interface IntrinsicElements<A extends DOMActor = DOMActor> extends BaseIntrinsicElements {
+	export interface IntrinsicElements<A extends DOMActor> extends BaseIntrinsicElements<A> {
 		// HTML
-		a: HTMLAttributes<HTMLAnchorElement>;
-		abbr: HTMLAttributes<HTMLElement>;
-		address: HTMLAttributes<HTMLElement>;
-		area: HTMLAttributes<HTMLAreaElement>;
-		article: HTMLAttributes<HTMLElement>;
-		aside: HTMLAttributes<HTMLElement>;
-		audio: HTMLAttributes<HTMLAudioElement>;
-		b: HTMLAttributes<HTMLElement>;
-		base: HTMLAttributes<HTMLBaseElement>;
-		bdi: HTMLAttributes<HTMLElement>;
-		bdo: HTMLAttributes<HTMLElement>;
-		big: HTMLAttributes<HTMLElement>;
-		blockquote: HTMLAttributes<HTMLQuoteElement>;
-		body: HTMLAttributes<HTMLBodyElement>;
-		br: HTMLAttributes<HTMLBRElement>;
-		button: HTMLAttributes<HTMLButtonElement, A>;
-		canvas: HTMLAttributes<HTMLCanvasElement>;
-		caption: HTMLAttributes<HTMLTableCaptionElement>;
-		cite: HTMLAttributes<HTMLElement>;
-		code: HTMLAttributes<HTMLElement>;
-		col: HTMLAttributes<HTMLTableColElement>;
-		colgroup: HTMLAttributes<HTMLTableColElement>;
-		data: HTMLAttributes<HTMLDataElement>;
-		datalist: HTMLAttributes<HTMLDataListElement>;
-		dd: HTMLAttributes<HTMLElement>;
-		del: HTMLAttributes<HTMLModElement>;
-		details: HTMLAttributes<HTMLDetailsElement>;
-		dfn: HTMLAttributes<HTMLElement>;
-		dialog: HTMLAttributes<HTMLDialogElement>;
-		div: HTMLAttributes<HTMLDivElement>;
-		dl: HTMLAttributes<HTMLDListElement>;
-		dt: HTMLAttributes<HTMLElement>;
-		em: HTMLAttributes<HTMLElement>;
-		embed: HTMLAttributes<HTMLEmbedElement>;
-		fieldset: HTMLAttributes<HTMLFieldSetElement>;
-		figcaption: HTMLAttributes<HTMLElement>;
-		figure: HTMLAttributes<HTMLElement>;
-		footer: HTMLAttributes<HTMLElement>;
-		form: HTMLAttributes<HTMLFormElement>;
-		h1: HTMLAttributes<HTMLHeadingElement>;
-		h2: HTMLAttributes<HTMLHeadingElement>;
-		h3: HTMLAttributes<HTMLHeadingElement>;
-		h4: HTMLAttributes<HTMLHeadingElement>;
-		h5: HTMLAttributes<HTMLHeadingElement>;
-		h6: HTMLAttributes<HTMLHeadingElement>;
-		head: HTMLAttributes<HTMLHeadElement>;
-		header: HTMLAttributes<HTMLElement>;
-		hgroup: HTMLAttributes<HTMLElement>;
-		hr: HTMLAttributes<HTMLHRElement>;
-		html: HTMLAttributes<HTMLHtmlElement>;
-		i: HTMLAttributes<HTMLElement>;
-		iframe: HTMLAttributes<HTMLIFrameElement>;
-		img: HTMLAttributes<HTMLImageElement>;
-		input: HTMLAttributes<HTMLInputElement> & { defaultValue?: string };
-		ins: HTMLAttributes<HTMLModElement>;
-		kbd: HTMLAttributes<HTMLElement>;
-		keygen: HTMLAttributes<HTMLUnknownElement>;
-		label: HTMLAttributes<HTMLLabelElement>;
-		legend: HTMLAttributes<HTMLLegendElement>;
-		li: HTMLAttributes<HTMLLIElement>;
-		link: HTMLAttributes<HTMLLinkElement>;
-		main: HTMLAttributes<HTMLElement>;
-		map: HTMLAttributes<HTMLMapElement>;
-		mark: HTMLAttributes<HTMLElement>;
-		marquee: HTMLAttributes<HTMLMarqueeElement>;
-		menu: HTMLAttributes<HTMLMenuElement>;
-		menuitem: HTMLAttributes<HTMLUnknownElement>;
-		meta: HTMLAttributes<HTMLMetaElement>;
-		meter: HTMLAttributes<HTMLMeterElement>;
-		nav: HTMLAttributes<HTMLElement>;
-		noscript: HTMLAttributes<HTMLElement>;
-		object: HTMLAttributes<HTMLObjectElement>;
-		ol: HTMLAttributes<HTMLOListElement>;
-		optgroup: HTMLAttributes<HTMLOptGroupElement>;
-		option: HTMLAttributes<HTMLOptionElement>;
-		output: HTMLAttributes<HTMLOutputElement>;
-		p: HTMLAttributes<HTMLParagraphElement>;
-		param: HTMLAttributes<HTMLParamElement>;
-		picture: HTMLAttributes<HTMLPictureElement>;
-		pre: HTMLAttributes<HTMLPreElement>;
-		progress: HTMLAttributes<HTMLProgressElement>;
-		q: HTMLAttributes<HTMLQuoteElement>;
-		rp: HTMLAttributes<HTMLElement>;
-		rt: HTMLAttributes<HTMLElement>;
-		ruby: HTMLAttributes<HTMLElement>;
-		s: HTMLAttributes<HTMLElement>;
-		samp: HTMLAttributes<HTMLElement>;
-		script: HTMLAttributes<HTMLScriptElement>;
-		section: HTMLAttributes<HTMLElement>;
-		select: HTMLAttributes<HTMLSelectElement>;
-		slot: HTMLAttributes<HTMLSlotElement>;
-		small: HTMLAttributes<HTMLElement>;
-		source: HTMLAttributes<HTMLSourceElement>;
-		span: HTMLAttributes<HTMLSpanElement>;
-		strong: HTMLAttributes<HTMLElement>;
-		style: HTMLAttributes<HTMLStyleElement>;
-		sub: HTMLAttributes<HTMLElement>;
-		summary: HTMLAttributes<HTMLElement>;
-		sup: HTMLAttributes<HTMLElement>;
-		table: HTMLAttributes<HTMLTableElement>;
-		tbody: HTMLAttributes<HTMLTableSectionElement>;
-		td: HTMLAttributes<HTMLTableCellElement>;
-		textarea: HTMLAttributes<HTMLTextAreaElement>;
-		tfoot: HTMLAttributes<HTMLTableSectionElement>;
-		th: HTMLAttributes<HTMLTableCellElement>;
-		thead: HTMLAttributes<HTMLTableSectionElement>;
-		time: HTMLAttributes<HTMLTimeElement>;
-		title: HTMLAttributes<HTMLTitleElement>;
-		tr: HTMLAttributes<HTMLTableRowElement>;
-		track: HTMLAttributes<HTMLTrackElement>;
-		u: HTMLAttributes<HTMLElement>;
-		ul: HTMLAttributes<HTMLUListElement>;
-		var: HTMLAttributes<HTMLElement>;
-		video: HTMLAttributes<HTMLVideoElement>;
-		wbr: HTMLAttributes<HTMLElement>;
+		a: HTMLAttributes<A>;
+		abbr: HTMLAttributes<A>;
+		address: HTMLAttributes<A>;
+		area: HTMLAttributes<A>;
+		article: HTMLAttributes<A>;
+		aside: HTMLAttributes<A>;
+		audio: HTMLAttributes<A>;
+		b: HTMLAttributes<A>;
+		base: HTMLAttributes<A>;
+		bdi: HTMLAttributes<A>;
+		bdo: HTMLAttributes<A>;
+		big: HTMLAttributes<A>;
+		blockquote: HTMLAttributes<A>;
+		body: HTMLAttributes<A>;
+		br: HTMLAttributes<A>;
+		button: HTMLAttributes<A>;
+		canvas: HTMLAttributes<A>;
+		caption: HTMLAttributes<A>;
+		cite: HTMLAttributes<A>;
+		code: HTMLAttributes<A>;
+		col: HTMLAttributes<A>;
+		colgroup: HTMLAttributes<A>;
+		data: HTMLAttributes<A>;
+		datalist: HTMLAttributes<A>;
+		dd: HTMLAttributes<A>;
+		del: HTMLAttributes<A>;
+		details: HTMLAttributes<A>;
+		dfn: HTMLAttributes<A>;
+		dialog: HTMLAttributes<A>;
+		div: HTMLAttributes<A>;
+		dl: HTMLAttributes<A>;
+		dt: HTMLAttributes<A>;
+		em: HTMLAttributes<A>;
+		embed: HTMLAttributes<A>;
+		fieldset: HTMLAttributes<A>;
+		figcaption: HTMLAttributes<A>;
+		figure: HTMLAttributes<A>;
+		footer: HTMLAttributes<A>;
+		form: HTMLAttributes<A>;
+		h1: HTMLAttributes<A>;
+		h2: HTMLAttributes<A>;
+		h3: HTMLAttributes<A>;
+		h4: HTMLAttributes<A>;
+		h5: HTMLAttributes<A>;
+		h6: HTMLAttributes<A>;
+		head: HTMLAttributes<A>;
+		header: HTMLAttributes<A>;
+		hgroup: HTMLAttributes<A>;
+		hr: HTMLAttributes<A>;
+		html: HTMLAttributes<A>;
+		i: HTMLAttributes<A>;
+		iframe: HTMLAttributes<A>;
+		img: HTMLAttributes<A>;
+		input: HTMLAttributes<A> & { defaultValue?: string };
+		ins: HTMLAttributes<A>;
+		kbd: HTMLAttributes<A>;
+		keygen: HTMLAttributes<A>;
+		label: HTMLAttributes<A>;
+		legend: HTMLAttributes<A>;
+		li: HTMLAttributes<A>;
+		link: HTMLAttributes<A>;
+		main: HTMLAttributes<A>;
+		map: HTMLAttributes<A>;
+		mark: HTMLAttributes<A>;
+		marquee: HTMLAttributes<A>;
+		menu: HTMLAttributes<A>;
+		menuitem: HTMLAttributes<A>;
+		meta: HTMLAttributes<A>;
+		meter: HTMLAttributes<A>;
+		nav: HTMLAttributes<A>;
+		noscript: HTMLAttributes<A>;
+		object: HTMLAttributes<A>;
+		ol: HTMLAttributes<A>;
+		optgroup: HTMLAttributes<A>;
+		option: HTMLAttributes<A>;
+		output: HTMLAttributes<A>;
+		p: HTMLAttributes<A>;
+		param: HTMLAttributes<A>;
+		picture: HTMLAttributes<A>;
+		pre: HTMLAttributes<A>;
+		progress: HTMLAttributes<A>;
+		q: HTMLAttributes<A>;
+		rp: HTMLAttributes<A>;
+		rt: HTMLAttributes<A>;
+		ruby: HTMLAttributes<A>;
+		s: HTMLAttributes<A>;
+		samp: HTMLAttributes<A>;
+		script: HTMLAttributes<A>;
+		section: HTMLAttributes<A>;
+		select: HTMLAttributes<A>;
+		slot: HTMLAttributes<A>;
+		small: HTMLAttributes<A>;
+		source: HTMLAttributes<A>;
+		span: HTMLAttributes<A>;
+		strong: HTMLAttributes<A>;
+		style: HTMLAttributes<A>;
+		sub: HTMLAttributes<A>;
+		summary: HTMLAttributes<A>;
+		sup: HTMLAttributes<A>;
+		table: HTMLAttributes<A>;
+		tbody: HTMLAttributes<A>;
+		td: HTMLAttributes<A>;
+		textarea: HTMLAttributes<A>;
+		tfoot: HTMLAttributes<A>;
+		th: HTMLAttributes<A>;
+		thead: HTMLAttributes<A>;
+		time: HTMLAttributes<A>;
+		title: HTMLAttributes<A>;
+		tr: HTMLAttributes<A>;
+		track: HTMLAttributes<A>;
+		u: HTMLAttributes<A>;
+		ul: HTMLAttributes<A>;
+		var: HTMLAttributes<A>;
+		video: HTMLAttributes<A>;
+		wbr: HTMLAttributes<A>;
 
 		//SVG
-		svg: SVGAttributes<SVGSVGElement>;
-		animate: SVGAttributes<SVGAnimateElement>;
-		circle: SVGAttributes<SVGCircleElement>;
-		animateTransform: SVGAttributes<SVGAnimateElement>;
-		clipPath: SVGAttributes<SVGClipPathElement>;
-		defs: SVGAttributes<SVGDefsElement>;
-		desc: SVGAttributes<SVGDescElement>;
-		ellipse: SVGAttributes<SVGEllipseElement>;
-		feBlend: SVGAttributes<SVGFEBlendElement>;
-		feColorMatrix: SVGAttributes<SVGFEColorMatrixElement>;
-		feComponentTransfer: SVGAttributes<SVGFEComponentTransferElement>;
-		feComposite: SVGAttributes<SVGFECompositeElement>;
-		feConvolveMatrix: SVGAttributes<SVGFEConvolveMatrixElement>;
-		feDiffuseLighting: SVGAttributes<SVGFEDiffuseLightingElement>;
-		feDisplacementMap: SVGAttributes<SVGFEDisplacementMapElement>;
-		feDropShadow: SVGAttributes<SVGFEDropShadowElement>;
-		feFlood: SVGAttributes<SVGFEFloodElement>;
-		feFuncA: SVGAttributes<SVGFEFuncAElement>;
-		feFuncB: SVGAttributes<SVGFEFuncBElement>;
-		feFuncG: SVGAttributes<SVGFEFuncGElement>;
-		feFuncR: SVGAttributes<SVGFEFuncRElement>;
-		feGaussianBlur: SVGAttributes<SVGFEGaussianBlurElement>;
-		feImage: SVGAttributes<SVGFEImageElement>;
-		feMerge: SVGAttributes<SVGFEMergeElement>;
-		feMergeNode: SVGAttributes<SVGFEMergeNodeElement>;
-		feMorphology: SVGAttributes<SVGFEMorphologyElement>;
-		feOffset: SVGAttributes<SVGFEOffsetElement>;
-		feSpecularLighting: SVGAttributes<SVGFESpecularLightingElement>;
-		feTile: SVGAttributes<SVGFETileElement>;
-		feTurbulence: SVGAttributes<SVGFETurbulenceElement>;
-		filter: SVGAttributes<SVGFilterElement>;
-		foreignObject: SVGAttributes<SVGForeignObjectElement>;
-		g: SVGAttributes<SVGGElement>;
-		image: SVGAttributes<SVGImageElement>;
-		line: SVGAttributes<SVGLineElement>;
-		linearGradient: SVGAttributes<SVGLinearGradientElement>;
-		marker: SVGAttributes<SVGMarkerElement>;
-		mask: SVGAttributes<SVGMaskElement>;
-		path: SVGAttributes<SVGPathElement>;
-		pattern: SVGAttributes<SVGPatternElement>;
-		polygon: SVGAttributes<SVGPolygonElement>;
-		polyline: SVGAttributes<SVGPolylineElement>;
-		radialGradient: SVGAttributes<SVGRadialGradientElement>;
-		rect: SVGAttributes<SVGRectElement>;
-		stop: SVGAttributes<SVGStopElement>;
-		symbol: SVGAttributes<SVGSymbolElement>;
-		text: SVGAttributes<SVGTextElement>;
-		textPath: SVGAttributes<SVGTextPathElement>;
-		tspan: SVGAttributes<SVGTSpanElement>;
-		use: SVGAttributes<SVGUseElement>;
+		svg: SVGAttributes<A>;
+		animate: SVGAttributes<A>;
+		circle: SVGAttributes<A>;
+		animateTransform: SVGAttributes<A>;
+		clipPath: SVGAttributes<A>;
+		defs: SVGAttributes<A>;
+		desc: SVGAttributes<A>;
+		ellipse: SVGAttributes<A>;
+		feBlend: SVGAttributes<A>;
+		feColorMatrix: SVGAttributes<A>;
+		feComponentTransfer: SVGAttributes<A>;
+		feComposite: SVGAttributes<A>;
+		feConvolveMatrix: SVGAttributes<A>;
+		feDiffuseLighting: SVGAttributes<A>;
+		feDisplacementMap: SVGAttributes<A>;
+		feDropShadow: SVGAttributes<A>;
+		feFlood: SVGAttributes<A>;
+		feFuncA: SVGAttributes<A>;
+		feFuncB: SVGAttributes<A>;
+		feFuncG: SVGAttributes<A>;
+		feFuncR: SVGAttributes<A>;
+		feGaussianBlur: SVGAttributes<A>;
+		feImage: SVGAttributes<A>;
+		feMerge: SVGAttributes<A>;
+		feMergeNode: SVGAttributes<A>;
+		feMorphology: SVGAttributes<A>;
+		feOffset: SVGAttributes<A>;
+		feSpecularLighting: SVGAttributes<A>;
+		feTile: SVGAttributes<A>;
+		feTurbulence: SVGAttributes<A>;
+		filter: SVGAttributes<A>;
+		foreignObject: SVGAttributes<A>;
+		g: SVGAttributes<A>;
+		image: SVGAttributes<A>;
+		line: SVGAttributes<A>;
+		linearGradient: SVGAttributes<A>;
+		marker: SVGAttributes<A>;
+		mask: SVGAttributes<A>;
+		path: SVGAttributes<A>;
+		pattern: SVGAttributes<A>;
+		polygon: SVGAttributes<A>;
+		polyline: SVGAttributes<A>;
+		radialGradient: SVGAttributes<A>;
+		rect: SVGAttributes<A>;
+		stop: SVGAttributes<A>;
+		symbol: SVGAttributes<A>;
+		text: SVGAttributes<A>;
+		textPath: SVGAttributes<A>;
+		tspan: SVGAttributes<A>;
+		use: SVGAttributes<A>;
 	}
 }
