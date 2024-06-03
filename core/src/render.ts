@@ -19,6 +19,7 @@ import type { JSXInternal } from '../types/jsx.js';
 
 import { updateProcess, _renderPid, _root, update } from './update.js';
 import { spawn, send, inThisSystem } from './system.js';
+import { isPID } from './pid.js';
 
 var eventAttrExp = /^on[a-z]/;
 
@@ -189,9 +190,13 @@ function fromRoot(root: Element) {
   return spawn(RenderActor, root);
 }
 
-function mount(actor: DOMActor, root: Element) {
-  actor[_renderPid] = fromRoot(root);
-  update(actor);
+function mount(actorOrProcess: DOMActor | Process<DOMActor>, root: Element) {
+  if(isPID(actorOrProcess)) {
+    updateProcess(actorOrProcess, fromRoot(root), undefined);
+  } else {
+    actorOrProcess[_renderPid] = fromRoot(root);
+    update(actorOrProcess);
+  }
 }
 
 export { mount, fromRoot };
