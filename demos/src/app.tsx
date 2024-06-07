@@ -1,6 +1,6 @@
 import type { WorkerRouter } from './worker';
 import type { AppRouter } from './server';
-import { spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
+import { spawn, update, createServerConnection, createWorkerConnection, Request, request, send } from 'actordom';
 import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';
@@ -12,9 +12,12 @@ let worker = new Worker(new URL('./worker.js', import.meta.url), {
 const { Offthread } = createWorkerConnection<WorkerRouter>(worker);
 const { ServerActor } = createServerConnection<AppRouter>('/_actordom');
 
+type FooRequest = Request<{ foo: string }, { bar: string }>;
+
 type namerMailbox = 
   ['first', { target: HTMLInputElement }] |
-  ['last', { target: HTMLInputElement }];
+  ['last', { target: HTMLInputElement }] |
+  ['other', FooRequest]
 
 class Namer {
   first = '';
@@ -27,6 +30,11 @@ class Namer {
       }
       case 'last': {
         this.last = data.target.value;
+        break;
+      }
+      case 'other': {
+        debugger;
+        data.reply({ bar: 'qux' });
         break;
       }
     }
@@ -48,27 +56,27 @@ class Namer {
 
 class Main {
   root = document.querySelector('#app')!;
-  counter = spawn(Counter, 'Main thread counter');
-  //namer = spawn(Namer);
-  todoList = spawn(TodoList);
-  offthreadCounter = spawn(Offthread);
-  server = spawn(ServerActor);
+  //counter = spawn(Counter, 'Main thread counter');
+  namer = spawn(Namer);
+  //todoList = spawn(TodoList);
+  //offthreadCounter = spawn(Offthread);
+  //server = spawn(ServerActor);
   constructor() {
-    send(this.server, ['worker', this.offthreadCounter]);
-    mount(this, this.root);
+    //send(this.server, ['worker', this.offthreadCounter]);
+    debugger;
+    request(this, this.namer, ['other', { foo: 'bar' }], 'one');
   }
-  receive([]: any) {
+  receive([name, data]: ['one', { bar: string }]) {
     update(this);
   }
   view() {
     return (
       <main>
         <h1>My App</h1>
-        {this.offthreadCounter}
-        {this.server}
+        {this.namer}
       </main>
     );
   }
 }
 
-spawn(Main);
+mount(spawn(Main), document.querySelector('#app')!);

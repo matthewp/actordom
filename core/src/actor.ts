@@ -2,7 +2,7 @@ import type { JSXInternal } from '../types/jsx';
 import type { _renderPid, _slotPid } from './update.js';
 import type { Process } from './pid.js';
 import type { _pid } from './system.js';
-
+import type { UnknownRequest } from './request-reply.js';
 
 interface Actor {
   receive(_message: [string, any]): void;
@@ -19,9 +19,10 @@ interface ActorType {
 }
 
 type Message<A extends Actor> = Parameters<A['receive']>[0];
+type SendMessage<A extends Actor> = Exclude<Message<A>, [string, UnknownRequest]>;
 type MessageName<A extends Actor> = Message<A>[0];
 
-interface DOMActor extends Actor {
+interface ViewActor extends Actor {
   view(children?: any): JSXInternal.Element;
 }
 
@@ -29,7 +30,9 @@ export {
   _renderPid,
   type Actor,
   type ActorType,
-  type DOMActor,
+  // TODO refactor name
+  type ViewActor as DOMActor,
   type Message,
   type MessageName,
+  type SendMessage,
 };

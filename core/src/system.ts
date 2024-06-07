@@ -131,7 +131,7 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
   if(inThisSystem(pid)) {
     let actor = getActorFromPID(pid);
     if(actor) {
-      deliver(actor, message);
+      actor.receive(message);
     }
   } else {
     let system = getSystem(pid);
@@ -145,11 +145,6 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
       message,
     });
   }
-}
-
-function deliver(actor: Actor, message: [string, any]) {
-  // TODO check inbox
-  actor.receive(message);
 }
 
 function process<A extends Actor>(actor: A): Process<A> {
