@@ -6,7 +6,7 @@ import {
 	Tree
 } from '../dist/tree';
 import {
-	DOMActor,
+	ViewActor,
 	MessageName
 } from '../dist/actor';
 
@@ -52,7 +52,7 @@ export namespace JSXInternal {
 		key?: any;
 	}
 
-	export type ElementType<A extends DOMActor, P = any> =
+	export type ElementType<A extends ViewActor, P = any> =
 		| {
 				[K in keyof IntrinsicElements<A>]: P extends IntrinsicElements<A>[K]
 					? K
@@ -86,7 +86,7 @@ export namespace JSXInternal {
 		cssText?: string | null;
 	}
 
-	export interface SVGAttributes<A extends DOMActor = DOMActor>
+	export interface SVGAttributes<A extends ViewActor = ViewActor>
 		extends HTMLAttributes<A> {
 		accentHeight?: number | string;
 		accumulate?: 'none' | 'sum';
@@ -454,7 +454,7 @@ export namespace JSXInternal {
 		TargetedWheelEvent<Target>
 	>;
 
-	export interface DOMAttributes<A extends DOMActor = DOMActor> extends ActorDOMAttributes  {
+	export interface DOMAttributes<A extends ViewActor = ViewActor> extends ActorDOMAttributes  {
 		// Image Events
 		onLoad?: MessageName<A>;
 		onLoadCapture?: MessageName<A>;
@@ -657,7 +657,7 @@ export namespace JSXInternal {
 		onTransitionEndCapture?: MessageName<A>;
 	}
 
-	export interface HTMLAttributes<A extends DOMActor = DOMActor> extends Attributes, DOMAttributes<A> {
+	export interface HTMLAttributes<A extends ViewActor = ViewActor> extends Attributes, DOMAttributes<A> {
 		// Standard HTML Attributes
 		accept?: string;
 		acceptCharset?: string;
@@ -861,7 +861,7 @@ export namespace JSXInternal {
 	}
 
 	export type DetailedHTMLProps<
-		HA extends HTMLAttributes<DOMActor>,
+		HA extends HTMLAttributes<ViewActor>,
 	> = HA;
 
 	export interface HTMLMarqueeElement extends HTMLElement {
@@ -878,13 +878,13 @@ export namespace JSXInternal {
 		width?: number | string;
 	}
 
-	type CustomElementAttributes = HTMLAttributes<DOMActor> & { [k: string]: unknown; };
+	type CustomElementAttributes = HTMLAttributes<ViewActor> & { [k: string]: unknown; };
 
-  export interface BaseIntrinsicElements<A extends DOMActor> {
+  export interface BaseIntrinsicElements<A extends ViewActor> {
     [k: string]: CustomElementAttributes | HTMLAttributes<A> | SVGAttributes;
   }
 
-	export interface IntrinsicElements<A extends DOMActor> extends BaseIntrinsicElements<A> {
+	export interface IntrinsicElements<A extends ViewActor> extends BaseIntrinsicElements<A> {
 		// HTML
 		a: HTMLAttributes<A>;
 		abbr: HTMLAttributes<A>;

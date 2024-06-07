@@ -1,8 +1,10 @@
 import type {
   Actor,
   ActorType,
-  DOMActor,
+  ViewActor,
   MessageName,
+  ProcessWithMessage,
+  ActorWithMessage,
 } from './actor.js';
 import type { ConnectionMessage } from './messages.js';
 import type { Process } from './pid.js';
@@ -42,9 +44,11 @@ function established(port: MessagePort, router: AnyRouter) {
 export {
   type Actor,
   type ActorType,
-  type DOMActor,
+  type ActorWithMessage,
+  type ViewActor,
   type MessageName,
   type Process,
+  type ProcessWithMessage,
 
   process,
   send,

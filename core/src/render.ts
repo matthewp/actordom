@@ -13,7 +13,7 @@ import {
 // @ts-expect-error
 from 'incremental-dom';
 import type { Actor } from './actor.js';
-import type { DOMActor, Process } from './main.js';
+import type { ViewActor, Process } from './main.js';
 import type { Tree } from './tree.js';
 import type { JSXInternal } from '../types/jsx.js';
 
@@ -128,7 +128,7 @@ function inner(bc: any, actor: RenderActor, pid: any){
           let renderPid = fromRoot(render as any);
           actor.pidMap.set(n[1], renderPid);
 
-          let slotPid: Process<DOMActor> | undefined = undefined;
+          let slotPid: Process<ViewActor> | undefined = undefined;
           if(n[2]) {
             slotPid = spawn(Children, pid, n[2]);
             actor.cMap.set(n[1], slotPid);
@@ -147,7 +147,7 @@ function inner(bc: any, actor: RenderActor, pid: any){
 }
 
 const _outer = Symbol.for('outer');
-function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderActor, pid: Process<DOMActor>) {
+function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderActor, pid: Process<ViewActor>) {
   let patcher = patch;
   let isPlaceholder = root.nodeType === 8;
   if(isPlaceholder || (root as any)[_outer]) {
@@ -161,7 +161,7 @@ function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderAc
 }
 
 class Children {
-  constructor(public pid: Process<DOMActor>, public tree: Tree){}
+  constructor(public pid: Process<ViewActor>, public tree: Tree){}
   receive(message: [typeof _update, Tree] | [string, any]) {
     if(message[0] === _update) {
       this.tree = message[1];
@@ -175,10 +175,10 @@ class Children {
 
 class RenderActor {
   pidMap = new Map<string, Process<Actor>>;
-  cMap = new Map<Process<DOMActor>, Process<DOMActor>>;
+  cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
   constructor(public root: Element) {}
-  receive([, [pid, tree]]: [string, [Process<DOMActor>, Tree]]) {
+  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree]]) {
     let newRoot = render(tree, this.root, this, pid);
     if(this.root !== newRoot) {
       this.root = newRoot;
@@ -190,7 +190,7 @@ function fromRoot(root: Element) {
   return spawn(RenderActor, root);
 }
 
-function mount(actorOrProcess: DOMActor | Process<DOMActor>, root: Element) {
+function mount(actorOrProcess: ViewActor | Process<ViewActor>, root: Element) {
   if(isPID(actorOrProcess)) {
     updateProcess(actorOrProcess, fromRoot(root), undefined);
   } else {

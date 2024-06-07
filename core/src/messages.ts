@@ -1,4 +1,4 @@
-import type { Actor, DOMActor, Message } from './actor.js';
+import type { Actor, ViewActor, Message } from './actor.js';
 import type { Postable } from './connection.js';
 import type { UUID, Process } from './pid.js';
 
@@ -17,9 +17,9 @@ type SendMessage = {
 
 type UpdateMessage = {
   type: 'update';
-  pid: Process<DOMActor>;
+  pid: Process<ViewActor>;
   renderPid: Process<Actor>;
-  slotPid: Process<DOMActor> | undefined;
+  slotPid: Process<ViewActor> | undefined;
 };
 
 type NewSystemMessage = {

@@ -3,9 +3,13 @@ import type { _renderPid, _slotPid } from './update.js';
 import type { Process } from './pid.js';
 import type { _pid } from './system.js';
 
+// https://www.totaltypescript.com/concepts/the-prettify-helper
+type Prettify<T> = {
+	[K in keyof T]: T[K];
+} & {};
 
 interface Actor {
-  receive(_message: [string, any]): void;
+  receive(message: [string, any]): void;
   /* @internal */
   [_renderPid]?: Process<Actor>;
   /* @internal */
@@ -21,15 +25,23 @@ interface ActorType {
 type Message<A extends Actor> = Parameters<A['receive']>[0];
 type MessageName<A extends Actor> = Message<A>[0];
 
-interface DOMActor extends Actor {
+interface ViewActor extends Actor {
   view(children?: any): JSXInternal.Element;
 }
+
+interface IActorWithMessage<M extends [string, any]> extends Actor {
+  receive(message: M): void;
+}
+type ActorWithMessage<M extends [string, any]> = Prettify<IActorWithMessage<M>>;
+type ProcessWithMessage<M extends [string, any]> = Process<ActorWithMessage<M>>;
 
 export {
   _renderPid,
   type Actor,
   type ActorType,
-  type DOMActor,
+  type ActorWithMessage,
+  type ProcessWithMessage,
+  type ViewActor,
   type Message,
   type MessageName,
 };

@@ -1,7 +1,7 @@
 import type {
   Actor,
   ActorType,
-  DOMActor,
+  ViewActor,
   MessageName,
 } from './actor.js';
 import { type ConnectionMessage, sendMessage } from './messages.js';
@@ -110,7 +110,7 @@ function renderToString(tree: Tree | JSX.Element): string {
       case 5: {
         let pid = instruction[1];
         if(inThisSystem(pid)) {
-          let actor = getActorFromPID(pid) as DOMActor;
+          let actor = getActorFromPID(pid) as ViewActor;
           let dom = actor.view();
           let html = renderToString(dom);
           builder += html;
@@ -127,7 +127,7 @@ function renderToString(tree: Tree | JSX.Element): string {
 export {
   type Actor,
   type ActorType,
-  type DOMActor,
+  type ViewActor,
   type MessageName,
   type Process,
   type OverTheWireConnectionMessage,

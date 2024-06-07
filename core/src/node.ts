@@ -1,7 +1,7 @@
 import type {
   Actor,
   ActorType,
-  DOMActor,
+  ViewActor,
   MessageName,
 } from './actor.js';
 import { getSystem, type Process } from './pid.js';
@@ -145,7 +145,7 @@ export {
 
   type Actor,
   type ActorType,
-  type DOMActor,
+  type ViewActor,
   type MessageName,
   type Process,
   type AnyRouter,

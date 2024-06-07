@@ -1,11 +1,12 @@
 import type { Actor } from './main.js';
 import { systemId } from './system.js';
 
-type UUID = `${string}-${string}-${string}-${string}-${string}`;
-
 let prefix = '~ad~' as const;
 
-type Process<A extends Actor> = `${typeof prefix}${UUID}/${UUID}` & {
+type UUID = `${string}-${string}-${string}-${string}-${string}`;
+type ProcessID = `${typeof prefix}/${UUID}/${UUID}`;
+
+type Process<A extends Actor> = ProcessID & {
   actor: A;
 }
 
