@@ -98,7 +98,7 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
       return;
     }
     let tracker = new AsyncTracker(() => res.end());
-    let context: RequestStore = {
+    let store: RequestStore = {
       tracker,
       request: req,
       response: res
@@ -107,6 +107,7 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
     req.setEncoding('utf-8');
     req.on('data', chunk => { body+= chunk });
     req.on('end', () => {
+      als.enterWith(store);
       let data = JSON.parse(body) as OverTheWireConnectionMessage | OverTheWireConnectionMessage[];
       if(Array.isArray(data)) {
         data.forEach(message => {
