@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.16
+
+### Patch Changes
+
+- c4c032e: Enter the context with the right store
+
 ## 0.0.15
 
 ### Patch Changes
