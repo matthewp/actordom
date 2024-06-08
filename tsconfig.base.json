@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "customConditions": ["typescript"],
     "strict": true,
     "moduleResolution": "Bundler",
     "module": "ESNext",

@@ -13,17 +13,30 @@ import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSyste
 import { update } from './update.js';
 
 type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
-
 type MessageHandler = (message: OverTheWireConnectionMessage) => void;
 
-function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort) {
+class AsyncTracker {
+  count = 0;
+  constructor(public onDone: () => any) {}
+  wait() {
+    this.count++;
+  }
+  done = () => {
+    this.count--;
+    if(this.count === 0) {
+      this.onDone();
+    }
+  };
+}
+
+function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort, tracker: AsyncTracker) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     switch(ev.data.type) {
       case 'new-system': {
         let channel = new MessageChannel();
         updateSystem(ev.data.system, channel.port1);
-        serverSide(onMessage, router, channel.port1);
-        clientSide(onMessage, channel.port2, ev.data.port);
+        serverSide(onMessage, router, channel.port1, tracker);
+        clientSide(onMessage, channel.port2, tracker);
         break;
       }
       default: {
@@ -35,33 +48,37 @@ function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessageP
   port.start();
 }
 
-function clientSide(onMessage: MessageHandler, port: MessagePort, uuid: UUID) {
+function clientSide(onMessage: MessageHandler, port: MessagePort, tracker: AsyncTracker) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
-    ev.data.port = uuid;
     onMessage(ev.data);
+    tracker.done();
   };
   port.start();
 }
+
+type BrowserEvent = { data: OverTheWireConnectionMessage };
 
 function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
   let channel: MessageChannel;
   let alias: UUID;
   return {
-    handle(ev: { data: OverTheWireConnectionMessage }) {
+    handle(ev: BrowserEvent, tracker: AsyncTracker) {
       switch(ev.data.type) {
         case 'system': {
           alias = ev.data.system;
           addSelfAlias(alias);
           channel = new MessageChannel();
           updateSystem(ev.data.sender, channel.port1);
-          serverSide(onMessage, router, channel.port1);
-          clientSide(onMessage, channel.port2, ev.data.port);
+          serverSide(onMessage, router, channel.port1, tracker);
+          clientSide(onMessage, channel.port2, tracker);
   
           // Tell the sender your real systemId.
+          tracker.wait();
           sendMessage(channel.port1, { type: 'alias', system: ev.data.system, alias: systemId });
           break;
         }
         default: {
+          tracker.wait();
           sendMessage(channel.port2, ev.data);
           break;
         }
@@ -132,6 +149,7 @@ export {
   type Process,
   type OverTheWireConnectionMessage,
 
+  AsyncTracker,
   createBrowserConnection,
   renderToString,
   router,
