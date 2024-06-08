@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.15
+
+### Patch Changes
+
+- 0173725: Implement async tracking
+
 ## 0.0.14
 
 ### Patch Changes
