@@ -115,14 +115,14 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
           let client = incoming.get(clientId)! as Client;
           client.conn.handle({
             data: message
-          }, tracker);
+          }, getAsyncTracker);
         })
       } else {
         saveSystem(data, clientId);
         let client = incoming.get(clientId)! as Client;
         client.conn.handle({
           data
-        }, tracker);
+        }, getAsyncTracker);
       }
     });
   }
@@ -154,8 +154,28 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
   };
 }
 
+function getAsyncTracker() {
+  let store = getRequestStore();
+  return store?.tracker;
+}
+
 function getRequestStore() {
-  return als.getStore() as RequestStore;
+  return als.getStore() as (RequestStore | undefined);
+}
+
+function getServerResponse() {
+  let store = getRequestStore();
+  return store?.response;
+}
+
+function waitFor(p: Promise<any>) {
+  let store = getAsyncTracker();
+  if(store) {
+    store.wait();
+    p.finally(() => {
+      store.done();
+    });
+  }
 }
 
 export {
@@ -166,14 +186,14 @@ export {
   type ViewActor,
   type MessageName,
   type Process,
-  type RequestStore,
   type AnyRouter,
 
-  getRequestStore,
+  getServerResponse,
   renderToString,
   router,
   process,
   send,
   spawn,
-  update
+  update,
+  waitFor
 }

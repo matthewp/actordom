@@ -29,14 +29,17 @@ class AsyncTracker {
   };
 }
 
-function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort, tracker: AsyncTracker) {
+type GetAsyncTracker = () => AsyncTracker | undefined;
+
+function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort, getTracker: GetAsyncTracker) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
+    getTracker()?.done();
     switch(ev.data.type) {
       case 'new-system': {
         let channel = new MessageChannel();
         updateSystem(ev.data.system, channel.port1);
-        serverSide(onMessage, router, channel.port1, tracker);
-        clientSide(onMessage, channel.port2, tracker);
+        serverSide(onMessage, router, channel.port1, getTracker);
+        clientSide(onMessage, channel.port2);
         break;
       }
       default: {
@@ -48,10 +51,9 @@ function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessageP
   port.start();
 }
 
-function clientSide(onMessage: MessageHandler, port: MessagePort, tracker: AsyncTracker) {
+function clientSide(onMessage: MessageHandler, port: MessagePort) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
     onMessage(ev.data);
-    tracker.done();
   };
   port.start();
 }
@@ -62,23 +64,22 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
   let channel: MessageChannel;
   let alias: UUID;
   return {
-    handle(ev: BrowserEvent, tracker: AsyncTracker) {
+    handle(ev: BrowserEvent, getTracker: GetAsyncTracker) {
       switch(ev.data.type) {
         case 'system': {
           alias = ev.data.system;
           addSelfAlias(alias);
           channel = new MessageChannel();
           updateSystem(ev.data.sender, channel.port1);
-          serverSide(onMessage, router, channel.port1, tracker);
-          clientSide(onMessage, channel.port2, tracker);
+          serverSide(onMessage, router, channel.port1, getTracker);
+          clientSide(onMessage, channel.port2);
   
           // Tell the sender your real systemId.
-          tracker.wait();
           sendMessage(channel.port1, { type: 'alias', system: ev.data.system, alias: systemId });
           break;
         }
         default: {
-          tracker.wait();
+          getTracker()?.wait();
           sendMessage(channel.port2, ev.data);
           break;
         }
