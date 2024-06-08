@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.17
+
+### Patch Changes
+
+- 39f4c76: Provide a waitFor
+
 ## 0.0.16
 
 ### Patch Changes
