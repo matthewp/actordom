@@ -5,12 +5,19 @@
   "type": "module",
   "exports": {
     ".": {
+      "typescript": "./src/main.ts",
       "node": "./dist/node.js",
       "default": "./dist/main.js"
     },
     "./dom": "./dist/dom.js",
-    "./worker": "./dist/worker.js",
-    "./node": "./dist/node.js",
+    "./worker": {
+      "typescript": "./src/worker.ts",
+      "default": "./dist/worker.js"
+    },
+    "./node": {
+      "tyepscript": "./src/node.ts",
+      "default": "./dist/node.js"
+    },
     "./jsx-runtime": {
       "types": "./types/index.d.ts",
       "import": "./dist/jsx-runtime.js"

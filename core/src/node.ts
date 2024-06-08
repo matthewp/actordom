@@ -5,16 +5,18 @@ import type {
   MessageName,
 } from './actor.js';
 import { getSystem, type Process } from './pid.js';
+import { AsyncLocalStorage } from 'node:async_hooks';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { UUID } from './pid.js';
 import { type AnyRouter } from './remote.js';
 import cookie from 'cookie';
 import { join as pathJoin } from 'node:path';
-import { createBrowserConnection, renderToString, router, type OverTheWireConnectionMessage } from './server.js';
+import { AsyncTracker, createBrowserConnection, renderToString, router, type OverTheWireConnectionMessage } from './server.js';
 import { process, send, spawn } from './system.js';
 import { update } from './update.js';
 
 const COOKIE_NAME = '_actordomclient';
+const als = new AsyncLocalStorage();;
 
 type BrowserConnection = ReturnType<typeof createBrowserConnection>;
 
@@ -24,6 +26,12 @@ type Client = {
   res: ServerResponse;
   conn: BrowserConnection
 };
+
+type RequestStore = {
+  tracker: AsyncTracker;
+  request: IncomingMessage;
+  response: ServerResponse;
+}
 
 function serverSentEvents(prefix: string, router: AnyRouter) {
   let clients = new Map<UUID, Client>();
@@ -89,6 +97,12 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
       res.end();
       return;
     }
+    let tracker = new AsyncTracker(() => res.end());
+    let context: RequestStore = {
+      tracker,
+      request: req,
+      response: res
+    };
     let body = '';
     req.setEncoding('utf-8');
     req.on('data', chunk => { body+= chunk });
@@ -100,16 +114,15 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
           let client = incoming.get(clientId)! as Client;
           client.conn.handle({
             data: message
-          });
+          }, tracker);
         })
       } else {
         saveSystem(data, clientId);
         let client = incoming.get(clientId)! as Client;
         client.conn.handle({
           data
-        });
+        }, tracker);
       }
-      res.end();
     });
   }
 
@@ -140,6 +153,10 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
   };
 }
 
+function getRequestStore() {
+  return als.getStore() as RequestStore;
+}
+
 export {
   serverSentEvents as sse,
 
@@ -148,8 +165,10 @@ export {
   type ViewActor,
   type MessageName,
   type Process,
+  type RequestStore,
   type AnyRouter,
 
+  getRequestStore,
   renderToString,
   router,
   process,
