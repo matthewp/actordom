@@ -1,6 +1,6 @@
 {
   "name": "demos",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -13,19 +13,27 @@
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "actordom": "^0.0.12",
+    "actordom": "^0.0.13",
     "esbuild": "^0.21.3"
   },
   "wireit": {
     "build": {
       "command": "esbuild src/server.tsx --bundle --format=esm --outdir=dist --platform=node --packages=external",
-      "dependencies": ["../core:build"],
-      "files": ["src/**/*"],
-      "output": ["dist"]
+      "dependencies": [
+        "../core:build"
+      ],
+      "files": [
+        "src/**/*"
+      ],
+      "output": [
+        "dist"
+      ]
     },
     "dev": {
       "command": "node dev.js",
-      "dependencies": ["build"],
+      "dependencies": [
+        "build"
+      ],
       "files": []
     }
   }
