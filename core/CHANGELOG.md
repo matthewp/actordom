@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.18
+
+### Patch Changes
+
+- 16dc0bf: Request based context tracking
+
 ## 0.0.17
 
 ### Patch Changes
