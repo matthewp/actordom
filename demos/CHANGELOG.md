@@ -1,5 +1,12 @@
 # demos
 
+## 1.0.7
+
+### Patch Changes
+
+- Updated dependencies [60dc241]
+  - actordom@0.0.19
+
 ## 1.0.6
 
 ### Patch Changes
