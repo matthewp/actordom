@@ -1,6 +1,6 @@
 {
   "name": "demos",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -13,7 +13,7 @@
   "author": "Matthew Phillips",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "actordom": "^0.0.17",
+    "actordom": "^0.0.18",
     "esbuild": "^0.21.3"
   },
   "wireit": {
