@@ -12,7 +12,7 @@ import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias, inThisSystem, getActorFromPID } from './system.js';
 import { update } from './update.js';
 
-type OverTheWireConnectionMessage = ConnectionMessage & { port: UUID; };
+type OverTheWireConnectionMessage = ConnectionMessage & { requestId: UUID; };
 type MessageHandler = (message: OverTheWireConnectionMessage) => void;
 
 class AsyncTracker {
@@ -29,16 +29,16 @@ class AsyncTracker {
   };
 }
 
-type GetAsyncTracker = () => AsyncTracker | undefined;
+type OnServerMessage = (id: UUID) => () => void;
 
-function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort, getTracker: GetAsyncTracker) {
+function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessagePort, onServerMessage: OnServerMessage) {
   port.onmessage = (ev: MessageEvent<OverTheWireConnectionMessage>) => {
-    getTracker()?.done();
+    let onDone = onServerMessage(ev.data.requestId);
     switch(ev.data.type) {
       case 'new-system': {
         let channel = new MessageChannel();
         updateSystem(ev.data.system, channel.port1);
-        serverSide(onMessage, router, channel.port1, getTracker);
+        serverSide(onMessage, router, channel.port1, onServerMessage);
         clientSide(onMessage, channel.port2);
         break;
       }
@@ -47,6 +47,7 @@ function serverSide(onMessage: MessageHandler, router: AnyRouter, port: MessageP
         break;
       }
     }
+    onDone();
   };
   port.start();
 }
@@ -60,18 +61,19 @@ function clientSide(onMessage: MessageHandler, port: MessagePort) {
 
 type BrowserEvent = { data: OverTheWireConnectionMessage };
 
-function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
+function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler, onServerMessage: OnServerMessage) {
   let channel: MessageChannel;
   let alias: UUID;
   return {
-    handle(ev: BrowserEvent, getTracker: GetAsyncTracker) {
+    handle(ev: BrowserEvent, tracker: AsyncTracker, requestId: UUID) {
+      ev.data.requestId = requestId;
       switch(ev.data.type) {
         case 'system': {
           alias = ev.data.system;
           addSelfAlias(alias);
           channel = new MessageChannel();
           updateSystem(ev.data.sender, channel.port1);
-          serverSide(onMessage, router, channel.port1, getTracker);
+          serverSide(onMessage, router, channel.port1, onServerMessage);
           clientSide(onMessage, channel.port2);
   
           // Tell the sender your real systemId.
@@ -79,7 +81,7 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler) {
           break;
         }
         default: {
-          getTracker()?.wait();
+          tracker.wait();
           sendMessage(channel.port2, ev.data);
           break;
         }

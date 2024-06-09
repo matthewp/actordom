@@ -49,15 +49,12 @@ class ServerTarget implements Postable {
       body: JSON.stringify(message)
     });
   }
-  listenToPort(port: MessagePort, id: string) {
+  listenToPort(port: MessagePort) {
     port.onmessage = ev => {
       if(ev.data.type === 'new-system') {
-        ev.data.port = crypto.randomUUID();
         // listen to this port (messages coming from a worker)
         // and forward back to the server
-        this.listenToPort(ev.ports[0], ev.data.port);
-      } else {
-        ev.data.port = id;
+        this.listenToPort(ev.ports[0]);
       }
       if(!this.opened) {
         this.queued.push(ev.data);
@@ -68,9 +65,7 @@ class ServerTarget implements Postable {
     port.start();
   }
   postMessage(message: any, transfer: Transferable[]) {
-    let id = crypto.randomUUID();
-    this.listenToPort(transfer[0] as MessagePort, id);
-    message.port = id;
+    this.listenToPort(transfer[0] as MessagePort);
     if(!this.opened) {
       this.queued.push(message);
       return;

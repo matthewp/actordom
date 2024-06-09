@@ -28,9 +28,29 @@ type Client = {
 };
 
 type RequestStore = {
+  id: UUID;
   tracker: AsyncTracker;
   request: IncomingMessage;
   response: ServerResponse;
+};
+
+function getClientId(request: IncomingMessage): UUID | null {
+  let rawCookie = request.headers.cookie;
+  if(!rawCookie) {
+    return null;
+  }
+  let cookies = cookie.parse(rawCookie);
+  let clientId = cookies[COOKIE_NAME] as UUID | undefined;
+  return clientId ?? null;
+}
+
+function decorate(request: IncomingMessage, response: ServerResponse): UUID {
+  let clientId = getClientId(request);
+  if(clientId) return clientId;
+  clientId = crypto.randomUUID();
+  let prefix = '/';
+  response.setHeader('Set-Cookie', `${COOKIE_NAME}=${clientId}; Path=${prefix}; HttpOnly`);
+  return clientId;
 }
 
 function serverSentEvents(prefix: string, router: AnyRouter) {
@@ -38,19 +58,18 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
   let incoming = new Map<UUID, Omit<Client, 'system'>>();
   
   function handleEventStream(req: IncomingMessage, res: ServerResponse) {
-    const clientId = crypto.randomUUID();
+    let clientId = decorate(req, res);
     const headers = {
       'Content-Type': 'text/event-stream',
       'Connection': 'keep-alive',
       'Cache-Control': 'no-cache',
-      'Set-Cookie': `${COOKIE_NAME}=${clientId}; Path=${prefix}; HttpOnly`
     };
     res.writeHead(200, headers);
   
     const data = `data: ${JSON.stringify({})}\n\n`;
     res.write(data);
   
-    const conn = createBrowserConnection(router, onMessage);
+    const conn = createBrowserConnection(router, onClientMessage, onServerMessage);
     const newClient = {
       id: clientId,
       res,
@@ -84,30 +103,28 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
   }
   
   function handleDomActorPost(req: IncomingMessage, res: ServerResponse) {
-    let rawCookie = req.headers.cookie;
-    if(!rawCookie) {
-      res.writeHead(401);
-      res.end();
-      return;
-    }
-    let cookies = cookie.parse(rawCookie);
-    let clientId = cookies[COOKIE_NAME] as UUID | undefined;
+    let clientId = getClientId(req);
     if(!clientId) {
       res.writeHead(401);
       res.end();
       return;
     }
-    let tracker = new AsyncTracker(() => res.end());
+    let tracker = new AsyncTracker(() => {
+      res.end();
+      inflight.delete(requestId);
+    });
+    let requestId = crypto.randomUUID();
     let store: RequestStore = {
+      id: requestId,
       tracker,
       request: req,
       response: res
     };
+    inflight.set(requestId, store);
     let body = '';
     req.setEncoding('utf-8');
     req.on('data', chunk => { body+= chunk });
     req.on('end', () => {
-      als.enterWith(store);
       let data = JSON.parse(body) as OverTheWireConnectionMessage | OverTheWireConnectionMessage[];
       if(Array.isArray(data)) {
         data.forEach(message => {
@@ -115,19 +132,19 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
           let client = incoming.get(clientId)! as Client;
           client.conn.handle({
             data: message
-          }, getAsyncTracker);
+          }, tracker, requestId);
         })
       } else {
         saveSystem(data, clientId);
         let client = incoming.get(clientId)! as Client;
         client.conn.handle({
           data
-        }, getAsyncTracker);
+        }, tracker, requestId);
       }
     });
   }
 
-  function onMessage(message: OverTheWireConnectionMessage) {
+  function onClientMessage(message: OverTheWireConnectionMessage) {
     let client: Client | undefined;
     if('system' in message) {
       client = clients.get(message.system);
@@ -140,6 +157,16 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
       return;
     }
     client.res.write(`data: ${JSON.stringify(message)}\n\n`);
+  }
+
+  const inflight = new Map<UUID, RequestStore>();
+  function onServerMessage(id: UUID) {
+    let store = inflight.get(id);
+    if(store) {
+      // Enter the message context with this as the store.
+      als.enterWith(store);
+    }
+    return () => store?.tracker.done();
   }
 
   return function(req: IncomingMessage, res: ServerResponse) {
