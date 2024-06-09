@@ -3,3 +3,4 @@ demos/dist/
 demos/dist2/
 dist/
 .wireit/
+core/esbuild/

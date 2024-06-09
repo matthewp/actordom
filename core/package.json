@@ -57,7 +57,7 @@
       ]
     },
     "serve": {
-      "command": "node server.cjs",
+      "command": "node server.mjs",
       "service": {
         "readyWhen": {
           "lineMatches": "Server listening"

@@ -31,9 +31,15 @@ function preferProps(element: any, name: string, value: any){
     element[name] = value[1];
   } else if(name in element && !isSVG(element)) {
     element[name] = value;
-  }
-  else
+  } else if(typeof value === 'boolean') {
+    if(value) {
+      element.setAttribute(name, '');
+    } else {
+      element.removeAttribute(name);
+    }
+  } else {
     attributesSet(element, name, value);
+  }
 }
 
 function isEventProperty(name: string, value: any) {
