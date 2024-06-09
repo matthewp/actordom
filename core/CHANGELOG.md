@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.19
+
+### Patch Changes
+
+- 60dc241: Support boolean attributes
+
 ## 0.0.18
 
 ### Patch Changes
