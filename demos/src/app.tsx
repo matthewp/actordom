@@ -1,6 +1,6 @@
 import type { WorkerRouter } from './worker';
 import type { AppRouter } from './server';
-import { spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
+import { spawn, update, createServerConnection, createWorkerConnection, send, pass } from 'actordom';
 import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';
@@ -32,10 +32,11 @@ class Namer {
     }
     update(this);
   }
-  view() {
+  view(children: any) {
     return (
       <div>
         <h2>Name</h2>
+        {children}
         <input type="text" onInput="first" placeholder="First"></input>
         <input type="text" onInput="last" placeholder="Last"></input>
         <div>
@@ -49,7 +50,7 @@ class Namer {
 class Main {
   root = document.querySelector('#app')!;
   counter = spawn(Counter, 'Main thread counter');
-  //namer = spawn(Namer);
+  namer = spawn(Namer);
   todoList = spawn(TodoList);
   offthreadCounter = spawn(Offthread);
   server = spawn(ServerActor);
@@ -61,11 +62,11 @@ class Main {
     update(this);
   }
   view() {
+    let Namer = this.namer;
     return (
       <main>
         <h1>My App</h1>
         {this.offthreadCounter}
-        {this.server}
       </main>
     );
   }

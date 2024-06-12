@@ -1,4 +1,4 @@
-import { isTree, createTree } from './tree.js';
+import { type Tree, isTree, createTree } from './tree.js';
 import { isPID } from './pid.js';
 
 const Fragment = () => {};
@@ -12,6 +12,31 @@ function signal(_tagName: string, attrName: string, attrValue: any, attrs: Recor
   if(eventAttrExp.test(attrName)) {
     let eventName = attrName.toLowerCase();
     return [1, eventName, attrValue];
+  }
+}
+
+function pushChildren(tree: Tree, children: any) {
+  if(Array.isArray(children)) {
+    children.forEach(function(child: any){
+      if(typeof child !== 'undefined' && !Array.isArray(child)) {
+        if(isPID(child)) {
+          tree.push([5, child]);
+          return;
+        }
+
+        tree.push([4, child + '']);
+        return;
+      }
+
+      while(child && child.length) {
+        let item = child.shift();
+        if(isPID(item)) {
+          tree.push([5, item]);
+          continue;
+        }
+        tree.push(item);
+      }
+    });
   }
 }
 
@@ -54,39 +79,22 @@ function jsx(type: any, props: any, key: any, __self: any, __source: any) {
     }, []);
   }
 
-  let open = [1, type, uniq];
-  if(props) {
-    open.push(props);
+  if(isPID(type)) {
+    let _tree = createTree();
+    pushChildren(_tree, children);
+    tree.push([5, type, _tree]);
+  } else {
+    let open = [1, type, uniq];
+    if(props) {
+      open.push(props);
+    }
+    if(evs) {
+      open.push(evs);
+    }
+    tree.push(open as any);
+    pushChildren(tree, children);
+    tree.push([2, type]);
   }
-  if(evs) {
-    open.push(evs);
-  }
-  tree.push(open as any);
-
-  if(Array.isArray(children)) {
-    children.forEach(function(child: any){
-      if(typeof child !== 'undefined' && !Array.isArray(child)) {
-        if(isPID(child)) {
-          tree.push([5, child]);
-          return;
-        }
-  
-        tree.push([4, child + '']);
-        return;
-      }
-
-      while(child && child.length) {
-        let item = child.shift();
-        if(isPID(item)) {
-          tree.push([5, item]);
-          continue;
-        }
-        tree.push(item);
-      }
-    });
-  }
-
-  tree.push([2, type]);
 
   return tree;
 }
