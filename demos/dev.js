@@ -12,7 +12,6 @@ const SERVER_ACTOR_PATH = '/_actordom';
 let actorHandler = sse(SERVER_ACTOR_PATH, appRouter);
 
 let ctx = await esbuild.context({
-  // ... your build options go here ...
   entryPoints: ['src/app.tsx', 'src/worker.tsx'],
   bundle: true,
   format: 'esm',

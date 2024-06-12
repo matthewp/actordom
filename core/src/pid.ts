@@ -8,6 +8,7 @@ type ProcessID = `${typeof prefix}/${UUID}/${UUID}`;
 
 type Process<A extends Actor> = ProcessID & {
   actor: A;
+  new(): void;
 }
 
 const LENGTH = 78;
