@@ -1,6 +1,6 @@
 import type { WorkerRouter } from './worker';
 import type { AppRouter } from './server';
-import { spawn, update, createServerConnection, createWorkerConnection, send, pass } from 'actordom';
+import { spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
 import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';

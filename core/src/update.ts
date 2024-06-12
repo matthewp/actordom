@@ -53,14 +53,7 @@ function updateProcess(pid: Process<ViewActor>, renderPid: Process<Actor>, slotP
   }
 }
 
-function pass(process: Process<ViewActor>, children: Tree | JSXInternal.Element): Tree {
-  let tree = createTree();
-  tree.push([5, process, children as any]);
-  return tree;
-}
-
 export {
-  pass,
   update,
   updateProcess,
   _root,
