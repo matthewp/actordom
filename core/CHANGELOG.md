@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.20
+
+### Patch Changes
+
+- 9c24121: Allow treating processes as components
+
 ## 0.0.19
 
 ### Patch Changes
