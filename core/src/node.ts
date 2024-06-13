@@ -141,6 +141,7 @@ function serverSentEvents(prefix: string, router: AnyRouter) {
           data
         }, tracker, requestId);
       }
+      tracker.entered();
     });
   }
 
