@@ -17,16 +17,28 @@ type MessageHandler = (message: OverTheWireConnectionMessage) => void;
 
 class AsyncTracker {
   count = 0;
+  isDone = false;
   constructor(public onDone: () => any) {}
   wait() {
     this.count++;
   }
+  entered() {
+    if(!this.isDone && this.count === 0) {
+      this.#finalize();
+    }
+  }
   done = () => {
     this.count--;
     if(this.count === 0) {
-      this.onDone();
+      this.#finalize();
     }
   };
+  #finalize() {
+    this.isDone = true;
+    let onDone = this.onDone;
+    this.onDone = () => {};
+    onDone();
+  }
 }
 
 type OnServerMessage = (id: UUID) => () => void;
