@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.21
+
+### Patch Changes
+
+- cbe7894: Add finalization of Node SSE service
+
 ## 0.0.20
 
 ### Patch Changes
