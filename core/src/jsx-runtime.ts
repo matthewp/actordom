@@ -1,7 +1,11 @@
 import { type Tree, isTree, createTree } from './tree.js';
 import { isPID } from './pid.js';
 
-const Fragment = () => {};
+const Fragment = (_p: any, children: any) => {
+  let tree = createTree();
+  pushChildren(tree, children);
+  return tree;
+};
 
 function isPrimitive(type: string) {
   return type === 'string' || type === 'number' || type === 'boolean';

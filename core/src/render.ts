@@ -80,7 +80,20 @@ const ID = 2;
 const ATTRS = 3;
 const EVENTS = 4;
 
-function inner(bc: any, actor: RenderActor, pid: any){
+function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<ViewActor>) {
+  let isRange = root instanceof Range;
+  if(isRange) {
+    // Skip until we find the start comment.
+    while(true) {
+      let p = currentPointer();
+      if(p === (root as Range).startContainer) {
+        skipNode();
+        break;
+      }
+      skipNode();
+    }
+  }
+
   var n;
   for(var i = 0, len = bc.length; i < len; i++) {
     n = bc[i];
@@ -122,16 +135,17 @@ function inner(bc: any, actor: RenderActor, pid: any){
         } else {
           let el = currentElement();
           let start = document.createComment('ad-start');
-          let render = document.createComment('ad-render');
           let end = document.createComment('ad-end');
           el.insertBefore(end, pointer);
-          el.insertBefore(render, end);
-          el.insertBefore(start, render);
+          el.insertBefore(start, end);
           skipNode();
           skipNode();
-          skipNode();
+
+          let range = document.createRange();
+          range.setStart(start, 0);
+          range.setEnd(end, 0);
   
-          let renderPid = fromRoot(render as any);
+          let renderPid = fromRoot(range);
           actor.pidMap.set(n[1], renderPid);
 
           let slotPid: Process<ViewActor> | undefined = undefined;
@@ -150,20 +164,38 @@ function inner(bc: any, actor: RenderActor, pid: any){
       }
     }
   }
+
+  if(isRange) {
+    // Skip past the end container
+    let p = currentPointer();
+    if(p === (root as Range).endContainer) {
+      do {
+        skipNode();
+        p = currentPointer();
+      } while(p);
+    }
+  }
 }
 
-const _outer = Symbol.for('outer');
-function render(vdom: Tree | JSXInternal.Element, root: Element, actor: RenderActor, pid: Process<ViewActor>) {
-  let patcher = patch;
-  let isPlaceholder = root.nodeType === 8;
-  if(isPlaceholder || (root as any)[_outer]) {
-    patcher = patchOuter;
+let queue: [vdom: Tree | JSXInternal.Element, root: Element | Range, actor: RenderActor, pid: Process<ViewActor>][] = [];
+function render() {
+  let [vdom, root, actor, pid] = queue[0];
+  let realRoot = root;
+  if(root instanceof Range) {
+    root = (root as Range).startContainer.parentNode as any;
   }
-  let ret = patcher(root, () => inner(vdom, actor, pid));
-  if(isPlaceholder) {
-    ret[_outer] = true;
+  patch(root, () => inner(realRoot, vdom, actor, pid));
+  // remove the first item
+  queue.shift();
+}
+
+function enqueue(vdom: Tree | JSXInternal.Element, root: Element | Range, actor: RenderActor, pid: Process<ViewActor>) {
+  queue.push([vdom, root, actor, pid]);
+  if(queue.length === 1) {
+    do {
+      render();
+    } while(queue.length);
   }
-  return ret;
 }
 
 class Children {
@@ -183,16 +215,13 @@ class RenderActor {
   pidMap = new Map<string, Process<Actor>>;
   cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
-  constructor(public root: Element) {}
+  constructor(public root: Element | Range) {}
   receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree]]) {
-    let newRoot = render(tree, this.root, this, pid);
-    if(this.root !== newRoot) {
-      this.root = newRoot;
-    }
+    enqueue(tree, this.root, this, pid);
   }
 }
 
-function fromRoot(root: Element) {
+function fromRoot(root: Element | Range) {
   return spawn(RenderActor, root);
 }
 

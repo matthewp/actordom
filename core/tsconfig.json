@@ -9,6 +9,7 @@
     "declarationMap": true,
     "rootDir": "src",
     "skipLibCheck": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "types": ["@types/qunit"]
   }
 }

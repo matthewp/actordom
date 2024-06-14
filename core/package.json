@@ -29,6 +29,8 @@
   ],
   "scripts": {
     "build": "wireit",
+    "build:watch": "wireit",
+    "dev": "wireit",
     "serve": "wireit",
     "test:browser": "wireit",
     "test:node": "wireit",
@@ -56,6 +58,15 @@
         "dist"
       ]
     },
+    "build:watch": {
+      "command": "tsc -p tsconfig.json --watch",
+      "files": [
+        "src/**/*"
+      ],
+      "output": [
+        "dist"
+      ]
+    },
     "serve": {
       "command": "node server.mjs",
       "service": {
@@ -63,6 +74,12 @@
           "lineMatches": "Server listening"
         }
       }
+    },
+    "dev": {
+      "dependencies": [
+        "build:watch",
+        "serve"
+      ]
     },
     "test:browser": {
       "command": "node-qunit-puppeteer http://localhost:8023/test/browser/test.html 10000",
