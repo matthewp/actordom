@@ -14,7 +14,8 @@ let ctx = await esbuild.context({
 });
 
 let { host, port } = await ctx.serve({
-  servedir: '.'
+  servedir: '.',
+  port: 8004,
 });
 
 fastify.get('/esbuild/*', (req, reply) => {
@@ -26,7 +27,7 @@ fastify.get('/esbuild/*', (req, reply) => {
     path: req.url,
     method: req.method,
     headers: req.headers,
-  }
+  };
 
   // Forward each incoming request to esbuild
   const proxyReq = http.request(options, proxyRes => {
