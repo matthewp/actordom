@@ -10,6 +10,6 @@
     "rootDir": "src",
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "types": ["@types/qunit"]
+    "types": ["@types/qunit", "node"]
   }
 }
