@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.22
+
+### Patch Changes
+
+- 23638e2: Properly implement fragments
+
 ## 0.0.21
 
 ### Patch Changes
