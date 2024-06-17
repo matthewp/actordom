@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.23
+
+### Patch Changes
+
+- 6bd1e0a: Expose a getRequest
+
 ## 0.0.22
 
 ### Patch Changes
