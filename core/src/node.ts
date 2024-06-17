@@ -196,6 +196,11 @@ function getServerResponse() {
   return store?.response;
 }
 
+function getRequest() {
+  let store = getRequestStore();
+  return store?.request;
+}
+
 function waitFor(p: Promise<any>) {
   let store = getAsyncTracker();
   if(store) {
@@ -216,6 +221,7 @@ export {
   type Process,
   type AnyRouter,
 
+  getRequest,
   getServerResponse,
   renderToString,
   router,
