@@ -1,9 +1,7 @@
 import type { Actor, ViewActor } from './actor.js';
-import type { JSXInternal } from '../types/jsx.js';
 import { type Process, getSystem } from './pid.js';
 import { sendMessage } from './messages.js';
 import { getActorFromPID, getMessenger, inThisSystem, process, send } from './system.js';
-import { Tree, createTree } from './tree.js';
 
 const _root = Symbol.for('ad.root');
 const _renderPid = Symbol.for('ad.render');

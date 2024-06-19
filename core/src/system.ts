@@ -1,6 +1,6 @@
 import type { Actor, ActorType, Message } from './actor';
 import type { Postable } from './connection';
-import { sendMessage } from './messages.js';
+import { type DecMessage, type IncMessage, type SendMessage, sendMessage } from './messages.js';
 import {
   type Process,
   type UUID,
@@ -8,19 +8,37 @@ import {
   getSystem,
   getId,
   createPIDForSystem,
+  createFromProcessID,
 } from './pid.js';
 import { RemoteActor } from './connection.js';
+import { _ref, decrement, increment, scanIncoming, track } from './gc.js';
 
-const _pid = Symbol.for('pid');
+const _pid = Symbol.for('ad.pid');
+const _pidi = Symbol.for('ad.pidi');
 
 let systemId = crypto.randomUUID();
 let systems = new Map<UUID, Postable>();
 let aliases = new Map<UUID, UUID>();
 let pids = new Map<UUID, Actor>();
 
-function channelHandler(ev: MessageEvent<any>) {
-  if(ev.data.type === 'send') {
-    send(ev.data.pid, ev.data.message);
+function channelHandler(ev: MessageEvent<SendMessage | IncMessage | DecMessage>) {
+  let message = ev.data;
+  switch(message.type) {
+    case 'send': {
+      setTimeout(scanIncoming, 1, message.message);
+      send(message.pid, message.message);
+      break;
+    }
+    case 'inc':
+    case 'dec': {
+      let actor = getActorFromPID(message.pid);
+      if(message.type === 'inc') {
+        increment(actor);
+      } else {
+        decrement(message.pid, actor);
+      }
+      break;
+    }
   }
 }
 
@@ -76,10 +94,6 @@ function getActorFromPID<A extends Actor>(pid: Process<A>) {
   return pids.get(getId(pid)) as A;
 }
 
-function getPIDFromActor(actor: Actor): Process<Actor> {
-  return actor[_pid]!;
-}
-
 function getMessenger(systemId: UUID) {
   let port = systems.get(systemId);
   if(port !== undefined) return port;
@@ -93,7 +107,9 @@ function spawnWithPid<A extends ActorType>(ActorType: A, pid: Process<InstanceTy
   // TODO alias PID if created
 
   pids.set(getId(pid), actor);
-  actor[_pid] = pid;
+  actor[_pidi] = pid.i;
+  actor[_pid] = new WeakRef(pid);
+  actor[_ref] = 1;
   return pid;
 }
 
@@ -110,6 +126,7 @@ function spawn<
     if(!port) {
       throw new Error(`Unknown system: ${ActorType.system}`);
     }
+    // TODO transfer ownership
     sendMessage(port, {
       type: 'spawn',
       name: ActorType.name,
@@ -117,11 +134,25 @@ function spawn<
       args
     });
   } else {
-    let actor = new (ActorType as any)(...args);
-    pid = actor[_pid] ?? createPID() as Process<InstanceType<A>>;
+    let actor = new (ActorType as any)(...args) as Actor;
+    if(_pid in actor) {
+      let p = actor[_pid]!.deref();
+      if(!p) {
+        p = createFromProcessID(actor[_pidi]!);
+        actor[_pid] = new WeakRef(p);
+        increment(actor);
+        track(p);
+      }
+      pid = p as Process<InstanceType<A>>;
+    } else {
+      pid = createPID() as Process<InstanceType<A>>;
+      actor[_pid] = new WeakRef(pid);
+      actor[_ref] = 1;
+      track(pid);
+    }
 
     pids.set(getId(pid), actor);
-    actor[_pid] = pid;
+    actor[_pidi] = pid.i;
   }
 
   return pid;
@@ -139,11 +170,22 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
     if(!port) {
       throw new Error(`Unknown port: ${system}`)
     }
+    // TODO scan
     sendMessage(port, {
       type: 'send',
-      pid: pid,
+      pid,
       message,
     });
+  }
+}
+
+function exit(pid: Process<Actor>) {
+  if(inThisSystem(pid)) {
+    // Delete this id from the system
+    pids.delete(getId(pid));
+    console.log("PID COUNT", Array.from(pids.keys()).length);
+  } else {
+    console.log('exiting', pid.i);
   }
 }
 
@@ -153,17 +195,34 @@ function deliver(actor: Actor, message: [string, any]) {
 }
 
 function process<A extends Actor>(actor: A): Process<A> {
-  return (actor[_pid] ?? (actor[_pid] = createPID())) as Process<A>;
+  let pid: Process<A>;
+  if(actor[_pid]) {
+    let p = actor[_pid].deref();
+    if(!p) {
+      p = createFromProcessID(actor[_pidi]!);
+      increment(actor);
+      track(p);
+    }
+    pid = p as Process<A>;
+  } else {
+    pid = createPID() as Process<A>;
+    actor[_pid] = new WeakRef(pid);
+    actor[_pidi] = pid.i;
+    actor[_ref] = 1;
+    track(pid);
+  }
+  return pid;
 }
 
 export {
   _pid,
+  _pidi,
   addSystem,
   addSystemAlias,
+  exit,
   removeSystemAlias,
   addSelfAlias,
   getActorFromPID,
-  getPIDFromActor,
   getMessenger,
   inThisSystem,
   process,

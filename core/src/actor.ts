@@ -1,7 +1,8 @@
 import type { JSXInternal } from '../types/jsx';
 import type { _renderPid, _slotPid } from './update.js';
-import type { Process } from './pid.js';
-import type { _pid } from './system.js';
+import type { Process, ProcessID } from './pid.js';
+import type { _pid, _pidi } from './system.js';
+import type { _ref } from './gc.js';
 
 // https://www.totaltypescript.com/concepts/the-prettify-helper
 type Prettify<T> = {
@@ -13,9 +14,13 @@ interface Actor {
   /* @internal */
   [_renderPid]?: Process<Actor>;
   /* @internal */
-  [_pid]?: Process<Actor>;
+  [_pidi]?: ProcessID;
+  /* @internal */
+  [_pid]?: WeakRef<Process<Actor>>;
   /* @internal */
   [_slotPid]?: Process<Actor>;
+  /* @internal */
+  [_ref]?: number;
 }
 
 interface ActorType {

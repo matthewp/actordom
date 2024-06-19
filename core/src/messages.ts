@@ -39,7 +39,18 @@ type AliasMessage = {
   alias: UUID;
 };
 
-type ConnectionMessage = SpawnMessage | SendMessage | UpdateMessage | NewSystemMessage | SystemMessage | AliasMessage;
+type DecMessage = {
+  type: 'dec',
+  pid: Process<Actor>;
+};
+
+type IncMessage = {
+  type: 'inc',
+  pid: Process<Actor>;
+};
+
+type ConnectionMessage = SpawnMessage | SendMessage | UpdateMessage | NewSystemMessage |
+  SystemMessage | AliasMessage | IncMessage | DecMessage;
 
 function sendMessage(port: Postable, message: ConnectionMessage, transfer?: Transferable[]) {
   port.postMessage(message, transfer);
@@ -52,6 +63,8 @@ export {
   type NewSystemMessage,
   type SystemMessage,
   type ConnectionMessage,
+  type IncMessage,
+  type DecMessage,
 
   sendMessage
 }

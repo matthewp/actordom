@@ -50,13 +50,8 @@ function isSVG(element: Element) {
   return element.namespaceURI === 'http://www.w3.org/2000/svg';
 }
 
-// TODO clean this all up
-// TODO PIDs should be what is passed around.
-function addEventCallback(pid: any, element: Element, message: any, eventName: string) {
-  if((element as any)[eventName]) {
-    return (element as any)[eventName];
-  }
-  let handler = function(ev: Event) {
+function eventHandler(pid: Process<Actor>, message: string) {
+  return function(ev: Event) {
     if(inThisSystem(pid)) {
       send(pid, [message, ev]);
     } else {
@@ -69,6 +64,14 @@ function addEventCallback(pid: any, element: Element, message: any, eventName: s
       }]);
     }
   };
+}
+
+// TODO clean this all up
+function addEventCallback(pid: Process<Actor>, element: Element, message: string, eventName: string) {
+  if((element as any)[eventName]) {
+    return (element as any)[eventName];
+  }
+  let handler = eventHandler(pid, message);
   (element as any)[eventName] = handler;
   return handler;
 }
@@ -146,19 +149,15 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
           range.setEnd(end, 0);
   
           let renderPid = fromRoot(range);
-          actor.pidMap.set(n[1], renderPid);
-
           let slotPid: Process<ViewActor> | undefined = undefined;
+
+          // TODO must get rid of to avoid memory leak (i think)
           if(n[2]) {
             slotPid = spawn(Children, pid, n[2]);
             actor.cMap.set(n[1], slotPid);
           }
 
-          // TODO probably not needed. I think we only every get here once.
-          if(!actor.mounted.has(n[1])) {
-            actor.mounted.add(n[1]);
-            updateProcess(n[1], renderPid, slotPid);
-          }
+          updateProcess(n[1], renderPid, slotPid);
         }
         break;
       }
@@ -212,7 +211,6 @@ class Children {
 }
 
 class RenderActor {
-  pidMap = new Map<string, Process<Actor>>;
   cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
   constructor(public root: Element | Range) {}
