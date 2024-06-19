@@ -12,8 +12,14 @@ import { type AnyRouter, router } from './remote.js';
 import { addSelfAlias, process, send, spawn, updateSystem } from './system.js';
 import { update } from './update.js';
 
-function listen(router: AnyRouter) {
-  self.addEventListener('message', ev => {
+type MessageHandler = (ev: MessageEvent) => void;
+type MessageListener = {
+  addEventListener(name: string, cb: MessageHandler): void;
+  removeEventListener(name: string, cb: MessageHandler): void;
+};
+
+function listen(router: AnyRouter, target: MessageListener = self) {
+  const handler = (ev: MessageEvent) => {
     switch(ev.data.type) {
       case 'system': {
         addSelfAlias(ev.data.system);
@@ -22,7 +28,9 @@ function listen(router: AnyRouter) {
         break;
       }
     }
-  });
+  };
+  target.addEventListener('message', handler);
+  return () => target.removeEventListener('message', handler);
 }
 
 function established(port: MessagePort, router: AnyRouter) {

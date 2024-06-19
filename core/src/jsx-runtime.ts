@@ -1,4 +1,4 @@
-import { type Tree, isTree, createTree } from './tree.js';
+import { type Tree, isTree, isTreeSymbol, createTree } from './tree.js';
 import { isPID } from './pid.js';
 
 const Fragment = (_p: any, children: any) => {
@@ -21,7 +21,7 @@ function signal(_tagName: string, attrName: string, attrValue: any, attrs: Recor
 
 function pushChildren(tree: Tree, children: any) {
   if(Array.isArray(children)) {
-    children.forEach(function(child: any){
+    children.forEach(function(child: any) {
       if(typeof child !== 'undefined' && !Array.isArray(child)) {
         if(isPID(child)) {
           tree.push([5, child]);
@@ -36,6 +36,8 @@ function pushChildren(tree: Tree, children: any) {
         let item = child.shift();
         if(isPID(item)) {
           tree.push([5, item]);
+          continue;
+        } else if(isTreeSymbol(item)) {
           continue;
         }
         tree.push(item);
