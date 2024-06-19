@@ -95,7 +95,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
   }
 
   var n;
-  for(var i = 0, len = bc.length; i < len; i++) {
+  for(var i = 1, len = bc.length; i < len; i++) {
     n = bc[i];
     switch(n[0]) {
       // Open
