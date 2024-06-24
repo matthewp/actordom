@@ -7,7 +7,10 @@ const fastify = Fastify({logger: true});
 
 let ctx = await esbuild.context({
   // ... your build options go here ...
-  entryPoints: ['test/browser/test.jsx'],
+  entryPoints: [
+    'test/browser/test.jsx',
+    'test/browser/fixtures/worker1.tsx'
+  ],
   bundle: true,
   format: 'esm',
   outdir: 'esbuild',

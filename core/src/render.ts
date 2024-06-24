@@ -18,7 +18,7 @@ import type { Tree } from './tree.js';
 import type { JSXInternal } from '../types/jsx.js';
 
 import { updateProcess, _renderPid, _root, update } from './update.js';
-import { spawn, send, inThisSystem } from './system.js';
+import { spawn, send, inThisSystem, getActorFromPID } from './system.js';
 import { isPID } from './pid.js';
 
 var eventAttrExp = /^on[a-z]/;
@@ -50,13 +50,8 @@ function isSVG(element: Element) {
   return element.namespaceURI === 'http://www.w3.org/2000/svg';
 }
 
-// TODO clean this all up
-// TODO PIDs should be what is passed around.
-function addEventCallback(pid: any, element: Element, message: any, eventName: string) {
-  if((element as any)[eventName]) {
-    return (element as any)[eventName];
-  }
-  let handler = function(ev: Event) {
+function eventHandler(pid: Process<Actor>, message: string) {
+  return function(ev: Event) {
     if(inThisSystem(pid)) {
       send(pid, [message, ev]);
     } else {
@@ -69,6 +64,14 @@ function addEventCallback(pid: any, element: Element, message: any, eventName: s
       }]);
     }
   };
+}
+
+// TODO clean this all up
+function addEventCallback(pid: Process<Actor>, element: Element, message: string, eventName: string) {
+  if((element as any)[eventName]) {
+    return (element as any)[eventName];
+  }
+  let handler = eventHandler(pid, message);
   (element as any)[eventName] = handler;
   return handler;
 }
@@ -120,6 +123,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
         text(n[1]);
         break;
       case 5: {
+        let pid = n[1];
         let pointer = currentPointer();
         if(pointer?.nodeType === 8 && pointer?.data === 'ad-start') {
           do {
@@ -129,7 +133,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
           skipNode();
 
           if(n[2]) {
-            let slotPid = actor.cMap.get(n[1])!;
+            let slotPid = actor.cMap.get(pid)!;
             send(slotPid, [_update, n[2]]);
           }
         } else {
@@ -146,19 +150,15 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
           range.setEnd(end, 0);
   
           let renderPid = fromRoot(range);
-          actor.pidMap.set(n[1], renderPid);
-
           let slotPid: Process<ViewActor> | undefined = undefined;
+
+          // TODO must get rid of to avoid memory leak (i think)
           if(n[2]) {
             slotPid = spawn(Children, pid, n[2]);
-            actor.cMap.set(n[1], slotPid);
+            actor.cMap.set(pid, slotPid);
           }
 
-          // TODO probably not needed. I think we only every get here once.
-          if(!actor.mounted.has(n[1])) {
-            actor.mounted.add(n[1]);
-            updateProcess(n[1], renderPid, slotPid);
-          }
+          updateProcess(pid, renderPid, slotPid);
         }
         break;
       }
@@ -212,11 +212,10 @@ class Children {
 }
 
 class RenderActor {
-  pidMap = new Map<string, Process<Actor>>;
   cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
   constructor(public root: Element | Range) {}
-  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree]]) {
+  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree | actordom.JSX.Element]]) {
     enqueue(tree, this.root, this, pid);
   }
 }
@@ -234,4 +233,4 @@ function mount(actorOrProcess: ViewActor | Process<ViewActor>, root: Element) {
   }
 }
 
-export { mount, fromRoot };
+export { type RenderActor, mount, fromRoot };

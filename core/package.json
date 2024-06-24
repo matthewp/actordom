@@ -46,7 +46,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
-    "@types/qunit": "^2.19.10"
+    "@types/qunit": "^2.19.10",
+    "qunit": "^2.21.0"
   },
   "wireit": {
     "build": {

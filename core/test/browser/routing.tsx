@@ -1,5 +1,5 @@
-import QUnit from './qunit.js';
-import { type Process, type Actor, type ProcessWithMessage, process, send, spawn, update, createWorkerConnection } from 'actordom';
+import QUnit from 'qunit';
+import { type ProcessWithMessage, process, send, spawn, update, createWorkerConnection } from 'actordom';
 import { router, listen } from 'actordom/worker';
 import { mount } from 'actordom/dom';
 

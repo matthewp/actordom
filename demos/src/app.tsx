@@ -1,6 +1,6 @@
 import type { WorkerRouter } from './worker';
 import type { AppRouter } from './server';
-import { spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
+import { type Process, spawn, update, createServerConnection, createWorkerConnection, send } from 'actordom';
 import { mount } from 'actordom/dom';
 import { TodoList } from './todolist';
 import Counter from './counter';
@@ -48,28 +48,28 @@ class Namer {
 }
 
 class Main {
-  root = document.querySelector('#app')!;
-  counter = spawn(Counter, 'Main thread counter');
-  namer = spawn(Namer);
-  todoList = spawn(TodoList);
-  offthreadCounter = spawn(Offthread);
-  server = spawn(ServerActor);
-  constructor() {
-    send(this.server, ['worker', this.offthreadCounter]);
-    mount(this, this.root);
-  }
-  receive([]: any) {
+  //counter: Process<Counter> | undefined = spawn(Counter, 'Main thread counter');
+  offthread = spawn(Offthread);
+  receive([name, _data]: ['remove', true]) {
+    switch(name) {
+      case 'remove': {
+        //this.counter = undefined;
+        break;
+      }
+    }
     update(this);
   }
   view() {
-    let Namer = this.namer;
     return (
       <main>
         <h1>My App</h1>
-        {this.offthreadCounter}
+        <div>
+          <button onClick="remove">Remove counter</button>
+        </div>
+        {this.offthread}
       </main>
     );
   }
 }
 
-spawn(Main);
+mount(spawn(Main), document.querySelector('#app')!);

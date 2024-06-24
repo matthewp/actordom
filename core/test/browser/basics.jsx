@@ -1,4 +1,4 @@
-import QUnit from './qunit.js';
+import QUnit from 'qunit';
 import { spawn } from 'actordom';
 import { mount } from 'actordom/dom';
 

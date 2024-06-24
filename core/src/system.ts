@@ -1,6 +1,6 @@
 import type { Actor, ActorType, Message } from './actor';
 import type { Postable } from './connection';
-import { sendMessage } from './messages.js';
+import { type ConnectionMessage, type SendMessage, type ExitMessage, sendMessage } from './messages.js';
 import {
   type Process,
   type UUID,
@@ -11,16 +11,24 @@ import {
 } from './pid.js';
 import { RemoteActor } from './connection.js';
 
-const _pid = Symbol.for('pid');
+const _pid = Symbol.for('ad.pid');
 
 let systemId = crypto.randomUUID();
 let systems = new Map<UUID, Postable>();
 let aliases = new Map<UUID, UUID>();
 let pids = new Map<UUID, Actor>();
 
-function channelHandler(ev: MessageEvent<any>) {
-  if(ev.data.type === 'send') {
-    send(ev.data.pid, ev.data.message);
+function unknownSystem(system: UUID) {
+  new Error(`Unknown port: ${system}`)
+}
+
+function channelHandler(ev: MessageEvent<SendMessage | ExitMessage>) {
+  let message = ev.data;
+  switch(message.type) {
+    case 'send': {
+      send(message.pid, message.message);
+      break;
+    }
   }
 }
 
@@ -30,7 +38,7 @@ function addSystem(target: Postable): UUID {
   // Tell this new system its id
   let channel = new MessageChannel();
   sendMessage(target, { type: 'system', system, sender: systemId }, [channel.port2]);
-  channel.port1.addEventListener('message', channelHandler);
+  channel.port1.onmessage = channelHandler;
   channel.port1.start();
 
   systems.set(system, channel.port1);
@@ -44,10 +52,16 @@ function addSystem(target: Postable): UUID {
     let newChannel = new MessageChannel();
     // TODO reuse the 'system' message, adding self concept
     sendMessage(port, { type: 'new-system', system }, [newChannel.port1]);
-    sendMessage(channel.port1, { type: 'new-system', system: id }, [newChannel.port2]);
+    sendMessage(channel.port2, { type: 'new-system', system: id }, [newChannel.port2]);
   }
 
   return system;
+}
+
+function messageAllSystems(message: ConnectionMessage, transfer?: Transferable[]) {
+  for(const [_id, port] of systems) {
+    sendMessage(port, message, transfer);
+  }
 }
 
 function updateSystem(system: UUID, port: MessagePort) {
@@ -76,10 +90,6 @@ function getActorFromPID<A extends Actor>(pid: Process<A>) {
   return pids.get(getId(pid)) as A;
 }
 
-function getPIDFromActor(actor: Actor): Process<Actor> {
-  return actor[_pid]!;
-}
-
 function getMessenger(systemId: UUID) {
   let port = systems.get(systemId);
   if(port !== undefined) return port;
@@ -87,7 +97,6 @@ function getMessenger(systemId: UUID) {
   if(alias !== undefined) return systems.get(alias);
 }
 
-// TODO remove
 function spawnWithPid<A extends ActorType>(ActorType: A, pid: Process<InstanceType<A>>, ...args: any[]): Process<InstanceType<A>> {
   let actor = new ActorType(...args);
   // TODO alias PID if created
@@ -102,23 +111,23 @@ type GetActorType<AOR extends ActorType | RemoteActor> = AOR extends RemoteActor
 function spawn<
   AOR extends ActorType | RemoteActor,
   A extends GetActorType<AOR>
->(ActorType: AOR, ...args: ConstructorParameters<A>): Process<InstanceType<A>> {
+>(ActorConstructor: AOR, ...args: ConstructorParameters<A>): Process<InstanceType<A>> {
   let pid: Process<InstanceType<A>>;
-  if(ActorType instanceof RemoteActor) {
-    pid = createPIDForSystem(ActorType.system) as any;
-    let port = getMessenger(ActorType.system);
+  if(ActorConstructor instanceof RemoteActor) {
+    pid = createPIDForSystem(ActorConstructor.system) as any;
+    let port = getMessenger(ActorConstructor.system);
     if(!port) {
-      throw new Error(`Unknown system: ${ActorType.system}`);
+      throw unknownSystem(ActorConstructor.system);
     }
     sendMessage(port, {
       type: 'spawn',
-      name: ActorType.name,
-      pid: pid,
+      name: ActorConstructor.name,
+      pid,
       args
     });
   } else {
-    let actor = new (ActorType as any)(...args);
-    pid = actor[_pid] ?? createPID() as Process<InstanceType<A>>;
+    let actor = new (ActorConstructor as ActorType)(...args) as InstanceType<A>;
+    pid = actor[_pid] ?? createPID<InstanceType<A>>();
 
     pids.set(getId(pid), actor);
     actor[_pid] = pid;
@@ -137,12 +146,29 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
     let system = getSystem(pid);
     let port = getMessenger(system);
     if(!port) {
-      throw new Error(`Unknown port: ${system}`)
+      throw unknownSystem(system);
     }
     sendMessage(port, {
       type: 'send',
-      pid: pid,
+      pid,
       message,
+    });
+  }
+}
+
+function exit(pid: Process<Actor>) {
+  if(inThisSystem(pid)) {
+    // Delete this id from the system
+    pids.delete(getId(pid));
+  } else {
+    let system = getSystem(pid);
+    let port = getMessenger(system);
+    if(!port) {
+      throw unknownSystem(system);
+    }
+    sendMessage(port, {
+      type: 'exit',
+      pid
     });
   }
 }
@@ -153,19 +179,32 @@ function deliver(actor: Actor, message: [string, any]) {
 }
 
 function process<A extends Actor>(actor: A): Process<A> {
-  return (actor[_pid] ?? (actor[_pid] = createPID())) as Process<A>;
+  let pid: Process<A>;
+  if(_pid in actor) {
+    pid = actor[_pid]!;
+  } else {
+    pid = createPID<A>();
+    actor[_pid] = pid;
+  }
+  return pid;
+}
+
+function pidCount() {
+  return Array.from(pids.keys()).length;
 }
 
 export {
   _pid,
   addSystem,
   addSystemAlias,
+  exit,
   removeSystemAlias,
   addSelfAlias,
   getActorFromPID,
-  getPIDFromActor,
   getMessenger,
   inThisSystem,
+  messageAllSystems,
+  pidCount,
   process,
   send,
   systemId,
