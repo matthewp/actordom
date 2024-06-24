@@ -1,4 +1,4 @@
-import type { Actor, ActorType, Message } from './actor';
+import { type Actor, type ActorType, type Message } from './actor';
 import type { Postable } from './connection';
 import { type ConnectionMessage, type SendMessage, type ExitMessage, sendMessage } from './messages.js';
 import {
@@ -10,6 +10,7 @@ import {
   createPIDForSystem,
 } from './pid.js';
 import { RemoteActor } from './connection.js';
+import { _renderPid, _slotPid } from './update.js';
 
 const _pid = Symbol.for('ad.pid');
 
@@ -158,6 +159,15 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
 
 function exit(pid: Process<Actor>) {
   if(inThisSystem(pid)) {
+    let actor = getActorFromPID(pid);
+    let renderPid = actor[_renderPid];
+    if(renderPid) {
+      exit(renderPid);
+    }
+    let slotPid = actor[_slotPid];
+    if(slotPid) {
+      exit(slotPid);
+    }
     // Delete this id from the system
     pids.delete(getId(pid));
   } else {
