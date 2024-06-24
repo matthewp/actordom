@@ -6,8 +6,7 @@ let prefix = '~ad~' as const;
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
 type ProcessID = `${typeof prefix}/${UUID}/${UUID}`;
 
-type Process<A extends Actor> = {
-  i: ProcessID;
+type Process<A extends Actor> = ProcessID & {
   /** @interal */
   actor: A;
   new(): void;
@@ -15,32 +14,24 @@ type Process<A extends Actor> = {
 
 const LENGTH = 78;
 
-function isPIDString(item: string) {
+function isPID(item: unknown): item is Process<Actor> {
+  if(typeof item !== 'string') return false;
   return item.length === LENGTH && item.startsWith('~ad~');
 }
 
-function isPID(item: unknown): item is Process<Actor> {
-  if(typeof (item as any)?.i !== 'string') return false;
-  return isPIDString((item as any).i);
-}
-
 function getSystem(pid: Process<Actor>): UUID {
-  return pid.i.slice(5, 41) as UUID;
+  return pid.slice(5, 41) as UUID;
 }
 
 function getId(pid: Process<Actor>): UUID {
-  return  pid.i.slice(42) as UUID;
+  return  pid.slice(42) as UUID;
 }
 
-function createFromProcessID<A extends Actor = Actor>(p: ProcessID): Process<A> {
-  return { i: p } as Process<A>;
+function createFromParts<A extends Actor>(systemId: UUID, id: string): Process<A> {
+  return `${prefix}/${systemId}/${id}` as Process<A>;
 }
 
-function createFromParts(systemId: UUID, id: string): Process<Actor> {
-  return { i: `${prefix}/${systemId}/${id}` } as Process<Actor>;
-}
-
-function createPID(): Process<Actor> {
+function createPID<A extends Actor>(): Process<A> {
   return createFromParts(systemId, crypto.randomUUID());
 }
 
@@ -57,6 +48,5 @@ export {
   getSystem,
   getId,
   createPIDForSystem,
-  createFromProcessID,
   UUID
 };

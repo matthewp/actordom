@@ -1,7 +1,6 @@
 import type { ActorType } from './actor.js';
-import { decrement, increment, scanIncoming } from './gc.js';
 import type { ConnectionMessage } from './messages.js';
-import { getActorFromPID, inThisSystem, send, spawnWithPid } from './system.js';
+import { addSystemAlias, exit, send, spawnWithPid } from './system.js';
 import { updateProcess } from './update.js';
 
 type Routes<I extends Record<string, ActorType>> = {
@@ -31,7 +30,6 @@ function createRemoteHandler(items: Record<string, ActorType>) {
         break;
       }
       case 'send': {
-        setTimeout(scanIncoming, 1, message.message);
         send(message.pid, message.message);
         break;
       }
@@ -39,14 +37,12 @@ function createRemoteHandler(items: Record<string, ActorType>) {
         updateProcess(message.pid, message.renderPid, message.slotPid);
         break;
       }
-      case 'inc':
-      case 'dec': {
-        let actor = getActorFromPID(message.pid);
-        if(message.type === 'inc') {
-          increment(actor);
-        } else {
-          decrement(message.pid, actor);
-        }
+      case 'alias': {
+        addSystemAlias(message.system, message.alias);
+        break;
+      }
+      case 'exit': {
+        exit(message.pid);
         break;
       }
     }

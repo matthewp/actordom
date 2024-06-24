@@ -18,7 +18,7 @@ import type { Tree } from './tree.js';
 import type { JSXInternal } from '../types/jsx.js';
 
 import { updateProcess, _renderPid, _root, update } from './update.js';
-import { spawn, send, inThisSystem } from './system.js';
+import { spawn, send, inThisSystem, getActorFromPID } from './system.js';
 import { isPID } from './pid.js';
 
 var eventAttrExp = /^on[a-z]/;
@@ -123,6 +123,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
         text(n[1]);
         break;
       case 5: {
+        let pid = n[1];
         let pointer = currentPointer();
         if(pointer?.nodeType === 8 && pointer?.data === 'ad-start') {
           do {
@@ -132,7 +133,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
           skipNode();
 
           if(n[2]) {
-            let slotPid = actor.cMap.get(n[1])!;
+            let slotPid = actor.cMap.get(pid)!;
             send(slotPid, [_update, n[2]]);
           }
         } else {
@@ -154,10 +155,10 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
           // TODO must get rid of to avoid memory leak (i think)
           if(n[2]) {
             slotPid = spawn(Children, pid, n[2]);
-            actor.cMap.set(n[1], slotPid);
+            actor.cMap.set(pid, slotPid);
           }
 
-          updateProcess(n[1], renderPid, slotPid);
+          updateProcess(pid, renderPid, slotPid);
         }
         break;
       }
@@ -232,4 +233,4 @@ function mount(actorOrProcess: ViewActor | Process<ViewActor>, root: Element) {
   }
 }
 
-export { mount, fromRoot };
+export { type RenderActor, mount, fromRoot };

@@ -4,7 +4,7 @@ import type { AnyRouter } from './remote.js';
 import { addSystem, addSystemAlias, send } from './system.js';
 
 type Postable = {
-  postMessage(message: any, transfer?: Transferable[]): void;
+  postMessage(message: any, options?: { transfer?: Transferable[] }): void;
 };
 
 type Connection<R extends AnyRouter> = {
@@ -64,8 +64,8 @@ class ServerTarget implements Postable {
     };
     port.start();
   }
-  postMessage(message: any, transfer: Transferable[]) {
-    this.listenToPort(transfer[0] as MessagePort);
+  postMessage(message: any, options: { transfer: Transferable[] }) {
+    this.listenToPort(options.transfer[0] as MessagePort);
     if(!this.opened) {
       this.queued.push(message);
       return;

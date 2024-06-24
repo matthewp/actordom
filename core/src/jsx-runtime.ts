@@ -19,30 +19,34 @@ function signal(_tagName: string, attrName: string, attrValue: any, attrs: Recor
   }
 }
 
+function pushChild(tree: Tree, child: any) {
+  if(child != null && !Array.isArray(child)) {
+    if(isPID(child)) {
+      tree.push([5, child]);
+      return;
+    }
+
+    tree.push([4, child + '']);
+    return;
+  }
+
+  while(child && child.length) {
+    let item = child.shift();
+    if(isPID(item)) {
+      tree.push([5, item]);
+      continue;
+    } else if(isTreeSymbol(item)) {
+      continue;
+    }
+    tree.push(item);
+  }
+}
+
 function pushChildren(tree: Tree, children: any) {
   if(Array.isArray(children)) {
-    children.forEach(function(child: any) {
-      if(typeof child !== 'undefined' && !Array.isArray(child)) {
-        if(isPID(child)) {
-          tree.push([5, child]);
-          return;
-        }
-
-        tree.push([4, child + '']);
-        return;
-      }
-
-      while(child && child.length) {
-        let item = child.shift();
-        if(isPID(item)) {
-          tree.push([5, item]);
-          continue;
-        } else if(isTreeSymbol(item)) {
-          continue;
-        }
-        tree.push(item);
-      }
-    });
+    children.forEach(child => pushChild(tree, child));
+  } else if(typeof children === 'object') {
+    pushChild(tree, children);
   }
 }
 

@@ -9,7 +9,7 @@ import type {
 import type { ConnectionMessage } from './messages.js';
 import type { Process } from './pid.js';
 import { type AnyRouter, router } from './remote.js';
-import { addSelfAlias, process, send, spawn, updateSystem } from './system.js';
+import { addSelfAlias, messageAllSystems, process, send, spawn, systemId, updateSystem } from './system.js';
 import { update } from './update.js';
 
 type MessageHandler = (ev: MessageEvent) => void;
@@ -22,7 +22,13 @@ function listen(router: AnyRouter, target: MessageListener = self) {
   const handler = (ev: MessageEvent) => {
     switch(ev.data.type) {
       case 'system': {
-        addSelfAlias(ev.data.system);
+        let alias = ev.data.system;
+        addSelfAlias(alias);
+        messageAllSystems({
+          type: 'alias',
+          system: systemId,
+          alias,
+        });
         updateSystem(ev.data.sender, ev.ports[0]);
         established(ev.ports[0], router);
         break;
