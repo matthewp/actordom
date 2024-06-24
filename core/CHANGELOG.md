@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.25
+
+### Patch Changes
+
+- 07837a4: Exit render and slot pids when parent actor exits
+
 ## 0.0.24
 
 ### Patch Changes
