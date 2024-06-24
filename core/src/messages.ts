@@ -1,6 +1,7 @@
 import type { Actor, ViewActor, Message } from './actor.js';
 import type { Postable } from './connection.js';
 import type { UUID, Process } from './pid.js';
+import type { RenderActor } from './render.js';
 
 type SpawnMessage = {
   type: 'spawn';
@@ -18,7 +19,7 @@ type SendMessage = {
 type UpdateMessage = {
   type: 'update';
   pid: Process<ViewActor>;
-  renderPid: Process<Actor>;
+  renderPid: Process<RenderActor>;
   slotPid: Process<ViewActor> | undefined;
 };
 

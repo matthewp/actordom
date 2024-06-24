@@ -215,7 +215,7 @@ class RenderActor {
   cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
   constructor(public root: Element | Range) {}
-  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree]]) {
+  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree | actordom.JSX.Element]]) {
     enqueue(tree, this.root, this, pid);
   }
 }

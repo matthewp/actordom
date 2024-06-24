@@ -1,8 +1,8 @@
-import type { Actor, ViewActor } from './actor.js';
+import type { ViewActor } from './actor.js';
 import { type Process, getSystem } from './pid.js';
 import { sendMessage } from './messages.js';
 import { getActorFromPID, getMessenger, inThisSystem, process, send } from './system.js';
-import { track } from './gc.js';
+import type { RenderActor } from './render.js';
 
 const _root = Symbol.for('ad.root');
 const _renderPid = Symbol.for('ad.render');
@@ -23,7 +23,7 @@ function render(actor: ViewActor, slotPid: Process<ViewActor> | undefined) {
   send(renderPid!, ['', [pid, tree]]);
 }
 
-function updateProcess(pid: Process<ViewActor>, renderPid: Process<Actor>, slotPid: Process<ViewActor> | undefined) {
+function updateProcess(pid: Process<ViewActor>, renderPid: Process<RenderActor>, slotPid: Process<ViewActor> | undefined) {
   if(inThisSystem(pid)) {
     let actor = getActorFromPID(pid);
     if(actor) {
