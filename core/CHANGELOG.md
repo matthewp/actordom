@@ -1,5 +1,12 @@
 # actordom
 
+## 0.0.24
+
+### Patch Changes
+
+- f3eb84d: Allow cross-thread trees
+- da56e51: Add support for the exit signal
+
 ## 0.0.23
 
 ### Patch Changes
