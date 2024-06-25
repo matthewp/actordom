@@ -11,11 +11,11 @@ QUnit.module('exit signal', t => {
       }
     }
     let pid = spawn(Test);
-    send(pid, ['test', true]);
+    send(pid, 'test', true);
 
     // Send another after exiting
     exit(pid);
-    send(pid, ['test', true]);
+    send(pid, 'test', true);
   });
 
   QUnit.test('can exit a process in a worker', assert => {
@@ -27,7 +27,7 @@ QUnit.module('exit signal', t => {
     class Test {
       worker = spawn(MyWorker);
       count = 0;
-      receive([name, data]: ['start', true] | ['pong', true]) {
+      receive([name, _data]: ['start', true] | ['pong', true]) {
         switch(name) {
           case 'start': {
             this.sendPing();
@@ -48,12 +48,12 @@ QUnit.module('exit signal', t => {
         }
       }
       sendPing() {
-        send(this.worker, ['ping', process(this)]);
+        send(this.worker, 'ping', process(this));
       }
     }
 
     let pid = spawn(Test);
-    send(pid, ['start', true]);
+    send(pid, 'start', true);
 
     setTimeout(() => {
       done();

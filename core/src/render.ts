@@ -8,7 +8,6 @@ import {
   symbols,
   text,
   patch,
-  patchOuter
 } 
 // @ts-expect-error
 from 'incremental-dom';
@@ -18,7 +17,7 @@ import type { Tree } from './tree.js';
 import type { JSXInternal } from '../types/jsx.js';
 
 import { updateProcess, _renderPid, _root, update } from './update.js';
-import { spawn, send, inThisSystem, getActorFromPID } from './system.js';
+import { spawn, send, inThisSystem, sendM } from './system.js';
 import { isPID } from './pid.js';
 
 var eventAttrExp = /^on[a-z]/;
@@ -53,15 +52,15 @@ function isSVG(element: Element) {
 function eventHandler(pid: Process<Actor>, message: string) {
   return function(ev: Event) {
     if(inThisSystem(pid)) {
-      send(pid, [message, ev]);
+      send(pid, message, ev);
     } else {
       ev.preventDefault();
-      send(pid, [message, {
+      send(pid, message, {
         type: ev.type,
         currentTarget: {
           value: (ev as any).currentTarget?.value
         }
-      }]);
+      });
     }
   };
 }
@@ -134,7 +133,7 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
 
           if(n[2]) {
             let slotPid = actor.cMap.get(pid)!;
-            send(slotPid, [_update, n[2]]);
+            send(slotPid, _update, n[2]);
           }
         } else {
           let el = currentElement();
@@ -205,7 +204,7 @@ class Children {
       this.tree = message[1];
       update(this);
     } else {
-      send(this.pid, message);
+      sendM(this.pid, message);
     }
   }
   view() { return this.tree as any; }
@@ -215,7 +214,7 @@ class RenderActor {
   cMap = new Map<Process<ViewActor>, Process<ViewActor>>;
   mounted = new Set<string>;
   constructor(public root: Element | Range) {}
-  receive([, [pid, tree]]: [string, [Process<ViewActor>, Tree | actordom.JSX.Element]]) {
+  receive([, [pid, tree]]: ['render', [Process<ViewActor>, Tree | actordom.JSX.Element]]) {
     enqueue(tree, this.root, this, pid);
   }
 }

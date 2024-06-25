@@ -1,6 +1,6 @@
 import type { ActorType } from './actor.js';
 import type { ConnectionMessage } from './messages.js';
-import { addSystemAlias, exit, send, spawnWithPid } from './system.js';
+import { addSystemAlias, exit, sendM, spawnWithPid } from './system.js';
 import { updateProcess } from './update.js';
 
 type Routes<I extends Record<string, ActorType>> = {
@@ -30,7 +30,7 @@ function createRemoteHandler(items: Record<string, ActorType>) {
         break;
       }
       case 'send': {
-        send(message.pid, message.message);
+        sendM(message.pid, message.message);
         break;
       }
       case 'update': {

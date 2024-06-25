@@ -11,13 +11,13 @@ QUnit.module('routing', () => {
       data = [{ label: 'do chores' }, { label: 'walk the dog' }];
 			receive([_name, data]: ['send', { sender: ProcessWithMessage<['view', actordom.JSX.Element]> }]) {
 				let remote = 'remote';
-				send(data.sender, ['view', (
+				send(data.sender, 'view', (
 					<>
 						{this.data.map(item => (
               <div class="todo">{item.label}</div>
             ))}
 					</>
-				)])
+				))
 			}
 		}
 
@@ -45,7 +45,7 @@ QUnit.module('routing', () => {
       receive([name, data]: ['start', true] | ['view', actordom.JSX.Element]){
         switch(name) {
           case 'start': {
-            send(this.remote, ['send', { sender: process(this) }]);
+            send(this.remote, 'send', { sender: process(this) });
             update(this);
             break;
           }
@@ -71,6 +71,6 @@ QUnit.module('routing', () => {
     mount(pid, host);
 
     assert.equal(host.firstElementChild?.childNodes.length, 0, 'initially no children when null');
-    send(pid, ['start', true]);
+    send(pid, 'start', true);
   });
 });

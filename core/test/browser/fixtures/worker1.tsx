@@ -6,7 +6,7 @@ class MyWorker {
   receive([name, data]: mailbox){
     switch(name) {
       case 'ping': {
-        send(data, ['pong', true]);
+        send(data, 'pong', true);
         break;
       }
     }
