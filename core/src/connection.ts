@@ -1,7 +1,7 @@
 import type { ActorType } from './actor.js';
 import type { UUID } from './pid.js';
 import type { AnyRouter } from './remote.js';
-import { addSystem, addSystemAlias, send } from './system.js';
+import { addSystem, addSystemAlias, sendM } from './system.js';
 
 type Postable = {
   postMessage(message: any, options?: { transfer?: Transferable[] }): void;
@@ -33,7 +33,7 @@ class ServerTarget implements Postable {
       const message = JSON.parse(event.data);
       switch(message.type) {
         case 'send': {
-          send(message.pid, message.message);
+          sendM(message.pid, message.message);
           break;
         }
         case 'alias': {

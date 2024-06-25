@@ -20,7 +20,7 @@ function render(actor: ViewActor, slotPid: Process<ViewActor> | undefined) {
     return;
   }
   let tree = slotPid ? actor.view(slotPid) : actor.view();
-  send(renderPid!, ['', [pid, tree]]);
+  send(renderPid!, 'render', [pid, tree]);
 }
 
 function updateProcess(pid: Process<ViewActor>, renderPid: Process<RenderActor>, slotPid: Process<ViewActor> | undefined) {

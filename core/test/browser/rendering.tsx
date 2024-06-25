@@ -108,7 +108,7 @@ QUnit.module('rendering', () => {
     assert.ok(afterEl?.classList.contains('after'), 'after span left alone');
 
     // Send a message causing a rerender
-    send(one, ['two', true]);
+    send(one, 'two', true);
 
     let twoEl = oneEl?.nextElementSibling;
     assert.equal(twoEl?.textContent, 'two');

@@ -1,4 +1,4 @@
-import { type Actor, type ActorType, type Message } from './actor';
+import type { Actor, ActorType, Message } from './actor';
 import type { Postable } from './connection';
 import { type ConnectionMessage, type SendMessage, type ExitMessage, sendMessage } from './messages.js';
 import {
@@ -27,7 +27,7 @@ function channelHandler(ev: MessageEvent<SendMessage | ExitMessage>) {
   let message = ev.data;
   switch(message.type) {
     case 'send': {
-      send(message.pid, message.message);
+      sendM(message.pid, message.message);
       break;
     }
   }
@@ -137,7 +137,9 @@ function spawn<
   return pid;
 }
 
-function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
+function sendM<
+  P extends Process<Actor>,
+>(pid: P, message: Message<P['actor']>) {
   if(inThisSystem(pid)) {
     let actor = getActorFromPID(pid);
     if(actor) {
@@ -155,6 +157,15 @@ function send<P extends Process<Actor>>(pid: P, message: Message<P['actor']>) {
       message,
     });
   }
+}
+
+function send<
+  P extends Process<Actor>,
+  M extends Message<P['actor']>,
+  S extends M[0],
+  D extends { [K in M as K[0]]: K[1] }[S]
+>(pid: P, message: S, data: D) {
+  return sendM(pid, [message, data]);
 }
 
 function exit(pid: Process<Actor>) {
@@ -217,6 +228,7 @@ export {
   pidCount,
   process,
   send,
+  sendM,
   systemId,
   updateSystem,
   spawn,
