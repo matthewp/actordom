@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.26
+
+### Patch Changes
+
+- 22ca15e: Multi-argument send
+
 ## 0.0.25
 
 ### Patch Changes
