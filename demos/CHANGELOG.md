@@ -1,5 +1,13 @@
 # demos
 
+## 1.0.15
+
+### Patch Changes
+
+- Updated dependencies [751e40f]
+- Updated dependencies [9989b75]
+  - actordom@0.0.27
+
 ## 1.0.14
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # actordom
 
+## 0.0.27
+
+### Patch Changes
+
+- 751e40f: Allow regular functional components
+- 9989b75: Make main point to main even in Node.js
+
 ## 0.0.26
 
 ### Patch Changes
