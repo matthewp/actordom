@@ -53,6 +53,7 @@ export namespace JSXInternal {
 	}
 
 	export type ElementType<A extends ViewActor, P = any> =
+		((props?: any) => Element)
 		| {
 				[K in keyof IntrinsicElements<A>]: P extends IntrinsicElements<A>[K]
 					? K
