@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.28
+
+### Patch Changes
+
+- 50227bd: Use addEventListener for events
+
 ## 0.0.27
 
 ### Patch Changes
