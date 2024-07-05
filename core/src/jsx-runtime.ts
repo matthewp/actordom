@@ -23,10 +23,9 @@ function pushChild(tree: Tree, child: any) {
   if(child != null && !Array.isArray(child)) {
     if(isPID(child)) {
       tree.push([5, child]);
-      return;
+    } else if(child !== false) {
+      tree.push([4, child + '']);
     }
-
-    tree.push([4, child + '']);
     return;
   }
 
@@ -36,6 +35,9 @@ function pushChild(tree: Tree, child: any) {
       tree.push([5, item]);
       continue;
     } else if(isTreeSymbol(item)) {
+      continue;
+    } else if(isTree(item)) {
+      pushChild(tree, item);
       continue;
     }
     tree.push(item);
