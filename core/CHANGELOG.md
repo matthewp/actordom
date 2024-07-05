@@ -1,5 +1,12 @@
 # actordom
 
+## 0.0.29
+
+### Patch Changes
+
+- e1bb571: Use addEventListener for events
+- e1bb571: Handle more complex JSX
+
 ## 0.0.28
 
 ### Patch Changes
