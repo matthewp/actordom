@@ -67,11 +67,13 @@ function eventHandler(pid: Process<Actor>, message: string) {
 
 // TODO clean this all up
 function addEventCallback(pid: Process<Actor>, element: Element, message: string, eventName: string) {
-  if((element as any)[eventName]) {
-    return (element as any)[eventName];
+  let eventSym = Symbol.for(`ad.${eventName}`);
+  if((element as any)[eventSym]) {
+    return (element as any)[eventSym];
   }
   let handler = eventHandler(pid, message);
-  (element as any)[eventName] = handler;
+  (element as any)[eventSym] = handler;
+  element.addEventListener(eventName.slice(2), handler);
   return handler;
 }
 
