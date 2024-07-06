@@ -1,19 +1,20 @@
-import type { AnyRouter } from './remote.js';
+import type { ViewRouter } from './remote.js';
 import { mount } from './render.js';
 import { spawn } from './system.js';
 
-function checkForActor(router: AnyRouter, el: HTMLElement) {
+function checkForActor(router: ViewRouter, el: HTMLElement) {
   let actorName = el.dataset.actor;
   if(actorName) {
     let ActorType = router['_routes'][actorName];
     if(ActorType) {
       let args = JSON.parse(el.dataset.args!) as string;
-      spawn(ActorType, ...args);
+      let pid = spawn(ActorType, ...args);
+      mount(pid, el);
     }
   }
 }
 
-function listenForIslands(router: AnyRouter) {
+function listenForIslands(router: ViewRouter) {
   let checkForActors = (nodes: NodeList) => {
     nodes.forEach(node => {
       if(node.nodeType === 1) {

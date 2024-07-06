@@ -29,6 +29,9 @@ type MessageName<A extends Actor> = Message<A>[0];
 interface ViewActor extends Actor {
   view(children?: any): JSXInternal.Element;
 }
+interface ViewActorType {
+  new(...args: any[]): ViewActor;
+}
 
 interface IActorWithMessage<M extends [string, any]> extends Actor {
   receive(message: M): void;
@@ -43,6 +46,7 @@ export {
   type ActorWithMessage,
   type ProcessWithMessage,
   type ViewActor,
+  type ViewActorType,
   type Message,
   type MessageName,
 };

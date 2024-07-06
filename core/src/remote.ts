@@ -1,4 +1,4 @@
-import type { ActorType } from './actor.js';
+import type { ActorType, ViewActorType } from './actor.js';
 import type { ConnectionMessage } from './messages.js';
 import { addSystemAlias, exit, sendM, spawnWithPid } from './system.js';
 import { updateProcess } from './update.js';
@@ -15,6 +15,7 @@ type Router<I extends Routes<Record<string, ActorType>>> = MessageHandler & {
 }
 
 type AnyRouter = Router<Routes<Record<string, ActorType>>>;
+type ViewRouter = Router<Routes<Record<string, ViewActorType>>>;
 
 function router<I extends Record<string, ActorType>>(items: I): Router<I> {
   let router = createRemoteHandler(items) as Router<I>;
@@ -53,6 +54,7 @@ function createRemoteHandler(items: Record<string, ActorType>) {
 export {
   type AnyRouter,
   type Router,
+  type ViewRouter,
 
   router
 }
