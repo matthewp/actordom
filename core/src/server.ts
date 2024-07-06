@@ -74,7 +74,7 @@ function clientSide(onMessage: MessageHandler, port: MessagePort) {
 type BrowserEvent = { data: OverTheWireConnectionMessage };
 
 function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler, onServerMessage: OnServerMessage) {
-  let channel: MessageChannel;
+  let channel: MessageChannel | null = null;
   let alias: UUID;
   return {
     handle(ev: BrowserEvent, tracker: AsyncTracker, requestId: UUID) {
@@ -94,14 +94,14 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler, o
         }
         default: {
           tracker.wait();
-          sendMessage(channel.port2, ev.data);
+          sendMessage(channel!.port2, ev.data);
           break;
         }
       }
     },
     close() {
-      channel.port1.close();
-      channel.port2.close();
+      channel?.port1.close();
+      channel?.port2.close();
       removeSystemAlias(alias);
     }
   }
