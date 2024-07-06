@@ -1,6 +1,6 @@
 import type { ActorType, ProcessWithMessage } from './actor.js';
 import type { Process, UUID } from './pid.js';
-import type { AnyRouter } from './remote.js';
+import { router, type AnyRouter } from './remote.js';
 import { addSystem, addSystemAlias, sendM, spawn } from './system.js';
 
 type Postable = {
@@ -129,10 +129,21 @@ function createServerConnection<R extends AnyRouter>(url: string | URL): ServerC
   return conn;
 }
 
+const island = <R extends AnyRouter>() => <
+  K extends keyof R['_routes'],
+  A extends R['_routes'][K]
+>(name: K, ...args: ConstructorParameters<A>) => {
+  return {
+    'data-actor': name,
+    'data-args': JSON.stringify(args)
+  };
+};
+
 export {
   type Postable,
 
   createServerConnection,
   createWorkerConnection,
+  island,
   RemoteActor
 }

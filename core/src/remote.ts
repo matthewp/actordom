@@ -17,8 +17,9 @@ type Router<I extends Routes<Record<string, ActorType>>> = MessageHandler & {
 type AnyRouter = Router<Routes<Record<string, ActorType>>>;
 
 function router<I extends Record<string, ActorType>>(items: I): Router<I> {
-  let router = createRemoteHandler(items);
-  return router as Router<I>;
+  let router = createRemoteHandler(items) as Router<I>;
+  router._routes = items;
+  return router;
 }
 
 function createRemoteHandler(items: Record<string, ActorType>) {
