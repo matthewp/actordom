@@ -93,8 +93,10 @@ function createBrowserConnection(router: AnyRouter, onMessage: MessageHandler, o
           break;
         }
         default: {
-          tracker.wait();
-          sendMessage(channel!.port2, ev.data);
+          if(channel) {
+            tracker.wait();
+            sendMessage(channel.port2, ev.data);
+          }
           break;
         }
       }

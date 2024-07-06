@@ -1,16 +1,18 @@
-import type { ActorType } from './actor.js';
-import type { UUID } from './pid.js';
+import type { ActorType, ProcessWithMessage } from './actor.js';
+import type { Process, UUID } from './pid.js';
 import type { AnyRouter } from './remote.js';
-import { addSystem, addSystemAlias, sendM } from './system.js';
+import { addSystem, addSystemAlias, sendM, spawn } from './system.js';
 
 type Postable = {
   postMessage(message: any, options?: { transfer?: Transferable[] }): void;
 };
 
 type Connection<R extends AnyRouter> = {
-  //[k in keyof I]: I[k]
   [k in keyof R['_routes']]: R['_routes'][k]
-  //expose<N extends keyof R = keyof R>(name: N): RemoteActor<R, N>;
+};
+
+type ServerConnection<R extends AnyRouter> = Omit<Connection<R>, 'supervisor'> & {
+  supervisor: Process<ServerSupervisor>;
 };
 
 class RemoteActor<A extends ActorType = ActorType> {
@@ -18,9 +20,36 @@ class RemoteActor<A extends ActorType = ActorType> {
   constructor(public system: UUID, public name: string) {}
 }
 
+type StatusMessage = ['server-status', boolean];
+
+type supervisorMailbox = StatusMessage |
+  ['subscribe', ProcessWithMessage<StatusMessage>] |
+  ['unsubscribe', ProcessWithMessage<StatusMessage>];
+class ServerSupervisor {
+  subs = new Set<ProcessWithMessage<StatusMessage>>();
+  receive([name, data]: supervisorMailbox) {
+    switch(name) {
+      case 'subscribe': {
+        this.subs.add(data);
+        break;
+      }
+      case 'unsubscribe': {
+        this.subs.delete(data);
+        break;
+      }
+      case 'server-status': {
+        for(let sub of this.subs) {
+          sendM(sub, ['server-status', data]);
+        }
+      }
+    }
+  }
+}
+
 class ServerTarget implements Postable {
   opened = false;
   queued: any[] = [];
+  supervisor = spawn(ServerSupervisor);
   constructor(public path: string){
     const events = new EventSource(path + '/events');
     events.onopen = () => {
@@ -28,6 +57,7 @@ class ServerTarget implements Postable {
       if(this.queued) {
         this.post(this.queued);
       }
+      sendM(this.supervisor, ['server-status', true]);
     };
     events.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -40,6 +70,12 @@ class ServerTarget implements Postable {
           addSystemAlias(message.system, message.alias);
           break;
         }
+      }
+    };
+    events.onerror = () => {
+      if(this.opened) {
+        this.opened = false;
+        sendM(this.supervisor, ['server-status', false]);
       }
     };
   }
@@ -77,15 +113,20 @@ class ServerTarget implements Postable {
 function createWorkerConnection<R extends AnyRouter>(worker: Postable): Connection<R> {
   let id = addSystem(worker);
   return new Proxy({}, {
-    get(_t, key: string) {
+    get(target: any, key: string) {
+      if(key in target) {
+        return target[key];
+      }
       return new RemoteActor<any>(id, key);
     }
   }) as any;
 }
 
-function createServerConnection<R extends AnyRouter>(url: string | URL): Connection<R> {
+function createServerConnection<R extends AnyRouter>(url: string | URL): ServerConnection<R> {
   let target = new ServerTarget(url.toString());
-  return createWorkerConnection(target);
+  let conn = createWorkerConnection(target) as ServerConnection<R>;
+  conn.supervisor = target.supervisor;
+  return conn;
 }
 
 export {
