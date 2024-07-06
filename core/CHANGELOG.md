@@ -1,5 +1,12 @@
 # actordom
 
+## 0.0.30
+
+### Patch Changes
+
+- ce3640a: Protect against channel not being created
+- 20e9bf4: Create the ServerSupervisor
+
 ## 0.0.29
 
 ### Patch Changes
