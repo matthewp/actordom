@@ -1,33 +1,49 @@
 import type { ActorType, ViewActorType } from './actor.js';
+import { isPlainFunction } from './common.js';
 import type { ConnectionMessage } from './messages.js';
 import { addSystemAlias, exit, sendM, spawnWithPid } from './system.js';
 import { updateProcess } from './update.js';
 
-type Routes<I extends Record<string, ActorType>> = {
-  [k in keyof I]: I[k]
-}
+type AsyncActorTypeFn<A extends ActorType = ActorType> = () => Promise<A>;
+
+type RouteRecord<A extends ActorType = ActorType> = Record<string, A | AsyncActorTypeFn<A>>; 
+
+type Routes<I extends RouteRecord> = {
+  [k in keyof I]: I[k];
+};
 
 type MessageHandler = (message: ConnectionMessage) => void;
 
-type Router<I extends Routes<Record<string, ActorType>>> = MessageHandler & {
-  /** @internal */
-  _routes: I;
+type Router<I extends Routes<RouteRecord>> = MessageHandler & {
+  routes: I;
+};
+
+type AnyRouter = Router<Routes<RouteRecord>>;
+type ViewRouter = Router<Routes<RouteRecord<ViewActorType>>>;
+
+class Test {
+  receive(){}
 }
 
-type AnyRouter = Router<Routes<Record<string, ActorType>>>;
-type ViewRouter = Router<Routes<Record<string, ViewActorType>>>;
+router({
+  Test: () => Promise.resolve(Test)
+})
 
-function router<I extends Record<string, ActorType>>(items: I): Router<I> {
+function router<I extends RouteRecord>(items: I): Router<I> {
   let router = createRemoteHandler(items) as Router<I>;
-  router._routes = items;
+  router.routes = items;
   return router;
 }
 
-function createRemoteHandler(items: Record<string, ActorType>) {
+function createRemoteHandler(items: RouteRecord) {
   return function(message: ConnectionMessage) {
     switch(message.type) {
       case 'spawn': {
         let Item = items[message.name];
+        if(isPlainFunction<AsyncActorTypeFn>(Item)) {
+          Item().then(ActorType => spawnWithPid(ActorType, message.pid, ...message.args));
+          return;
+        }
         spawnWithPid(Item, message.pid, ...message.args); //todo args
         break;
       }
@@ -55,6 +71,5 @@ export {
   type AnyRouter,
   type Router,
   type ViewRouter,
-
   router
 }

@@ -8,7 +8,7 @@ type Postable = {
 };
 
 type Connection<R extends AnyRouter> = {
-  [k in keyof R['_routes']]: R['_routes'][k]
+  [k in keyof R['routes']]: R['routes'][k]
 };
 
 type ServerConnection<R extends AnyRouter> = Omit<Connection<R>, 'supervisor'> & {
@@ -130,9 +130,10 @@ function createServerConnection<R extends AnyRouter>(url: string | URL): ServerC
 }
 
 const island = <R extends AnyRouter>() => <
-  K extends keyof R['_routes'],
-  A extends R['_routes'][K]
->(name: K, ...args: ConstructorParameters<A>) => {
+  K extends keyof R['routes'],
+  A extends R['routes'][K],
+  AA extends A extends () => Promise<ActorType> ? Awaited<ReturnType<A>> : A
+>(name: K, ...args: ConstructorParameters<AA>) => {
   return {
     'data-actor': name,
     'data-args': JSON.stringify(args)
@@ -140,6 +141,7 @@ const island = <R extends AnyRouter>() => <
 };
 
 export {
+  type Connection,
   type Postable,
 
   createServerConnection,

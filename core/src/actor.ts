@@ -3,11 +3,7 @@ import type { _renderPid, _slotPid } from './update.js';
 import type { Process } from './pid.js';
 import type { _pid } from './system.js';
 import type { RenderActor } from './render.js';
-
-// https://www.totaltypescript.com/concepts/the-prettify-helper
-type Prettify<T> = {
-	[K in keyof T]: T[K];
-} & {};
+import type { Prettify } from './common.js';
 
 interface Actor {
   receive(message: [string, any]): void;
