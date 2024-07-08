@@ -7,10 +7,11 @@ import { spawn } from './system.js';
 function mountOnto(Actor: ViewActorType, args: any[], el: HTMLElement) {
   let pid = spawn(Actor, ...args);
   mount(pid, el);
+  el.dataset.pid = pid;
 }
 function checkForActor(router: ViewRouter, el: HTMLElement) {
   let actorName = el.dataset.actor;
-  if(actorName) {
+  if(actorName && !el.dataset.pid) {
     let ActorType = router['routes'][actorName];
     if(ActorType) {
       let args = JSON.parse(el.dataset.args!) as string[];

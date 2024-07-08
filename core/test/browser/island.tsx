@@ -38,6 +38,7 @@ QUnit.module('islands', t => {
     assert.deepEqual(JSON.parse(parent.dataset.args!), [2, 'foo']);
 
     dfd.promise.then(() => {
+      assert.ok(parent.dataset.pid, 'has a pid');
       let island = parent.firstElementChild as HTMLElement;
       assert.equal(island.textContent, '2-foo');
       stopListening();
