@@ -1,5 +1,13 @@
 # actordom
 
+## 0.0.32
+
+### Patch Changes
+
+- 0565bf5: Escape inner text and attributes
+- 70e6e8a: Only accept a ViewRouter
+- 380e142: Basic island capabilities
+
 ## 0.0.30
 
 ### Patch Changes

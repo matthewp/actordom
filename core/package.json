@@ -1,6 +1,6 @@
 {
   "name": "actordom",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Actors",
   "type": "module",
   "exports": {
