@@ -1,5 +1,12 @@
 # actordom
 
+## 0.0.31
+
+### Patch Changes
+
+- 70e6e8a: Only accept a ViewRouter
+- 380e142: Basic island capabilities
+
 ## 0.0.30
 
 ### Patch Changes
