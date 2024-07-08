@@ -27,3 +27,21 @@ test('renderToString actor', t => {
   let html = renderToString(dom);
   assert.equal(html, '<main><p>works</p></main>');
 });
+
+test('attributes are escaped', t => {
+  let dom = jsx('main', {
+    'data-foo': JSON.stringify(['one', 'two'])
+  });
+  let html = renderToString(dom);
+  let expected = 'data-foo="[&quot;one&quot;,&quot;two&quot;]"';
+  assert.ok(html.includes(expected));
+});
+
+test('text is escaped', t => {
+  let dom = jsx('main', {
+    children: '<div>evil</div>'
+  });
+  let html = renderToString(dom);
+  let expected = '&lt;div&gt;evil&lt;/div&gt';
+  assert.ok(html.includes(expected));
+});

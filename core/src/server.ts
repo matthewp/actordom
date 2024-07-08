@@ -11,6 +11,7 @@ import type { JSX } from 'actordom/jsx-runtime';
 import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias, inThisSystem, getActorFromPID } from './system.js';
 import { update } from './update.js';
+import { escape } from 'html-escaper';
 
 type OverTheWireConnectionMessage = ConnectionMessage & { requestId: UUID; };
 type MessageHandler = (message: OverTheWireConnectionMessage) => void;
@@ -124,7 +125,7 @@ function renderToString(tree: Tree | JSX.Element): string {
         while (i < attrs.length) {
           let attrName = attrs[i++];
           let attrValue = attrs[i++];
-          builder += ` ${attrName}="${attrValue}"`
+          builder += ` ${escape(attrName)}="${escape(attrValue)}"`
         }
         builder += `>`;
         break;
@@ -138,7 +139,7 @@ function renderToString(tree: Tree | JSX.Element): string {
       }
       case 4: {
         let text = instruction[1];
-        builder += text;
+        builder += escape(text);
         break;
       }
       case 5: {
