@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.33
+
+### Patch Changes
+
+- de33f2d: Implement escaping
+
 ## 0.0.32
 
 ### Patch Changes
