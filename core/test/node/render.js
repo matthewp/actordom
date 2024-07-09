@@ -1,5 +1,5 @@
 import { test } from 'node:test';
-import { spawn } from 'actordom';
+import { html, spawn } from 'actordom';
 import { renderToString } from 'actordom/node';
 import { jsx } from 'actordom/jsx-runtime';
 import assert from 'assert';
@@ -44,4 +44,14 @@ test('text is escaped', t => {
   let html = renderToString(dom);
   let expected = '&lt;div&gt;evil&lt;/div&gt';
   assert.ok(html.includes(expected));
+});
+
+test('html helper prevents escaping', t => {
+  let dom = jsx('main', {
+    children: html('<div>good</div>')
+  });
+  let out = renderToString(dom);
+  console.log("HTML", out);
+  let expected = '<div>good</div>';
+  assert.ok(out.includes(expected));
 });

@@ -143,6 +143,7 @@ const island = <R extends AnyRouter>() => <
 export {
   type Connection,
   type Postable,
+  type ServerConnection,
 
   createServerConnection,
   createWorkerConnection,

@@ -12,6 +12,7 @@ import { type AnyRouter, router } from './remote.js';
 import { process, send, spawn, addSelfAlias, updateSystem, systemId, removeSystemAlias, inThisSystem, getActorFromPID } from './system.js';
 import { update } from './update.js';
 import { escape } from 'html-escaper';
+import { isBlessedString } from './escape.js';
 
 type OverTheWireConnectionMessage = ConnectionMessage & { requestId: UUID; };
 type MessageHandler = (message: OverTheWireConnectionMessage) => void;
@@ -139,7 +140,11 @@ function renderToString(tree: Tree | JSX.Element): string {
       }
       case 4: {
         let text = instruction[1];
-        builder += escape(text);
+        if(isBlessedString(text)) {
+          builder += text[1];
+        } else {
+          builder += escape(text)
+        }
         break;
       }
       case 5: {

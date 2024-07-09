@@ -1,5 +1,6 @@
 import { type Tree, isTree, isTreeSymbol, createTree } from './tree.js';
 import { isPID } from './pid.js';
+import { isBlessedString } from './escape.js';
 
 const Fragment = (_p: any, children: any) => {
   let tree = createTree();
@@ -27,6 +28,9 @@ function pushChild(tree: Tree, child: any) {
       tree.push([4, child + '']);
     }
     return;
+  } else if(isBlessedString(child)) {
+    tree.push([4, child]);
+    return;
   }
 
   while(child && child.length) {
@@ -46,7 +50,11 @@ function pushChild(tree: Tree, child: any) {
 
 function pushChildren(tree: Tree, children: any) {
   if(Array.isArray(children)) {
-    children.forEach(child => pushChild(tree, child));
+    if(isBlessedString(children)) {
+      pushChild(tree, children);
+    } else {
+      children.forEach(child => pushChild(tree, child)); 
+    }
   } else if(typeof children === 'object') {
     pushChild(tree, children);
   }
