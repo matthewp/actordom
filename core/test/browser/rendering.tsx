@@ -1,5 +1,5 @@
 import QUnit from 'qunit';
-import { send, spawn, update } from 'actordom';
+import { html, send, spawn, update } from 'actordom';
 import { mount } from 'actordom/dom';
 
 QUnit.module('rendering', () => {
@@ -117,5 +117,22 @@ QUnit.module('rendering', () => {
 
     afterEl = threeEl?.nextElementSibling;
     assert.ok(afterEl?.classList.contains('after'), 'after span left alone');
+  });
+
+  QUnit.test('Can render raw html via html() helper', assert => {
+    class Test {
+      receive(){}
+      view() {
+        return (
+          <div>{html('<span id="inner">inner <span id="more">more inner</span></span>')}</div>
+        );
+      }
+    }
+    let host = document.createElement('div');
+    mount(spawn(Test), host);
+    let el = host.querySelector('#inner');
+    assert.ok(el, 'got an element');
+    el = host.querySelector('#more');
+    assert.ok(el, 'got inner inner');
   });
 });

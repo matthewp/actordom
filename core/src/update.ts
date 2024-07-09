@@ -8,7 +8,6 @@ const _root = Symbol.for('ad.root');
 const _renderPid = Symbol.for('ad.render');
 const _slotPid = Symbol.for('ad.slot');
 
-// TODO get rid of the second arg, i hate it
 function update(actor: ViewActor) {
   render(actor, undefined);
 }

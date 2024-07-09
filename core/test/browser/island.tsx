@@ -5,13 +5,14 @@ import { listenForIslands, mount } from 'actordom/dom';
 QUnit.module('islands', t => {
   QUnit.test('are created', assert => {
     let done = assert.async();
-    let dfd = (Promise as any).withResolvers();
+    let resolve: (value: unknown) => void;
+    let promise = new Promise(_resolve => resolve = _resolve);
     
     class Test {
       constructor(public a: number, public b: string){}
       receive([]) {}
       view() {
-        dfd.resolve();
+        resolve(void 0);
         return <div id="test">{this.a}-{this.b}</div>
       }
     }
@@ -37,7 +38,7 @@ QUnit.module('islands', t => {
     assert.equal(parent.dataset.actor, 'Test');
     assert.deepEqual(JSON.parse(parent.dataset.args!), [2, 'foo']);
 
-    dfd.promise.then(() => {
+    promise.then(() => {
       assert.ok(parent.dataset.pid, 'has a pid');
       let island = parent.firstElementChild as HTMLElement;
       assert.equal(island.textContent, '2-foo');

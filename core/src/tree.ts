@@ -1,3 +1,5 @@
+import type { BlessedString } from './escape.js';
+
 const _tree = '~ad.tree~' as const;
 type TreeSymbol = typeof _tree;
 
@@ -13,7 +15,7 @@ function isTree(obj: unknown): obj is Tree {
 }
 
 type OpenInstruction = [1, string, any, Array<string>];
-type TextInstruction = [4, string];
+type TextInstruction = [4, string | BlessedString];
 type CloseInstruction = [2, string];
 type ActorInstruction = [5, any] | [5, any, Tree];
 

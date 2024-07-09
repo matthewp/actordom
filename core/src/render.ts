@@ -4,6 +4,7 @@ import {
   currentElement,
   elementOpen,
   elementClose,
+  skip,
   skipNode,
   symbols,
   text,
@@ -19,6 +20,7 @@ import type { JSXInternal } from '../types/jsx.js';
 import { updateProcess, _renderPid, _root, update } from './update.js';
 import { spawn, send, inThisSystem, sendM } from './system.js';
 import { isPID } from './pid.js';
+import { isBlessedString } from './escape.js';
 
 var eventAttrExp = /^on[a-z]/;
 
@@ -120,9 +122,17 @@ function inner(root: Element | Range, bc: any, actor: RenderActor, pid: Process<
       case 2:
         elementClose(n[1]);
         break;
-      case 4:
-        text(n[1]);
+      case 4: {
+        let t = n[1];
+        if(isBlessedString(t)) {
+          let el = currentElement();
+          el.innerHTML = t[1];
+          skipNode();
+        } else {
+           text(n[1] + ''); 
+        }
         break;
+      }
       case 5: {
         let pid = n[1];
         let pointer = currentPointer();
