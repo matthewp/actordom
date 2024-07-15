@@ -10,6 +10,7 @@ import type { Process } from './pid.js';
 import { update } from './update.js';
 import { exit, process, send, spawn } from './system.js';
 import { type Connection, type ServerConnection, createServerConnection, createWorkerConnection, island } from './connection.js';
+import { register, registered, whereis } from './register.js';
 import { router, listen } from './worker.js';
 import { unescape } from './escape.js';
 
@@ -31,9 +32,12 @@ export {
   island,
   listen,
   process,
+  register,
+  registered,
   router,
   send,
   spawn,
   unescape,
-  update
+  update,
+  whereis,
 };
