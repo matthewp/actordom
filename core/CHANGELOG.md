@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.34
+
+### Patch Changes
+
+- eb52d7e: Add the auth export
+
 ## 0.0.33
 
 ### Patch Changes
