@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.35
+
+### Patch Changes
+
+- a718e03: Remove user from auth route
+
 ## 0.0.34
 
 ### Patch Changes
