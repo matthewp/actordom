@@ -10,6 +10,8 @@ import {
 import { type AuthMailbox, createAuthRelay } from 'actordom/auth';
 import { expectTypeOf } from 'expect-type';
 
+export type Tail<T extends any[]> = T extends [infer _A, ...infer R] ? R : never;
+
 test('errors when passing an Actor that does not take the user type', () => {
   type User = { name: string; };
 
@@ -27,7 +29,7 @@ test('errors when passing an Actor that does not take the user type', () => {
     Test
   });
 
-  type SpawnParams = Parameters<typeof spawn<typeof routes.Test, typeof routes.Test>>;
-  expectTypeOf<SpawnParams>().toEqualTypeOf<[typeof Test, User, number]>();
-  expectTypeOf(routes.Test).constructorParameters.toEqualTypeOf<[User, number]>()
+  type SpawnParams = Tail<Parameters<typeof spawn<typeof routes.Test, typeof routes.Test>>>;
+  expectTypeOf<SpawnParams>().toEqualTypeOf<[number]>();
+  expectTypeOf(routes.Test).constructorParameters.toEqualTypeOf<[number]>()
 });
