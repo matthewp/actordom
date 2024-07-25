@@ -2,6 +2,7 @@ import type { Actor, ActorType, ActorWithMessage, ProcessWithMessage } from './a
 import type { Process } from './pid.js';
 import { process, send, spawn } from './system.js';
 import { getRequest } from './node.js';
+import type { Tail } from './common.js';
 
 class PopableMap<T> extends Map<string, T> {
   add(ref: string, value: T) {
@@ -97,10 +98,19 @@ function requestHandler<U>(AuthActor: ActorType, TargetActor: ActorTypeWithAuthC
   }
 }
 
+type AuthRoutes<
+  U,
+  R extends Record<string, ActorTypeWithAuthConstructor<U>>
+> = {
+  [K in keyof R]: R[K] & {
+    new(...args: Tail<ConstructorParameters<R[K]>>): InstanceType<R[K]>;
+  };
+};
+
 function createAuthRelay<U>(AuthActor: ActorType) {
   return function relay<
     const R extends Record<string, ActorTypeWithAuthConstructor<U>> = Record<string, ActorTypeWithAuthConstructor<U>>
-    >(routes: R): R {
+    >(routes: R): AuthRoutes<U, R> {
     const out = {} as any;
     for(let [name, RelayingActor] of Object.entries(routes)) {
       (out as any)[name] = requestHandler(AuthActor, RelayingActor);
