@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "astro": "^4.9.1",
-    "@astrojs/check": "^0.7.0",
     "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "actordom": "^0.0.35",
+    "actordom-astro": "^0.1.0"
   }
 }

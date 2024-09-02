@@ -5,6 +5,7 @@
     "changeset": "changeset"
   },
   "workspaces": [
+    "astro",
     "core",
     "demos",
     "site"

@@ -21,9 +21,21 @@
       "tyepscript": "./src/node.ts",
       "default": "./dist/node.js"
     },
+    "./server": {
+      "typescript": "./src/server.ts",
+      "default": "./dist/server.js"
+    },
     "./jsx-runtime": {
       "types": "./types/index.d.ts",
       "import": "./dist/jsx-runtime.js"
+    },
+    "./jsx-dev-runtime": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/jsx-runtime.js"
+    },
+    "./sse": {
+      "typescript": "./src/see.ts",
+      "default": "./dist/sse.js"
     }
   },
   "files": [

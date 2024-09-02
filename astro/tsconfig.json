@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["src"],
+  "exclude": ["dist/**/*"],
+  "compilerOptions": {
+    "allowJs": false,
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "src",
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "actordom"    
+  }
+}

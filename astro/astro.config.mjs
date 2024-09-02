@@ -1,10 +1,10 @@
 import { defineConfig } from 'astro/config';
 import actordom from 'actordom-astro';
 
-// https://astro.build/config
 export default defineConfig({
+  srcDir: 'demo',
   integrations: [actordom()],
   devToolbar: {
-    enabled: false
-  }
+    enabled: false,
+  },
 });

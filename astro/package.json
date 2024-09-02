@@ -1,0 +1,49 @@
+{
+  "name": "actordom-astro",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "build": "wireit",
+    "dev": "astro dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    ".": {
+      "typescript": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "typescript": "./src/client.ts",
+      "default": "./dist/client.js"
+    },
+    "./server": {
+      "typescript": "./src/server.ts",
+      "default": "./dist/server.js"
+    }
+  },
+  "keywords": [],
+  "author": "Matthew Phillips <matthew@matthewphillips.info>",
+  "license": "BSD-2-Clause",
+  "wireit": {
+    "build": {
+      "command": "tsc -p tsconfig.json",
+      "files": [
+        "src/**/*"
+      ],
+      "output": [
+        "dist"
+      ]
+    }
+  },
+  "devDependencies": {
+    "astro": "^4.12.2",
+    "vite": "^5.3.5"
+  },
+  "peerDependencies": {
+    "actordom": "^0.0.35"
+  },
+  "astro": {
+    "external": true
+  }
+}

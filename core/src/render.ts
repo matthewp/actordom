@@ -235,13 +235,8 @@ function fromRoot(root: Element | Range) {
   return spawn(RenderActor, root);
 }
 
-function mount(actorOrProcess: ViewActor | Process<ViewActor>, root: Element) {
-  if(isPID(actorOrProcess)) {
-    updateProcess(actorOrProcess, fromRoot(root), undefined);
-  } else {
-    actorOrProcess[_renderPid] = fromRoot(root);
-    update(actorOrProcess);
-  }
+function mount(pid: Process<ViewActor>, root: Element) {
+  updateProcess(pid, fromRoot(root), undefined);
 }
 
 export { type RenderActor, mount, fromRoot };
