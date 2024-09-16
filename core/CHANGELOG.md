@@ -1,5 +1,11 @@
 # actordom
 
+## 0.0.36
+
+### Patch Changes
+
+- 68e208f: Moves test runner to devDeps
+
 ## 0.0.35
 
 ### Patch Changes
